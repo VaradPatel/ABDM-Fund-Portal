@@ -20,6 +20,10 @@ public class GrantRequestService implements IGrantRequests {
  @Autowired
     IstatesRepository statesRepository;
  @Autowired
+ IRolesRepository roles;
+ @Autowired
+ IDashboardRepo iDashboardRepo;
+ @Autowired
  UserRepo userRepo;
     @Autowired
     ImplementationTypesRepo implementationTypes ;
@@ -33,11 +37,20 @@ public class GrantRequestService implements IGrantRequests {
     @Override
     public GrantRequestInputDto saveGrantRequest(GrantRequestInputDto grantRequestInputDTO)
     {
-        GrantRequests grantRequest = mapToEntity(grantRequestInputDTO);
-        GrantRequests savedGrantRequest = iGrantRequestsRepo.save(grantRequest);
+        try {
+            GrantRequests grantRequest = mapToEntity(grantRequestInputDTO);
+            GrantRequests savedGrantRequest = iGrantRequestsRepo.save(grantRequest);
+            //saveToDashboard
+            saveToDashboard(savedGrantRequest);
 
+            //saveToWorkFlow
+            return  grantRequestInputDTO;
+        }
+        catch(Exception e)
+        {
+            throw new RuntimeException("Not able to process your request");
+        }
 
-        return  grantRequestInputDTO;
     }
 
     @Override
@@ -72,9 +85,9 @@ public class GrantRequestService implements IGrantRequests {
                 .orElseThrow(() -> new RuntimeException("Implementation Mode not found"));
         StatusDescription statusDescription = iStatusDescription.findById(2)
                 .orElseThrow(() -> new RuntimeException("Cannot find Status"));
-
+String requestId=UUID.randomUUID().toString();
         return GrantRequests.builder()
-                        .requestId(UUID.randomUUID().toString())
+                        .requestId(requestId)
                 .state(state)
                 .user(user)
                 .implementationMode(implementationMode)
@@ -103,6 +116,23 @@ public class GrantRequestService implements IGrantRequests {
                 build();
 
 
+    }
+    public void saveToDashboard(GrantRequests grantRequests )
+    {
+        States state = statesRepository.findById(grantRequests.getState().getId())
+                .orElseThrow(() -> new RuntimeException("State not found"));
+        Roles prev=roles.findById(1).orElseThrow(()->new RuntimeException("Role not found"));
+        Roles curr=roles.findById(2).orElseThrow(()->new RuntimeException("Role not found"));
+
+    Dashboard dashboard= Dashboard.builder()
+                    .requestId(grantRequests.getRequestId())
+        .state(state).previousRole(prev).currentRole(curr).
+
+
+
+
+             build();
+    iDashboardRepo.save(dashboard);
     }
 
 

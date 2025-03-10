@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class GrantRequestInputDto {
+private String requestId;
 
     @NotNull(message = "stateId is mandatory")
     private Integer stateId;
