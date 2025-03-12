@@ -16,7 +16,7 @@ public class ProposalType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    private Integer id;
 
     @Column(name = "name", nullable = false)
     private String name;

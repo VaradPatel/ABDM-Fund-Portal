@@ -26,7 +26,7 @@ public class GrantRequestController {
     @Autowired
     IGrantRequestsRepo iGrantRequestsRepo;
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
         try {
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO);

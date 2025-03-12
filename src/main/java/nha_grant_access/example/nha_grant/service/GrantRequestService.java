@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.service;
 
+import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.AllGrantRequest;
 import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
@@ -7,58 +8,71 @@ import nha_grant_access.example.nha_grant.entity.*;
 import nha_grant_access.example.nha_grant.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class GrantRequestService implements IGrantRequests {
- @Autowired
-    IGrantRequestsRepo iGrantRequestsRepo;
- @Autowired
-    IstatesRepository statesRepository;
- @Autowired
- IRolesRepository roles;
- @Autowired
- IDashboardRepo iDashboardRepo;
- @Autowired
- UserRepo userRepo;
-    @Autowired
-    ImplementationTypesRepo implementationTypes ;
-    @Autowired
-    IProposalTypesRepo iProposalTypesRepo;
-    @Autowired
-    IStatusDescription iStatusDescription;
 
-
+    @Autowired
+    private IGrantRequestsRepo iGrantRequestsRepo;
+    @Autowired
+    IactionRepository iactionRepository;
+    @Autowired
+    private IstatesRepository statesRepository;
+    @Autowired
+    private IWorkFlow iWorkFlow;
+    @Autowired
+    private IRolesRepository roles;
+    @Autowired
+    private IDashboardRepo iDashboardRepo;
+    @Autowired
+    private UserRepo userRepo;
+    @Autowired
+    private ImplementationTypesRepo implementationTypes;
+    @Autowired
+    private IProposalTypesRepo iProposalTypesRepo;
+    @Autowired
+    private IStatusDescription iStatusDescription;
 
     @Override
-    public GrantRequestInputDto saveGrantRequest(GrantRequestInputDto grantRequestInputDTO)
-    {
+    @Transactional
+    public GrantRequestInputDto saveGrantRequest(GrantRequestInputDto dto) {
         try {
-            GrantRequests grantRequest = mapToEntity(grantRequestInputDTO);
-            GrantRequests savedGrantRequest = iGrantRequestsRepo.save(grantRequest);
-            //saveToDashboard
-            saveToDashboard(savedGrantRequest);
+            if (dto.getRequestId() != null) {
+                // Update Existing Request
+                GrantRequests existingRequest = iGrantRequestsRepo.findGrantRequestByRequestId(dto.getRequestId());
+                if (existingRequest == null) {
+                    throw new RuntimeException("Invalid RequestID");
+                }
+                updateExistingGrantRequest(existingRequest, dto);
+                iGrantRequestsRepo.save(existingRequest);
+                log.info("edited the grant_requests " + existingRequest.toString());
 
-            //saveToWorkFlow
-            return  grantRequestInputDTO;
+            } else {
+                // Create New Request
+                GrantRequests newRequest = mapToEntity(dto);
+                GrantRequests savedRequest = iGrantRequestsRepo.save(newRequest);
+                saveToDashboard(savedRequest);
+                log.info("saved the grant_requests " + savedRequest.toString());
+                //save to user dump
+                saveToWorkFlow(savedRequest.getRequestId(),savedRequest.getUser().getId(),1,savedRequest.getProposalType().getId());
+            }
+            return dto;
+        } catch (Exception e) {
+            throw new RuntimeException("Not able to process your request", e);
         }
-        catch(Exception e)
-        {
-            throw new RuntimeException("Not able to process your request");
-        }
-
     }
 
     @Override
     public List<AllGrantRequest> getAllGrantRequest(Integer userId) {
-
-        List<GrantRequests> grantRequests=iGrantRequestsRepo.findAllGrantRequest(userId);
-
-        List<AllGrantRequest> allGrantRequests = grantRequests.stream()
+        return iGrantRequestsRepo.findAllGrantRequest(userId).stream()
                 .map(gr -> AllGrantRequest.builder()
                         .requestId(gr.getRequestId())
                         .dateRequested(gr.getCreatedAt())
@@ -67,31 +81,17 @@ public class GrantRequestService implements IGrantRequests {
                         .requestStatus(Optional.ofNullable(gr.getStatusDescription())
                                 .map(StatusDescription::getDescription)
                                 .orElse(""))
-                        .build()
-                )
-                .toList();
-        return allGrantRequests;
+                        .build())
+                .collect(Collectors.toList());
     }
 
-
     private GrantRequests mapToEntity(GrantRequestInputDto dto) {
-        States state = statesRepository.findById(dto.getStateId())
-                .orElseThrow(() -> new RuntimeException("State not found"));
-        User user = userRepo.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        ProposalType proposalType = iProposalTypesRepo.findById(dto.getProposalTypeId())
-                .orElseThrow(() -> new RuntimeException("Proposal Type not found"));
-        ImplementationTypes implementationMode = implementationTypes.findById(dto.getImplementationModeId())
-                .orElseThrow(() -> new RuntimeException("Implementation Mode not found"));
-        StatusDescription statusDescription = iStatusDescription.findById(2)
-                .orElseThrow(() -> new RuntimeException("Cannot find Status"));
-String requestId=UUID.randomUUID().toString();
         return GrantRequests.builder()
-                        .requestId(requestId)
-                .state(state)
-                .user(user)
-                .implementationMode(implementationMode)
-                .proposalType(proposalType)
+                .requestId(generateUniqueRequestId())
+                .state(getState(dto.getStateId()))
+                .user(getUser(dto.getUserId()))
+                .proposalType(getProposalType(dto.getProposalTypeId()))
+                .implementationMode(getImplementationType(dto.getImplementationModeId()))
                 .insuranceCompany(dto.getInsuranceCompany())
                 .policyStartDate(dto.getPolicyStartDate())
                 .policyEndDate(dto.getPolicyEndDate())
@@ -104,36 +104,119 @@ String requestId=UUID.randomUUID().toString();
                 .tranche(dto.getTranche())
                 .totalBeneficiaryCount(dto.getTotalBeneficiaryCount())
                 .releaseTillDate(dto.getReleaseTillDate())
-                .premium(dto.getPremium())
                 .eSignStatusStateCeo(dto.getESignStatusStateCeo())
-                .maxEligibleGrant(dto.getMaxEligibleGrant())
                 .stateShare(dto.getStateShare())
-                .statusDescription(statusDescription)
-
-
-                                .
-
-                build();
-
-
+                .statusDescription(getDefaultStatus())
+                .build();
     }
-    public void saveToDashboard(GrantRequests grantRequests )
+
+    private void updateExistingGrantRequest(GrantRequests existingRequest, GrantRequestInputDto dto) {
+
+        existingRequest.setState(getState(dto.getStateId()));
+        existingRequest.setUser(getUser(dto.getUserId()));
+        existingRequest.setProposalType(getProposalType(dto.getProposalTypeId()));
+        existingRequest.setImplementationMode(getImplementationType(dto.getImplementationModeId()));
+        existingRequest.setInsuranceCompany(dto.getInsuranceCompany());
+        existingRequest.setPolicyStartDate(dto.getPolicyStartDate());
+        existingRequest.setPolicyEndDate(dto.getPolicyEndDate());
+        existingRequest.setFinancialYear(dto.getFinancialYear());
+        existingRequest.setTranche(dto.getTranche());
+        existingRequest.setPmjayBeneficiaryCount(dto.getPmjayBeneficiaryCount());
+        existingRequest.setTotalBeneficiaryCount(dto.getTotalBeneficiaryCount());
+        existingRequest.setPremium(dto.getPremium());
+        existingRequest.setNhaShare(dto.getNhaShare());
+        existingRequest.setMaxEligibleGrant(dto.getMaxEligibleGrant());
+        existingRequest.setReleaseTillDate(dto.getReleaseTillDate());
+        existingRequest.setRequestedAmount(dto.getRequestedAmount());
+        existingRequest.setReleasedAmount(dto.getReleaseTillDate());
+        existingRequest.setStateShare(dto.getStateShare());
+        existingRequest.setESignStatusStateCeo(dto.getESignStatusStateCeo());
+        existingRequest.setStatusDescription(getDefaultStatus());
+    }
+
+    public void saveToDashboard(GrantRequests grantRequest) {
+        try {
+            Action action = getAction(4);
+            Dashboard dashboard = Dashboard.builder()
+                    .requestId(grantRequest.getRequestId())
+                    .state(getState(grantRequest.getState().getId()))
+                    .previousRole(getRole(1))
+                    .stateCeoStatus(action)
+                    .currentRole(getRole(2))
+                    .build();
+            iDashboardRepo.save(dashboard);
+        }
+        catch(Exception e)
+        {
+            throw new RuntimeException("Error occured while saving to Dashboard" + e.toString());
+        }
+    }
+    public void saveToWorkFlow(String requestId, Integer userId, Integer actionId, Integer proposalType)
     {
-        States state = statesRepository.findById(grantRequests.getState().getId())
-                .orElseThrow(() -> new RuntimeException("State not found"));
-        Roles prev=roles.findById(1).orElseThrow(()->new RuntimeException("Role not found"));
-        Roles curr=roles.findById(2).orElseThrow(()->new RuntimeException("Role not found"));
+        try {
 
-    Dashboard dashboard= Dashboard.builder()
-                    .requestId(grantRequests.getRequestId())
-        .state(state).previousRole(prev).currentRole(curr).
+            WorkFlow workFlow = WorkFlow.builder().
+                    requestId(requestId).
+                    user(getUser(userId)).
+                    action(getAction(actionId)).
+                    proposalType(getProposalType(proposalType)).
+                    build();
+            iWorkFlow.save(workFlow);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Error ocurred while saving to Work Flow Dump " + e.toString());
+        }
 
-
-
-
-             build();
-    iDashboardRepo.save(dashboard);
     }
+
+    // Utility Methods for Fetching Entities Safely
+    private States getState(Integer stateId) {
+        return statesRepository.findById(stateId)
+                .orElseThrow(() -> new RuntimeException("State not found"));
+    }
+
+    private User getUser(Integer userId) {
+        return userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private ProposalType getProposalType(Integer proposalTypeId) {
+        return iProposalTypesRepo.findById(proposalTypeId)
+                .orElseThrow(() -> new RuntimeException("Proposal Type not found"));
+    }
+
+    private ImplementationTypes getImplementationType(Integer implementationModeId) {
+        return implementationTypes.findById(implementationModeId)
+                .orElseThrow(() -> new RuntimeException("Implementation Mode not found"));
+    }
+
+    private StatusDescription getDefaultStatus() {
+        return iStatusDescription.findById(2)
+                .orElseThrow(() -> new RuntimeException("Cannot find Status"));
+    }
+
+    private Roles getRole(Integer roleId) {
+        return roles.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+    }
+    private Action getAction(Integer actionID)
+    {
+        return iactionRepository.findById(actionID)
+                .orElseThrow(() -> new RuntimeException("Action not found"));
+    }
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    private String generateUniqueRequestId() {
+        String requestId;
+        do {
+            int randomNumber = 1000000 + RANDOM.nextInt(9000000); // Generates a 7-digit number
+            requestId = "NHA" + randomNumber;
+        } while (iGrantRequestsRepo.existsByRequestId(requestId)); // Ensure uniqueness
+
+        return requestId;
+    }
+
 
 
 }

@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class GetActiveQuery {
     private String requestId;
-//    private String QueryComment;
-//    private String queryDoc;
+    private String QueryComment;
+    private String queryDoc;
 }
