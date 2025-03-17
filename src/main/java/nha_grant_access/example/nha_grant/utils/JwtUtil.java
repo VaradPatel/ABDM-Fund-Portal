@@ -4,23 +4,31 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@Component
+@Service
 public class JwtUtil {
-    private final String SECRET_KEY = "your_secret_key";
+    private final String SECRET_KEY = "xsdfdfdfdfd"; // Must be Base64 encoded
+
+    private Key getSigningKey() {
+        byte[] keyBytes = Base64.getDecoder().decode(SECRET_KEY);
+        return new SecretKeySpec(keyBytes, "HmacSHA256");
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String extractRoleId(String token) {
-        return extractClaim(token, claims -> claims.get("role_id", String.class));
+    public Integer extractRoleId(String token) {
+        return extractClaim(token, claims -> claims.get("role_id", Integer.class));
     }
 
     public String extractMobile(String token) {
@@ -38,7 +46,7 @@ public class JwtUtil {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(getSigningKey()) // Use getSigningKey() here
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -47,17 +55,18 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String username, String roleId, String mobile, String email) {
+    public String generateToken(String username, Integer roleId, String mobile, String email) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role_id", roleId);
         claims.put("mobile", mobile);
-        claims.put("email",email);
+        claims.put("email", email);
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30 mins expiry
+                .signWith(SignatureAlgorithm.HS256, getSigningKey()) // Use getSigningKey() here
                 .compact();
     }
 

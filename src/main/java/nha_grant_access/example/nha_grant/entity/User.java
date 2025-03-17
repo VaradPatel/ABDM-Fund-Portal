@@ -40,6 +40,9 @@ public class User {
     @Column(name = "is_verified")
     private Boolean isVerified;
 
+    @Column(name="role_id")
+    private Integer roleId;
+
     @Column(name = "approved_by")
     private Integer approvedBy;
 }

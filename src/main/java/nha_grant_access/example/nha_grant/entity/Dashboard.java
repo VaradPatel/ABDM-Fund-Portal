@@ -19,7 +19,7 @@ public class Dashboard {
 
     @ManyToOne
     @JoinColumn(name = "final_flow_status")
-    private Action finalFlowStatus;
+    private StatusDescription finalFlowStatus;
 
     @ManyToOne
     @JoinColumn(name = "state_ceo_status")

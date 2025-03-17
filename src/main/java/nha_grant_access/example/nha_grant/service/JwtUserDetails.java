@@ -21,5 +21,7 @@ public class JwtUserDetails implements UserDetailsService {
                 .password(user.getPassword())
                  // Assign roles dynamically if needed
                 .build();
+
+
     }
 }

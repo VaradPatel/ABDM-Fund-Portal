@@ -106,7 +106,7 @@ public class GrantRequestService implements IGrantRequests {
                 .releaseTillDate(dto.getReleaseTillDate())
                 .eSignStatusStateCeo(dto.getESignStatusStateCeo())
                 .stateShare(dto.getStateShare())
-                .statusDescription(getDefaultStatus())
+                .statusDescription(getDefaultStatus(2))
                 .build();
     }
 
@@ -131,17 +131,19 @@ public class GrantRequestService implements IGrantRequests {
         existingRequest.setReleasedAmount(dto.getReleaseTillDate());
         existingRequest.setStateShare(dto.getStateShare());
         existingRequest.setESignStatusStateCeo(dto.getESignStatusStateCeo());
-        existingRequest.setStatusDescription(getDefaultStatus());
+        existingRequest.setStatusDescription(getDefaultStatus(2));
     }
 
     public void saveToDashboard(GrantRequests grantRequest) {
         try {
             Action action = getAction(4);
+StatusDescription statusDescription=getDefaultStatus(2);
             Dashboard dashboard = Dashboard.builder()
                     .requestId(grantRequest.getRequestId())
                     .state(getState(grantRequest.getState().getId()))
                     .previousRole(getRole(1))
                     .stateCeoStatus(action)
+                    .finalFlowStatus(statusDescription)
                     .currentRole(getRole(2))
                     .build();
             iDashboardRepo.save(dashboard);
@@ -191,8 +193,8 @@ public class GrantRequestService implements IGrantRequests {
                 .orElseThrow(() -> new RuntimeException("Implementation Mode not found"));
     }
 
-    private StatusDescription getDefaultStatus() {
-        return iStatusDescription.findById(2)
+    private StatusDescription getDefaultStatus(Integer id) {
+        return iStatusDescription.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cannot find Status"));
     }
 

@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String username = null;
         String jwt = null;
-        String roleId = null;
+        Integer roleId = null;
         String mobile = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
