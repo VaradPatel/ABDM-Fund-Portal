@@ -35,20 +35,20 @@ public class GrantRequestController {
     @Autowired
     private UserRepo userRepo;
     @PostMapping("/add")
-    public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
         try {
+//
+//            if (token.startsWith("Bearer ")) {
+//                token = token.substring(7);
+//            }
+//
+//            // Extract email from token
+//            String email = jwtUtil.extractUsername(token);
+//            String role= jwtUtil.extractRoleId(token);
 
-            if (token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-
-            // Extract email from token
-            String email = jwtUtil.extractUsername(token);
-            Integer role= jwtUtil.extractRoleId(token);
-
-            User user = userRepo.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-
+//            User user = userRepo.findByEmail(email)
+//                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+//
 
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO);

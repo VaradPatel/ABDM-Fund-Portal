@@ -54,7 +54,7 @@ public class GrantRequests {
     private String financialYear;
 
     @Column(name = "tranche", nullable = false)
-    private Integer tranche;
+    private String tranche;
 
     @Column(name = "pmjay_beneficiary_count", nullable = false)
     private Long pmjayBeneficiaryCount;

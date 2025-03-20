@@ -39,7 +39,7 @@ private String requestId;
     private String financialYear;
 
     @NotNull(message = "tranche is mandatory")
-    private Integer tranche;
+    private String tranche;
 
     @NotNull(message = "pmjayBeneficiaryCount is mandatory")
     private Long pmjayBeneficiaryCount;

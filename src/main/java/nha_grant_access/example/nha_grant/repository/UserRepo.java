@@ -1,11 +1,39 @@
 package nha_grant_access.example.nha_grant.repository;
 
+import jakarta.transaction.Transactional;
 import nha_grant_access.example.nha_grant.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepo extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
+    @Query(value = "SELECT u.id, u.email, u.mobile_number, u.designation, s.name AS state_name, r.name AS role_name " +
+            "FROM users u " +
+            "JOIN user_state_role usr ON u.id = usr.user_id " +
+            "JOIN states s ON usr.state_id = s.id " +  // Explicit join
+            "JOIN roles r ON u.role_id = r.id " +  // Explicit join
+            "WHERE usr.state_id = :stateId " +
+            "AND u.role_id = 1 " +
+            "AND u.is_verified = false",
+            nativeQuery = true)
+
+
+
+    List<Object[]> findUsersRequestByStateId(Integer stateId);
+    @Query(value = "SELECT u.*  FROM users u JOIN user_state_role usr ON u.id = usr.user_id WHERE  u.role_id <> 1 and u.is_verified=false", nativeQuery = true)
+    List<User> findUsersRequestByAdmin();
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.isVerified = :isApproved WHERE u.id = :userId")
+    int updateUserVerificationStatus(Integer userId, Boolean isApproved);
+
+
+
 
 }

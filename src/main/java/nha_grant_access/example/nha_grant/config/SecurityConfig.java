@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 @Configuration
+
 public class SecurityConfig {
     private final JwtUserDetails userDetailsService;
 

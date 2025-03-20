@@ -32,13 +32,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String username = null;
         String jwt = null;
-        Integer roleId = null;
+        String roles = null;
         String mobile = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
             username = jwtUtil.extractUsername(jwt);
-            roleId = jwtUtil.extractRoleId(jwt);
+            roles = jwtUtil.extractRoleId(jwt);
             mobile = jwtUtil.extractMobile(jwt);
         }
 
@@ -51,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 // Log or use roleId and mobile
-                System.out.println("User: " + username + ", Role ID: " + roleId + ", Mobile: " + mobile);
+                System.out.println("User: " + username + ", Role ID: " + roles + ", Mobile: " + mobile);
             }
         }
         chain.doFilter(request, response);
