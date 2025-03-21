@@ -1,10 +1,13 @@
 package nha_grant_access.example.nha_grant.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import nha_grant_access.example.nha_grant.entity.Roles;
 
 import java.util.List;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -13,22 +16,23 @@ import java.util.List;
 @Builder
 public class Signup {
 
-    @NotNull(message="state is mandatory")
+    @NotNull(message="State is mandatory") // ✅ Use @NotNull for non-string fields
     private List<Integer> stateId;
 
-    @NotNull(message = "email is mandatory")
+    @NotBlank(message = "Email is mandatory")
+    @Email(message = "Invalid email format")
     private String email;
 
-    @NotNull(message = "mobile is mandatory")
+    @NotBlank(message = "Mobile number is mandatory")
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid mobile number format")
     private String mobile;
 
-    @NotNull(message = "name is mandatory")
+    @NotBlank(message = "Name is mandatory")
     private String name;
 
-    @NotNull(message = "roles is mandatory")
+    @NotNull(message = "Roles are mandatory") // ✅ Use @NotNull for objects
     private Roles roles;
 
-    @NotNull(message = "designation is mandatory")
+    @NotBlank(message = "Designation is mandatory")
     private String designation;
-
 }

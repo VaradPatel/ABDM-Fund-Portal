@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepo extends JpaRepository<User, Integer> {
+    @Query(value="Select u.* from users u where u.email= :email",nativeQuery = true)
     Optional<User> findByEmail(String email);
     @Query(value = "SELECT u.id, u.email, u.mobile_number, u.designation, s.name AS state_name, r.name AS role_name " +
             "FROM users u " +
@@ -30,8 +31,8 @@ public interface UserRepo extends JpaRepository<User, Integer> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE User u SET u.isVerified = :isApproved WHERE u.id = :userId")
-    int updateUserVerificationStatus(Integer userId, Boolean isApproved);
+    @Query("UPDATE User u SET u.isVerified = :isApproved , u.password = :password WHERE u.id = :userId")
+    int updateUserVerificationStatus(Integer userId, Boolean isApproved ,String password);
 
 
 

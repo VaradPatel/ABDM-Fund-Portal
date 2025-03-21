@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.controllers;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
@@ -34,6 +35,7 @@ public class DashboardController {
     public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId) {
      try
      {
+
          List<Object[]> results=iGrantRequestsRepo.shaFinanceDashboardDetails(userId);
          Object[] result = results.get(0);
          DashboardShaFin dashboardShaFin=DashboardShaFin.builder()
@@ -57,6 +59,7 @@ public class DashboardController {
     @GetMapping("/user-management/{stateId}")
     public ResponseEntity<?> getUserApprovalByStateCeo(@PathVariable("stateId") Integer stateId) {
         try {
+
 
 
             List<Object[]> user = userRepo.findUsersRequestByStateId(stateId);
@@ -87,7 +90,7 @@ public class DashboardController {
 
 
     @PostMapping("/user-approval")
-    public ResponseEntity<?> approveUser(@RequestBody UserApprovalRequest request) {
+    public ResponseEntity<?> approveUser(@Valid @RequestBody UserApprovalRequest request) {
 try
 {
 
@@ -101,7 +104,7 @@ try
 }
 catch (Exception e)
 {
-    log.error("error while updating user approval requets " +e.toString());
+    log.error(" error while updating user approval requests " +e.toString());
     return ResponseEntity.internalServerError().body(new Error("error while updating user approval ", e.toString()));
 }
 

@@ -28,7 +28,7 @@ public class JwtUtil {
     }
 
     public String extractRoleId(String token) {
-        return extractClaim(token, claims -> claims.get("role_id", String.class));
+        return extractClaim(token, claims -> claims.get("roles", String.class));
     }
 
     public String extractMobile(String token) {
@@ -60,6 +60,7 @@ public class JwtUtil {
         claims.put("roles", roles);
         claims.put("mobile", mobile);
         claims.put("email", email);
+
 
         return Jwts.builder()
                 .setClaims(claims)

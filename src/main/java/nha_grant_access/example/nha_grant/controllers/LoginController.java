@@ -3,9 +3,17 @@ package nha_grant_access.example.nha_grant.controllers;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
+import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
-import nha_grant_access.example.nha_grant.dto.Signup;
+import nha_grant_access.example.nha_grant.entity.Roles;
+import nha_grant_access.example.nha_grant.entity.States;
+import nha_grant_access.example.nha_grant.entity.User;
+import nha_grant_access.example.nha_grant.entity.UserStateRole;
+import nha_grant_access.example.nha_grant.repository.IRolesRepository;
+import nha_grant_access.example.nha_grant.repository.IUserStateRoleRepo;
+import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
+import nha_grant_access.example.nha_grant.utils.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,9 +22,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -25,46 +40,77 @@ public class LoginController {
 //    public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
 //
 //
-private final AuthenticationManager authenticationManager;
+    @Autowired
+ AuthenticationManager authenticationManager;
 @Autowired
-    private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+
+    JwtUtil jwtUtil;
+@Autowired
+    UserDetailsService userDetailsService;
     @Autowired
     IUserService iUserService;
+    @Autowired
+    UserRepo userRepo;
+@Autowired
+    RSAUtil rsaUtil;
+@Autowired
+    IUserStateRoleRepo iUserStateRoleRepo;
+@Autowired
+PasswordEncoder PasswordEncoder;
+@Autowired
+    IRolesRepository iRolesRepository;
 
-    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserDetailsService userDetailsService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
-    }
 
     @PostMapping("/login")
-public ResponseEntity<?> login() {
+public ResponseEntity<?> login(@RequestBody  LoginRequest request) {
+        Optional<User> userOpt = userRepo.findByEmail(request.getEmail());
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(new Error("Invalid email or password! ","Invalid email or password!"));
+        }
+
+        User user = userOpt.get();
+
         try {
-//
-//            Authentication authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken("varadrpatel@gmail.com","password")
-//            );
-//
-//            UserDetails user = (UserDetails) authentication.getPrincipal();
+            String decryptedPassword = rsaUtil.decrypt(request.getPassword());
 
-            UserDetails user= userDetailsService.loadUserByUsername("varadrpatel@gmail.com");
-            String jwtToken = jwtUtil.generateToken("varadrpatel@gmail.com", "1","9096182522","varadrpatel@gmail.com");
+            if (!PasswordEncoder.matches(decryptedPassword, user.getPassword()) ) {
+                return ResponseEntity.status(401).body(new Error("Invalid email or password! ","Invalid email or password!"));
 
-            return ResponseEntity.ok(jwtToken + " " + user.getUsername() +" "+ user.getPassword());
-        }
+            }
 
-        catch (UsernameNotFoundException e){
-            return ResponseEntity.status(401).body("Invalid username");
-        }
-        catch(Exception e)
-        {
-            return ResponseEntity.internalServerError().body(e.toString());
+
+List<UserStateRole> userStateRoleList=iUserStateRoleRepo.getUserStateRoleByUserid(user.getId());
+          Roles roles=
+
+               iRolesRepository.findById(user.getRoleId())
+                        .orElseThrow(() -> new RuntimeException("Role not found"));
+            List<States> stateList = userStateRoleList.stream()
+                    .map(UserStateRole::getState)
+                    .collect(Collectors.toList());
+
+            String token = jwtUtil.generateToken(user.getEmail(), roles.getName(), user.getMobileNumber(),user.getEmail());
+
+
+            LoginResponse loginResponse= LoginResponse.builder()
+                    .email(user.getEmail())
+                    .isNew(user.getIsNew())
+                    .name(user.getName())
+                    .mobile(user.getMobileNumber())
+                    .userId(user.getId())
+                    .role(roles)
+                    .state(stateList)
+                    .token(token)
+                    .build();
+            return ResponseEntity.ok().body(loginResponse);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new Error("Error occured while login ", e.toString()));
         }
 
 
 
 }
+
     @PostMapping("/signup")
     public ResponseEntity<?> signup( @Valid  @RequestBody Signup request) {
         try {
@@ -76,6 +122,15 @@ public ResponseEntity<?> login() {
        log.error("error while registering "+ e.toString());
        return  ResponseEntity.internalServerError().body(new Error("Unable to process request ", e.toString() ));
         }
+    }
+    @PostMapping("/encrypt")
+    public ResponseEntity<?>encrypt(@RequestBody  Test test) throws Exception {
+        return  ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
+    }
+
+    @PostMapping("/decrypt")
+    public ResponseEntity<?>decrypt(@RequestBody Test test) throws Exception {
+        return  ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
     }
 
 

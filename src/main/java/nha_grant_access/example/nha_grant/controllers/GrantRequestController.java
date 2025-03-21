@@ -12,6 +12,7 @@ import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,7 @@ public class GrantRequestController {
     }
 
     @GetMapping("/get-all/{userId}")
+    //@PreAuthorize("hasRole('SHA Finance Division Individual') or hasRole('FINANCE')")
     public ResponseEntity<?> getAllGrantRequest(@PathVariable("userId") Integer userId) {
         try {
             List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(userId);

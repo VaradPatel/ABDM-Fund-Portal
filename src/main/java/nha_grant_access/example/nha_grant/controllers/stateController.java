@@ -8,6 +8,7 @@ import nha_grant_access.example.nha_grant.repository.IProposalTypesRepo;
 import nha_grant_access.example.nha_grant.repository.IRolesRepository;
 import nha_grant_access.example.nha_grant.repository.ImplementationTypesRepo;
 import nha_grant_access.example.nha_grant.repository.IstatesRepository;
+import nha_grant_access.example.nha_grant.utils.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,14 +28,18 @@ public class stateController {
     ImplementationTypesRepo implementationTypesRepo;
     @Autowired
     IProposalTypesRepo iProposalTypesRepo;
+    @Autowired
+    RSAUtil rsaUtil;
 
     @GetMapping(path = "/all-states", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<States> states() {
+
         return istatesRepository.findAll();
 
     }
     @GetMapping(path = "/all-roles", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Roles> roles() {
+    public List<Roles> roles() throws Exception {
+
         return iRolesRepository.findAll();
 
     }

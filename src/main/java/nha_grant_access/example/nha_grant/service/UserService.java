@@ -11,6 +11,8 @@ import nha_grant_access.example.nha_grant.repository.IUserStateRoleRepo;
 import nha_grant_access.example.nha_grant.repository.IstatesRepository;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +29,8 @@ public class UserService implements IUserService {
     IstatesRepository istatesRepository;
 @Autowired
     IUserStateRoleRepo iUserStateRoleRepo;
-
+@Autowired
+PasswordEncoder bCryptPasswordEncoder;
     @Override
     @Transactional
     public void signup(Signup signup) throws RuntimeException {
@@ -80,7 +83,8 @@ public class UserService implements IUserService {
     @Transactional
     public Integer approveUser(UserApprovalRequest request) {
         if(request.getIsApproved()) {
-            int updated = userRepo.updateUserVerificationStatus(request.getUserId(), request.getIsApproved());
+            String hashedPassword = bCryptPasswordEncoder.encode("Nisg@123");
+            int updated = userRepo.updateUserVerificationStatus(request.getUserId(), request.getIsApproved(),hashedPassword);
             return updated;
         }
         else {

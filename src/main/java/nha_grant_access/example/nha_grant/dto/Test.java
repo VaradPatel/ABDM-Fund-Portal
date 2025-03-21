@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Test {
-    private String requestId;
+    private String encrypt;
 
 
 }
