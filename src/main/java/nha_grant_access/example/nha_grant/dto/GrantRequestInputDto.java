@@ -27,8 +27,9 @@ private String requestId;
     @NotNull(message = "implementationModeId is mandatory")
     private Integer implementationModeId;
 
-    @NotNull(message = "insuranceCompany is mandatory")
+
     private String insuranceCompany;
+
 
     @NotNull(message = "policyStartDate is mandatory")
     private LocalDate policyStartDate;
@@ -48,7 +49,7 @@ private String requestId;
     @NotNull(message = "totalBeneficiaryCount is mandatory")
     private Long totalBeneficiaryCount;
 
-    @NotNull(message = "premium is mandatory")
+
     private BigDecimal premium;
 
     @NotNull(message = "nhaShare is mandatory")
@@ -63,11 +64,16 @@ private String requestId;
     @NotNull(message = "requestedAmount is mandatory")
     private BigDecimal requestedAmount;
 
-    @NotNull(message = "stateShare is mandatory")
-    private BigDecimal stateShare;
+//    @NotNull(message = "stateShare is mandatory")
+//    private BigDecimal stateShare;
+ // Specifies JSONB type
+private List<StateShare> stateShare;
 
-    private Boolean bankMappedWithPfms;
-    private Boolean eSignStatusStateCeo;
+    private Boolean bankMappedWithPfms=false;
+
+    private Boolean eSignStatusStateCeo=false;
     private String remarks;
+
+    private Boolean positiveBalance=false;
 
 }

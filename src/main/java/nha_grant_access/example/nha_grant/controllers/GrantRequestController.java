@@ -2,10 +2,8 @@ package nha_grant_access.example.nha_grant.controllers;
 
 import lombok.RequiredArgsConstructor;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
-import nha_grant_access.example.nha_grant.dto.AllGrantRequest;
+import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
-import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
-import nha_grant_access.example.nha_grant.dto.Test;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
@@ -57,7 +55,7 @@ public class GrantRequestController {
 
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO);
-            return ResponseEntity.ok(savedGrantRequest);
+            return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ",e.toString()));
         }

@@ -1,10 +1,15 @@
 package nha_grant_access.example.nha_grant.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.minio.messages.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nha_grant_access.example.nha_grant.dto.StateShare;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
@@ -33,6 +38,7 @@ public class GrantRequests {
     private States state;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -86,8 +92,12 @@ private List<Integer> tranche;
     @Column(name = "released_amount")
     private BigDecimal releasedAmount;
 
-    @Column(name = "state_share", nullable = false)
-    private BigDecimal stateShare;
+//    @Column(name = "state_share", nullable = false)
+//    private BigDecimal stateShare;
+@Column(name = "state_share", columnDefinition = "jsonb")
+@JdbcTypeCode(SqlTypes.JSON)
+private List<StateShare> stateShare;
+
 
     @Column(name = "created_at", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
@@ -108,6 +118,8 @@ private List<Integer> tranche;
     @Column(name="bank_mapped_with_pmfs")
 
     private boolean bankMappedWithPfms;
+    @Column(name="positive_balance")
+    private Boolean positiveBalance;
 
     @PrePersist
     protected void onCreate() {
