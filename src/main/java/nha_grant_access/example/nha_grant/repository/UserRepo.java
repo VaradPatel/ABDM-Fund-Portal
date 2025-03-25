@@ -12,7 +12,8 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<User, Integer> {
     @Query(value="Select u.* from users u where u.email= :email",nativeQuery = true)
     Optional<User> findByEmail(String email);
-    @Query(value = "SELECT u.id, u.email, u.mobile_number, u.designation, s.name AS state_name, r.name AS role_name " +
+    Optional<User> findByMobileNumber(String mobileNumber);
+    @Query(value = "SELECT u.id, u.email, u.mobile_number, u.designation, s.name AS state_name, r.name AS role_name , u.name, u.created_at " +
             "FROM users u " +
             "JOIN user_state_role usr ON u.id = usr.user_id " +
             "JOIN states s ON usr.state_id = s.id " +  // Explicit join

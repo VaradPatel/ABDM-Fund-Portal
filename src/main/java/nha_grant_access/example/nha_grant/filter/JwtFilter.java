@@ -51,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 // Log or use roleId and mobile
-                System.out.println("User: " + username + ", Role ID: " + roles + ", Mobile: " + mobile);
+                System.out.println("User: " + username + ", roles: " + roles + ", Mobile: " + mobile);
             }
         }
         chain.doFilter(request, response);

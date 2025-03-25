@@ -2,6 +2,7 @@ package nha_grant_access.example.nha_grant.controllers;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import nha_grant_access.example.nha_grant.Exception.GrantUserAlreadyExistsException;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
@@ -15,16 +16,11 @@ import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import nha_grant_access.example.nha_grant.utils.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -112,15 +108,19 @@ List<UserStateRole> userStateRoleList=iUserStateRoleRepo.getUserStateRoleByUseri
 }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup( @Valid  @RequestBody Signup request) {
+    public ResponseEntity<?> signup( @Valid  @RequestBody Signup request) throws GrantUserAlreadyExistsException {
         try {
             iUserService.signup(request);
             return ResponseEntity.ok().body("Successfully Registered");
         }
+        catch (GrantUserAlreadyExistsException e) {
+            log.error("User registration error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Error("User already exists", e.getMessage()));
+        }
         catch (Exception e)
         {
        log.error("error while registering "+ e.toString());
-       return  ResponseEntity.internalServerError().body(new Error("Unable to process request ", e.toString() ));
+       return  ResponseEntity.internalServerError().body(new Error("Unable to process request  ", e.toString() ));
         }
     }
     @PostMapping("/encrypt")

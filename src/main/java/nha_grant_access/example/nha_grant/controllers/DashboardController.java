@@ -14,9 +14,12 @@ import nha_grant_access.example.nha_grant.repository.IactionRepository;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,7 @@ public class DashboardController {
     IUserService iUserService;
 
     @GetMapping("/sha-finance/{userId}")
+    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId) {
      try
      {
@@ -52,12 +56,13 @@ public class DashboardController {
      }
      catch(Exception e)
      {
-         return ResponseEntity.internalServerError().body(e.toString());
+         return ResponseEntity.internalServerError().body(new Error("Failed to fetch the dashboard Records ",e.toString()));
      }
 
     }
     @GetMapping("/user-management/{stateId}")
-    public ResponseEntity<?> getUserApprovalByStateCeo(@PathVariable("stateId") Integer stateId) {
+    //@PreAuthorize("hasAuthority('State CEO') ")
+    public ResponseEntity<?> getUserApprovalByStateCeo(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
 
 
@@ -71,7 +76,9 @@ public class DashboardController {
                             .mobile((String) row[2])              // u.mobile_number
                             .designation((String) row[3])         // u.designation
                             .stateName((String) row[4])           // s.name (state_name)
-                            .roleName((String) row[5])            // r.name (role_name)
+                            .roleName((String) row[5])
+                            .name((String) row[6])
+                            .createdAt((Date) row[7])
                             .build())
                     .collect(Collectors.toList());
  return ResponseEntity.ok().body(users);
@@ -90,6 +97,8 @@ public class DashboardController {
 
 
     @PostMapping("/user-approval")
+    @PreAuthorize("hasAuthority('State CEO') or hasAuthority('NHA admin')")
+
     public ResponseEntity<?> approveUser(@Valid @RequestBody UserApprovalRequest request) {
 try
 {
@@ -109,6 +118,32 @@ catch (Exception e)
 }
 
     }
+
+//    @GetMapping("/sha-finance/{userId}")
+//    public ResponseEntity<?> getstateCeodashboard(@PathVariable("userId") Integer userId) {
+//        try
+//        {
+//
+//            List<Object[]> results=iGrantRequestsRepo.shaFinanceDashboardDetails(userId);
+//            Object[] result = results.get(0);
+//            DashboardShaFin dashboardShaFin=DashboardShaFin.builder()
+//                    .totalAmountRequested(result[0] != null ? (BigDecimal) result[0] : BigDecimal.ZERO)
+//                    .totalAmountReleased(result[1] != null ? (BigDecimal) result[1] : BigDecimal.ZERO)
+//                    // .maximumEligibleGrant(result[2] != null ? (BigDecimal) result[2] : BigDecimal.ZERO)
+//                    .completedProposals(result[2] != null ? ((Number) result[2]).intValue() : 0)
+//                    .pendingProposals(result[3] != null ? ((Number) result[3]).intValue() : 0)
+//                    .pendingQueries(result[4] != null ? ((Number) result[4]).intValue() : 0)
+//                    .respondedQueries(result[5] != null ? ((Number) result[5]).intValue() : 0)
+//                    .build();
+//            return ResponseEntity.ok().body(dashboardShaFin);
+//
+//        }
+//        catch(Exception e)
+//        {
+//            return ResponseEntity.internalServerError().body(new Error("Failed to fetch the dashboard Records ",e.toString()));
+//        }
+//
+//    }
 
 
 }

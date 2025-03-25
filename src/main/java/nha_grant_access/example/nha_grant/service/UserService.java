@@ -1,8 +1,8 @@
 package nha_grant_access.example.nha_grant.service;
 
+import nha_grant_access.example.nha_grant.Exception.GrantUserAlreadyExistsException;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
 import nha_grant_access.example.nha_grant.dto.Signup;
-import nha_grant_access.example.nha_grant.dto.State;
 import nha_grant_access.example.nha_grant.dto.UserApprovalRequest;
 import nha_grant_access.example.nha_grant.entity.States;
 import nha_grant_access.example.nha_grant.entity.User;
@@ -11,14 +11,12 @@ import nha_grant_access.example.nha_grant.repository.IUserStateRoleRepo;
 import nha_grant_access.example.nha_grant.repository.IstatesRepository;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -33,10 +31,11 @@ public class UserService implements IUserService {
 PasswordEncoder bCryptPasswordEncoder;
     @Override
     @Transactional
-    public void signup(Signup signup) throws RuntimeException {
-        if (userRepo.findByEmail(signup.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered!");
+    public void signup(Signup signup) throws RuntimeException, GrantUserAlreadyExistsException {
+        if (userRepo.findByEmail(signup.getEmail()).isPresent() || userRepo.findByMobileNumber(signup.getMobile()).isPresent()) {
+            throw new GrantUserAlreadyExistsException("Email or mobile already registered!");
         }
+
 
 
         try

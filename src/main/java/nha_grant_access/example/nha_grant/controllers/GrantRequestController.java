@@ -3,6 +3,7 @@ package nha_grant_access.example.nha_grant.controllers;
 import lombok.RequiredArgsConstructor;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.AllGrantRequest;
+import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
 import nha_grant_access.example.nha_grant.dto.Test;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
@@ -13,6 +14,8 @@ import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +39,7 @@ public class GrantRequestController {
     @Autowired
     private UserRepo userRepo;
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
         try {
 //
@@ -55,18 +59,24 @@ public class GrantRequestController {
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO);
             return ResponseEntity.ok(savedGrantRequest);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ",e.toString()));
         }
     }
 
-    @GetMapping("/get-all/{userId}")
-    //@PreAuthorize("hasRole('SHA Finance Division Individual') or hasRole('FINANCE')")
-    public ResponseEntity<?> getAllGrantRequest(@PathVariable("userId") Integer userId) {
+    @GetMapping("/get-all/{stateId}")
+
+   @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+    public ResponseEntity<?> getAllGrantRequest(@PathVariable("stateId") Integer stateId) {
         try {
-            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(userId);
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            if (authentication != null) {
+//                System.out.println("Authenticated User: " + authentication.getName());
+//                System.out.println("Roles: " + authentication.getAuthorities());
+//            }
+            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
             return ResponseEntity.ok(allGrantRequests);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body(new Error ("failed to fetch details ", e.toString()));
         }
 
     }
@@ -76,7 +86,7 @@ public class GrantRequestController {
             GrantRequests grantRequests=iGrantRequestsRepo.findGrantRequestByRequestId(requestId);
             return ResponseEntity.ok(grantRequests);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body(new Error("Failed to fetch grant request details", e.toString()));
         }
 
     }

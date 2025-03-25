@@ -5,6 +5,7 @@ import nha_grant_access.example.nha_grant.entity.Roles;
 import nha_grant_access.example.nha_grant.entity.States;
 
 import javax.management.relation.Role;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -19,4 +20,6 @@ public class UserRequest {
     private String designation;
    private String stateName;
    private String roleName;
+   private String name;
+   private Date createdAt;
 }
