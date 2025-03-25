@@ -112,6 +112,8 @@ public class GrantRequestService implements IGrantRequests {
                 .statusDescription(getDefaultStatus(2))
                 .remarks(Optional.ofNullable(dto.getRemarks()).orElse(""))
                 .bankMappedWithPfms(Optional.ofNullable(dto.getBankMappedWithPfms()).orElse(false))
+                .positiveBalance(Optional.ofNullable(dto.getPositiveBalance()).orElse(false))
+                .totalStateShare(dto.getTotalStateShare())
                 .build();
     }
 
@@ -142,6 +144,10 @@ public class GrantRequestService implements IGrantRequests {
         if(dto.getBankMappedWithPfms()!=null)
         {
         existingRequest.setBankMappedWithPfms(dto.getBankMappedWithPfms());}
+        if(dto.getPositiveBalance()) {
+            existingRequest.setPositiveBalance(dto.getPositiveBalance());
+        }
+        existingRequest.setTotalStateShare(dto.getTotalStateShare());
         existingRequest.setStatusDescription(getDefaultStatus(2));
         return existingRequest;
     }

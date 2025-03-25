@@ -121,6 +121,10 @@ private List<StateShare> stateShare;
     @Column(name="positive_balance")
     private Boolean positiveBalance;
 
+    @Column(name="total_state_share")
+
+    private BigDecimal totalStateShare;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now(); // Set only once

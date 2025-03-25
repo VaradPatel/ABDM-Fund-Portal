@@ -68,6 +68,8 @@ private String requestId;
 //    private BigDecimal stateShare;
  // Specifies JSONB type
 private List<StateShare> stateShare;
+@NotNull(message="totalStateShare cannot be null")
+private BigDecimal totalStateShare;
 
     private Boolean bankMappedWithPfms=false;
 
@@ -75,5 +77,6 @@ private List<StateShare> stateShare;
     private String remarks;
 
     private Boolean positiveBalance=false;
+
 
 }
