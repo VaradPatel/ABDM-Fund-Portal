@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -39,7 +40,7 @@ private String requestId;
     private String financialYear;
 
     @NotNull(message = "tranche is mandatory")
-    private String tranche;
+    private List<Integer> tranche;
 
     @NotNull(message = "pmjayBeneficiaryCount is mandatory")
     private Long pmjayBeneficiaryCount;
@@ -65,6 +66,8 @@ private String requestId;
     @NotNull(message = "stateShare is mandatory")
     private BigDecimal stateShare;
 
-
+    private Boolean bankMappedWithPfms;
     private Boolean eSignStatusStateCeo;
+    private String remarks;
+
 }

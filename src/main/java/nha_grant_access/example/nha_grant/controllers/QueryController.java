@@ -3,12 +3,17 @@ package nha_grant_access.example.nha_grant.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IQuery;
+import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.dto.GetActiveQuery;
+import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
+import nha_grant_access.example.nha_grant.entity.GrantRequests;
+import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -16,6 +21,8 @@ import java.util.List;
 public class QueryController {
     @Autowired
     IQuery iQuery;
+    @Autowired
+    private IGrantRequestsRepo iGrantRequestsRepo;
     @GetMapping("/get-active-query/{userId}")
     public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer userId) {
         try {
@@ -33,6 +40,17 @@ public class QueryController {
 //    {
 //
 //    }
+
+    @PostMapping("/query-respond")
+    public ResponseEntity<?>respondToQuery(GrantRequestInputDto grantRequestInputDto)
+    {
+        Optional<GrantRequests> existingGrant = iGrantRequestsRepo.findByRequestId(grantRequestInputDto.getRequestId());
+        if(!existingGrant.isPresent())
+        {
+            return ResponseEntity.badRequest().body(new Error("Request Id is not present","Request Id is not present"));
+        }
+   return ResponseEntity.ok().body("Query Responded Successfully");
+    }
 
 
 }

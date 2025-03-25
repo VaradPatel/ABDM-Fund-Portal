@@ -39,7 +39,7 @@ public class GrantRequestController {
     @Autowired
     private UserRepo userRepo;
     @PostMapping("/add")
-    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
         try {
 //
@@ -65,7 +65,7 @@ public class GrantRequestController {
 
     @GetMapping("/get-all/{stateId}")
 
-   @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+   //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> getAllGrantRequest(@PathVariable("stateId") Integer stateId) {
         try {
 //            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

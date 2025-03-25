@@ -4,10 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "grant_requests")
@@ -53,8 +56,11 @@ public class GrantRequests {
     @Column(name = "financial_year", nullable = false, length = 9)
     private String financialYear;
 
-    @Column(name = "tranche", nullable = false)
-    private String tranche;
+//    @Column(name = "tranche", nullable = false)
+//    private String tranche;
+@Column(name = "tranche", columnDefinition = "jsonb") // JSONB for PostgreSQL
+@JdbcTypeCode(SqlTypes.JSON) // Hibernate 6+ annotation for JSON support
+private List<Integer> tranche;
 
     @Column(name = "pmjay_beneficiary_count", nullable = false)
     private Long pmjayBeneficiaryCount;
@@ -96,6 +102,12 @@ public class GrantRequests {
     @JoinColumn(name = "flow_status", referencedColumnName = "id")
     private StatusDescription statusDescription;
 
+    @Column(name="remarks")
+    private String remarks;
+
+    @Column(name="bank_mapped_with_pmfs")
+
+    private boolean bankMappedWithPfms;
 
     @PrePersist
     protected void onCreate() {

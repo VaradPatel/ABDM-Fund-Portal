@@ -10,10 +10,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer> {
     @Query(value ="Select * from grant_requests where state_id=:stateId", nativeQuery = true)
     List<GrantRequests> findAllGrantRequest(Integer stateId);
+
+    Optional<GrantRequests> findByRequestId(String requestId);
     @Query(value ="Select * from grant_requests where request_id=:requestId", nativeQuery = true)
 GrantRequests findGrantRequestByRequestId(String requestId);
     @Query("SELECT gr.requestId, q.queryComment, q.queryDoc " +

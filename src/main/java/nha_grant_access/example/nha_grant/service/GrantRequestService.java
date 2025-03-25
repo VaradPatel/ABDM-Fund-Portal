@@ -51,7 +51,7 @@ public class GrantRequestService implements IGrantRequests {
                 if (existingRequest == null) {
                     throw new RuntimeException("Invalid RequestID");
                 }
-                updateExistingGrantRequest(existingRequest, dto);
+               existingRequest=updateExistingGrantRequest(existingRequest, dto);
                 iGrantRequestsRepo.save(existingRequest);
                 log.info("edited the grant_requests " + existingRequest.toString());
 
@@ -60,6 +60,7 @@ public class GrantRequestService implements IGrantRequests {
                 GrantRequests newRequest = mapToEntity(dto);
                 GrantRequests savedRequest = iGrantRequestsRepo.save(newRequest);
                 saveToDashboard(savedRequest);
+                dto.setRequestId(savedRequest.getRequestId());
                 log.info("saved the grant_requests " + savedRequest.toString());
                 //save to user dump
                 saveToWorkFlow(savedRequest.getRequestId(),savedRequest.getUser().getId(),1,savedRequest.getProposalType().getId());
@@ -72,6 +73,8 @@ public class GrantRequestService implements IGrantRequests {
 
     @Override
     public List<AllGrantRequest> getAllGrantRequest(Integer userId) {
+
+
         return iGrantRequestsRepo.findAllGrantRequest(userId).stream()
                 .map(gr -> AllGrantRequest.builder()
                         .requestId(gr.getRequestId())
@@ -107,10 +110,12 @@ public class GrantRequestService implements IGrantRequests {
                 .eSignStatusStateCeo(dto.getESignStatusStateCeo())
                 .stateShare(dto.getStateShare())
                 .statusDescription(getDefaultStatus(2))
+                .remarks(Optional.ofNullable(dto.getRemarks()).orElse(""))
+                .bankMappedWithPfms(Optional.ofNullable(dto.getBankMappedWithPfms()).orElse(false))
                 .build();
     }
 
-    private void updateExistingGrantRequest(GrantRequests existingRequest, GrantRequestInputDto dto) {
+    private GrantRequests updateExistingGrantRequest(GrantRequests existingRequest, GrantRequestInputDto dto) {
 
         existingRequest.setState(getState(dto.getStateId()));
         existingRequest.setUser(getUser(dto.getUserId()));
@@ -131,7 +136,14 @@ public class GrantRequestService implements IGrantRequests {
         existingRequest.setReleasedAmount(dto.getReleaseTillDate());
         existingRequest.setStateShare(dto.getStateShare());
         existingRequest.setESignStatusStateCeo(dto.getESignStatusStateCeo());
+        if(dto.getRemarks()!=null) {
+            existingRequest.setRemarks(dto.getRemarks());
+        }
+        if(dto.getBankMappedWithPfms()!=null)
+        {
+        existingRequest.setBankMappedWithPfms(dto.getBankMappedWithPfms());}
         existingRequest.setStatusDescription(getDefaultStatus(2));
+        return existingRequest;
     }
 
     public void saveToDashboard(GrantRequests grantRequest) {
