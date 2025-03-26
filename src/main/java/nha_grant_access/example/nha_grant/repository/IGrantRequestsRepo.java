@@ -1,12 +1,14 @@
 package nha_grant_access.example.nha_grant.repository;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.transaction.Transactional;
 import nha_grant_access.example.nha_grant.dto.AllGrantRequest;
 import nha_grant_access.example.nha_grant.dto.GetActiveQuery;
 import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
 import nha_grant_access.example.nha_grant.dto.Test;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -19,7 +21,7 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
     Optional<GrantRequests> findByRequestId(String requestId);
     @Query(value ="Select * from grant_requests where request_id=:requestId", nativeQuery = true)
 GrantRequests findGrantRequestByRequestId(String requestId);
-    @Query("SELECT gr.requestId, q.queryComment, q.queryDoc " +
+    @Query("SELECT q.id, gr.requestId, q.queryComment, q.queryDoc " +
             "FROM GrantRequests gr " +
             "JOIN Queries q ON q.requestId = gr.requestId " +
             "WHERE gr.user.id = :userId AND gr.statusDescription.id = 1")
@@ -56,5 +58,9 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     List<Object[]> stateCeoDashboardDetails(Integer userId);
 
 
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE grant_requests SET flow_status = :statusId WHERE request_id = :requestId", nativeQuery = true)
+    int updateStatusDescription( String requestId,  Integer statusId);
 
 }

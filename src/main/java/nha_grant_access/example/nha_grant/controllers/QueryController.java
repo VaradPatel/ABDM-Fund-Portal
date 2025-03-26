@@ -1,11 +1,13 @@
 package nha_grant_access.example.nha_grant.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IQuery;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.dto.GetActiveQuery;
 import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
+import nha_grant_access.example.nha_grant.dto.RaiseQueryRequest;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +37,19 @@ public class QueryController {
             return ResponseEntity.internalServerError().body("Error while fetching active queries "+ e.toString());
         }
     }
-//    @PostMapping("/raise-query")
-//            public ResponseEntity<?> raiseQuery()
-//    {
-//
-//    }
+    @PostMapping("/raise-query")
+            public ResponseEntity<?> raiseQuery(@Valid @RequestBody RaiseQueryRequest request)
+    {
+        try {
+            iQuery.raiseQuery(request);
+            return ResponseEntity.ok().body("Query Raised Successfully");
+        }
+        catch(Exception e)
+        {
+         return ResponseEntity.internalServerError().body(new Error("Error occured while raising query",e.toString()));
+        }
+    }
+
 
     @PostMapping("/query-respond")
     public ResponseEntity<?>respondToQuery(GrantRequestInputDto grantRequestInputDto)

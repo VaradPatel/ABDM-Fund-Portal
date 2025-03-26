@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class GetActiveQuery {
+    private Integer queryId;
     private String requestId;
     private String QueryComment;
     private String queryDoc;

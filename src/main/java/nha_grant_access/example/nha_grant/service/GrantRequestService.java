@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -196,17 +195,18 @@ StatusDescription statusDescription=getDefaultStatus(2);
                 .orElseThrow(() -> new RuntimeException("State not found"));
     }
 
-    private User getUser(Integer userId) {
+    public User getUser(Integer userId) {
         return userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    private ProposalType getProposalType(Integer proposalTypeId) {
+    public ProposalType getProposalType(Integer proposalTypeId) {
         return iProposalTypesRepo.findById(proposalTypeId)
                 .orElseThrow(() -> new RuntimeException("Proposal Type not found"));
     }
 
-    private ImplementationTypes getImplementationType(Integer implementationModeId) {
+    public
+    ImplementationTypes getImplementationType(Integer implementationModeId) {
         return implementationTypes.findById(implementationModeId)
                 .orElseThrow(() -> new RuntimeException("Implementation Mode not found"));
     }
