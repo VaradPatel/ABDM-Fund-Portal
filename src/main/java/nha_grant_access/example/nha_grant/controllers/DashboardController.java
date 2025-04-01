@@ -4,10 +4,8 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
-import nha_grant_access.example.nha_grant.dto.DashboardShaFin;
+import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
-import nha_grant_access.example.nha_grant.dto.UserApprovalRequest;
-import nha_grant_access.example.nha_grant.dto.UserRequest;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IactionRepository;
@@ -97,7 +95,7 @@ public class DashboardController {
 
 
     @PostMapping("/user-approval")
-    @PreAuthorize("hasAuthority('State CEO') or hasAuthority('NHA admin')")
+    //@PreAuthorize("hasAuthority('State CEO') or hasAuthority('NHA admin')")
 
     public ResponseEntity<?> approveUser(@Valid @RequestBody UserApprovalRequest request) {
 try
@@ -145,5 +143,27 @@ catch (Exception e)
 //
 //    }
 
+    @GetMapping("/stateceo-review/{stateId}")
+    //@PreAuthorize("hasAuthority('State CEO') ")
+    public ResponseEntity<?> getstateCeoReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
 
-}
+        try {
+            List<Object[]> results = iGrantRequestsRepo.findAllGrantRequestByStatus(stateId, 2);
+
+            List<ReviewProposal>result=results.stream().map(obj -> new ReviewProposal(
+                    (String) obj[0],   // request_id
+                    (String) obj[1],   // remarks
+                    (BigDecimal) obj[2],   // requested_amount
+                    (String) obj[3]  ,
+                    (Date) obj[4]// user_name
+            )).toList();
+            return ResponseEntity.ok().body(result);
+
+        } catch (Exception e) {
+            //log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Failed while fetching review data ", e.toString()));
+        }
+    }
+
+
+    }

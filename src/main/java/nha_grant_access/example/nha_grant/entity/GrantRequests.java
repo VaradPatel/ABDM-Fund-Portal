@@ -102,6 +102,10 @@ private List<StateShare> stateShare;
     @Column(name = "created_at", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
+    @Column(name = "sanction_date", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
+    private LocalDateTime sanctionDate;
+
+
     @Column(name = "updated_at",  columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 

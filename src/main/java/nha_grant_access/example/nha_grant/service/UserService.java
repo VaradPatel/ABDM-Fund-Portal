@@ -2,6 +2,7 @@ package nha_grant_access.example.nha_grant.service;
 
 import nha_grant_access.example.nha_grant.Exception.GrantUserAlreadyExistsException;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
+import nha_grant_access.example.nha_grant.dto.ChangePassword;
 import nha_grant_access.example.nha_grant.dto.Signup;
 import nha_grant_access.example.nha_grant.dto.UserApprovalRequest;
 import nha_grant_access.example.nha_grant.entity.States;
@@ -94,5 +95,11 @@ PasswordEncoder bCryptPasswordEncoder;
                 return 0;
             }
         }
+    }
+    @Override
+    public Integer changePassword(ChangePassword changePassword)
+    {
+        String hashedPassword=bCryptPasswordEncoder.encode(changePassword.getPassword());
+        return userRepo.updateUserVerificationStatusByMobile(changePassword.getPassword(),true,hashedPassword );
     }
 }

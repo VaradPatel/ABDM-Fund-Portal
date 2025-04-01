@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class GrantRequestService implements IGrantRequests {
                 // Create New Request
                 GrantRequests newRequest = mapToEntity(dto);
                 GrantRequests savedRequest = iGrantRequestsRepo.save(newRequest);
-                saveToDashboard(savedRequest);
+                saveToDashboard(savedRequest.getRequestId(),savedRequest.getState().getId(),savedRequest.getProposalType().getId(),1,2,4,null,null,2);
                 dto.setRequestId(savedRequest.getRequestId());
                 log.info("saved the grant_requests " + savedRequest.toString());
                 //save to user dump
@@ -83,6 +84,16 @@ public class GrantRequestService implements IGrantRequests {
                         .requestStatus(Optional.ofNullable(gr.getStatusDescription())
                                 .map(StatusDescription::getDescription)
                                 .orElse(""))
+                        .proposalType(gr.getProposalType())
+                        .implementationTypes(gr.getImplementationMode())
+                        .Tranche(gr.getTranche())
+                        .policyEndDate(gr.getPolicyEndDate())
+                        .policyStartDate(gr.getPolicyStartDate())
+                        .financialYear(gr.getFinancialYear())
+                        .sanctionDate(gr.getSanctionDate())
+
+
+
                         .build())
                 .collect(Collectors.toList());
     }
@@ -151,25 +162,67 @@ public class GrantRequestService implements IGrantRequests {
         return existingRequest;
     }
 
-    public void saveToDashboard(GrantRequests grantRequest) {
-        try {
-            Action action = getAction(4);
-StatusDescription statusDescription=getDefaultStatus(2);
-            Dashboard dashboard = Dashboard.builder()
-                    .requestId(grantRequest.getRequestId())
-                    .state(getState(grantRequest.getState().getId()))
-                    .previousRole(getRole(1))
-                    .stateCeoStatus(action)
-                    .finalFlowStatus(statusDescription)
-                    .currentRole(getRole(2))
-                    .build();
-            iDashboardRepo.save(dashboard);
-        }
-        catch(Exception e)
-        {
-            throw new RuntimeException("Error occured while saving to Dashboard" + e.toString());
-        }
+//    public void saveToDashboard(GrantRequests grantRequest) {
+//        try {
+//            Action action = getAction(4);
+//StatusDescription statusDescription=getDefaultStatus(2);
+//            Dashboard dashboard = Dashboard.builder()
+//                    .requestId(grantRequest.getRequestId())
+//                    .state(getState(grantRequest.getState().getId()))
+//                    .previousRole(getRole(1))
+//                    .stateCeoStatus(action)
+//                    .finalFlowStatus(statusDescription)
+//                    .currentRole(getRole(2))
+//                    .build();
+//            iDashboardRepo.save(dashboard);
+//        }
+//        catch(Exception e)
+//        {
+//            throw new RuntimeException("Error occured while saving to Dashboard" + e.toString());
+//        }
+//    }
+public void saveToDashboard(
+        String requestId,
+        Integer stateId,
+        Integer proposalTypeId,
+        Integer previousRoleId,
+        Integer currentRoleId,
+        Integer stateCeoStatusId,
+        Integer nhaStateCoordinatorStatusId,
+        Integer nhaReviewerStatusId,
+        Integer finalFlowStatusId
+) {
+    try {
+        // Fetching related entities
+        States state = (stateId != null) ? getState(stateId) : null;
+        ProposalType proposalType = (proposalTypeId != null) ? getProposalType(proposalTypeId) : null;
+        Roles previousRole = (previousRoleId != null) ? getRole(previousRoleId) : null;
+        Roles currentRole = (currentRoleId != null) ? getRole(currentRoleId) : null;
+        Action stateCeoStatus = (stateCeoStatusId != null) ? getAction(stateCeoStatusId) : null;
+        Action nhaStateCoordinatorStatus = (nhaStateCoordinatorStatusId != null) ? getAction(nhaStateCoordinatorStatusId) : null;
+        Action nhaReviewerStatus = (nhaReviewerStatusId != null) ? getAction(nhaReviewerStatusId) : null;
+        StatusDescription finalFlowStatus = (finalFlowStatusId != null) ? getDefaultStatus(finalFlowStatusId) : null;
+
+        // Creating and saving the Dashboard entity
+        Dashboard dashboard = Dashboard.builder()
+                .requestId(requestId)
+                .state(state)
+                .proposalType(proposalType)
+                .previousRole(previousRole)
+                .currentRole(currentRole)
+                .stateCeoStatus(stateCeoStatus)
+                .nhaStateCoordinatorStatus(nhaStateCoordinatorStatus)
+                .nhaReviewerStatus(nhaReviewerStatus)
+                .finalFlowStatus(finalFlowStatus)
+                .createdAt(LocalDateTime.now()) // Explicitly setting timestamps
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        iDashboardRepo.save(dashboard);
+    } catch (Exception e) {
+        e.printStackTrace(); // Log or handle exception properly
     }
+}
     public void saveToWorkFlow(String requestId, Integer userId, Integer actionId, Integer proposalType)
     {
         try {

@@ -32,8 +32,23 @@ public interface UserRepo extends JpaRepository<User, Integer> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE User u SET u.isVerified = :isApproved , u.password = :password WHERE u.id = :userId")
-    int updateUserVerificationStatus(Integer userId, Boolean isApproved ,String password);
+    @Query(value = "UPDATE users SET is_verified = :isApproved, password = :password WHERE id = :userId",
+            nativeQuery = true)
+    int updateUserVerificationStatus(
+            Integer userId,
+            Boolean isApproved,
+           String password
+    );
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE users SET is_verified = :isApproved, password = :password WHERE mobile_number = :mobileNumber",
+            nativeQuery = true)
+    int updateUserVerificationStatusByMobile(
+            String mobileNumber,
+            Boolean isApproved,
+            String password
+    );
 
 
 

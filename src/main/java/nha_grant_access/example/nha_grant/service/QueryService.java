@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,9 @@ public class QueryService implements IQuery {
                         (Integer) obj[0],
                         (String) obj[1],  // requestId
                         (String) obj[2],  // queryComment
-                        (String) obj[3]   // queryDoc
+                        (String) obj[3],
+        (Date)obj[4],
+                        (String) obj[5]// queryDoc
                 ))
                 .collect(Collectors.toList());
 
@@ -103,8 +106,10 @@ public class QueryService implements IQuery {
 
                     .build();
             WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(2, request.getRoleId());
- iGrantRequestsRepo.updateStatusDescription(request.getRequestId(),workFlowConfiguration.getStatusDescription().getId());
-grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId());
+            iGrantRequestsRepo.updateStatusDescription(request.getRequestId(),workFlowConfiguration.getStatusDescription().getId());
+            grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId());
+
+            // grantRequestService.saveToDashboard(request.getRequestId(),request.getStateId(),request.getProposalTypeId(), request.getRoleId(),workFlowConfiguration.getAssignTo().getId(),);
 //saveToDashboard
 //Save To Query
 

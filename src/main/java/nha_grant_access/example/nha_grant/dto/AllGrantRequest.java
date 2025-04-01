@@ -4,9 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nha_grant_access.example.nha_grant.entity.ImplementationTypes;
+import nha_grant_access.example.nha_grant.entity.ProposalType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,4 +26,11 @@ public class AllGrantRequest {
     private LocalDateTime dateRequested;
     private LocalDateTime releasedDate;
     private String requestStatus;
+    private ProposalType proposalType;
+    private ImplementationTypes implementationTypes;
+    private List<Integer> Tranche;
+    private LocalDate policyStartDate;
+    private LocalDate policyEndDate;
+    private String financialYear;
+    private LocalDateTime sanctionDate;
 }

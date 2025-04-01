@@ -17,17 +17,26 @@ import java.util.Optional;
 public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer> {
     @Query(value ="Select * from grant_requests where state_id=:stateId", nativeQuery = true)
     List<GrantRequests> findAllGrantRequest(Integer stateId);
+    @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name , gr.created_at  " +
+            "FROM grant_requests gr " +
+            "JOIN users u ON gr.user_id = u.id " +
+            "WHERE gr.state_id = :stateId AND gr.flow_status = :flowStatus",
+            nativeQuery = true)
+    List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
+
 
     Optional<GrantRequests> findByRequestId(String requestId);
     @Query(value ="Select * from grant_requests where request_id=:requestId", nativeQuery = true)
 GrantRequests findGrantRequestByRequestId(String requestId);
-    @Query("SELECT q.id, gr.requestId, q.queryComment, q.queryDoc " +
-            "FROM GrantRequests gr " +
-            "JOIN Queries q ON q.requestId = gr.requestId " +
-            "WHERE gr.user.id = :userId AND gr.statusDescription.id = 1")
+    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
+            "FROM grant_requests gr " +
+            "JOIN queries q ON q.request_id = gr.request_id " +
+            "JOIN users u ON q.query_user_id = u.id " +
+            "WHERE gr.user_id = :userId AND gr.flow_status = 1", nativeQuery = true)
     List<Object[]> findActiveQueryFromUserID(Integer userId);
 
     boolean existsByRequestId(String requestId);
+
 
 
 
@@ -62,5 +71,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     @Transactional
     @Query(value = "UPDATE grant_requests SET flow_status = :statusId WHERE request_id = :requestId", nativeQuery = true)
     int updateStatusDescription( String requestId,  Integer statusId);
+
+
 
 }

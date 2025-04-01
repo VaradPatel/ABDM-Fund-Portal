@@ -5,17 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GetActiveQuery {
-    private Integer queryId;
+public class QueryHistoryResponse {
     private String requestId;
-    private String QueryComment;
-    private String queryDoc;
+    private BigDecimal requestedAmount;
     private Date createdAt;
-    private String userName;
+    private String queryComment;
+    private String queryResponseComment;
+
 }

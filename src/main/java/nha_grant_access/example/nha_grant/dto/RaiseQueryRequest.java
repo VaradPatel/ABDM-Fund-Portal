@@ -15,4 +15,7 @@ public class RaiseQueryRequest {
     private String query;
     @NotNull(message="Proposal Type Id is compulsory")
     private Integer proposalTypeId;
+    @NotNull(message="stateId cannot be null")
+    private Integer stateId;
+
 }

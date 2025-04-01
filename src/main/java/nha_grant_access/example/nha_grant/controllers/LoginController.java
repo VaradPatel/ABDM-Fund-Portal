@@ -133,6 +133,27 @@ List<UserStateRole> userStateRoleList=iUserStateRoleRepo.getUserStateRoleByUseri
         return  ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePassword changePassword)
+    {
+        if(!userRepo.findByMobileNumber(changePassword.getMobile()).isPresent())
+        {
+            return  ResponseEntity.badRequest().body(new Error("No User found","No user found"));
+        }
+        if(changePassword.getTransactionId()==null && !changePassword.getIsNew())
+        {
+            return ResponseEntity.badRequest().body(new Error("Transaction Id is missing","Transaction Id is missing"));
+        }
+        if(changePassword.getIsNew())
+        {
+
+           if(iUserService.changePassword(changePassword)>0)
+           {
+               return ResponseEntity.ok().body("Password changed Successfully");
+           }
+        }
+        return ResponseEntity.internalServerError().body(new Error("Error occured while chnaging password","Error occured while chnaging password"));
+    }
 
 
 
