@@ -32,37 +32,37 @@ import java.util.stream.Collectors;
 @RestController
 @Slf4j
 public class LoginController {
-//    @PostMapping("/login")
+    //    @PostMapping("/login")
 //    public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
 //
 //
     @Autowired
- AuthenticationManager authenticationManager;
-@Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
 
     JwtUtil jwtUtil;
-@Autowired
+    @Autowired
     UserDetailsService userDetailsService;
     @Autowired
     IUserService iUserService;
     @Autowired
     UserRepo userRepo;
-@Autowired
+    @Autowired
     RSAUtil rsaUtil;
-@Autowired
+    @Autowired
     IUserStateRoleRepo iUserStateRoleRepo;
-@Autowired
-PasswordEncoder PasswordEncoder;
-@Autowired
+    @Autowired
+    PasswordEncoder PasswordEncoder;
+    @Autowired
     IRolesRepository iRolesRepository;
 
 
     @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody  LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         Optional<User> userOpt = userRepo.findByEmail(request.getEmail());
 
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(401).body(new Error("Invalid email or password! ","Invalid email or password!"));
+            return ResponseEntity.status(401).body(new Error("Invalid email or password! ", "Invalid email or password!"));
         }
 
         User user = userOpt.get();
@@ -70,25 +70,25 @@ public ResponseEntity<?> login(@RequestBody  LoginRequest request) {
         try {
             String decryptedPassword = rsaUtil.decrypt(request.getPassword());
 
-            if (!PasswordEncoder.matches(decryptedPassword, user.getPassword()) ) {
-                return ResponseEntity.status(401).body(new Error("Invalid email or password! ","Invalid email or password!"));
+            if (!PasswordEncoder.matches(decryptedPassword, user.getPassword())) {
+                return ResponseEntity.status(401).body(new Error("Invalid email or password! ", "Invalid email or password!"));
 
             }
 
 
-List<UserStateRole> userStateRoleList=iUserStateRoleRepo.getUserStateRoleByUserid(user.getId());
-          Roles roles=
+            List<UserStateRole> userStateRoleList = iUserStateRoleRepo.getUserStateRoleByUserid(user.getId());
+            Roles roles =
 
-               iRolesRepository.findById(user.getRoleId())
-                        .orElseThrow(() -> new RuntimeException("Role not found"));
+                    iRolesRepository.findById(user.getRoleId())
+                            .orElseThrow(() -> new RuntimeException("Role not found"));
             List<States> stateList = userStateRoleList.stream()
                     .map(UserStateRole::getState)
                     .collect(Collectors.toList());
 
-            String token = jwtUtil.generateToken(user.getEmail(), roles.getName(), user.getMobileNumber(),user.getEmail());
+            String token = jwtUtil.generateToken(user.getEmail(), roles.getName(), user.getMobileNumber(), user.getEmail());
 
 
-            LoginResponse loginResponse= LoginResponse.builder()
+            LoginResponse loginResponse = LoginResponse.builder()
                     .email(user.getEmail())
                     .isNew(user.getIsNew())
                     .name(user.getName())
@@ -104,56 +104,57 @@ List<UserStateRole> userStateRoleList=iUserStateRoleRepo.getUserStateRoleByUseri
         }
 
 
-
-}
+    }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup( @Valid  @RequestBody Signup request) throws GrantUserAlreadyExistsException {
+    public ResponseEntity<?> signup(@Valid @RequestBody Signup request) throws GrantUserAlreadyExistsException {
         try {
             iUserService.signup(request);
-            return ResponseEntity.ok().body("Successfully Registered");
-        }
-        catch (GrantUserAlreadyExistsException e) {
+            return ResponseEntity.ok().body(new SuccessResponse("Successfully Registered"));
+        } catch (GrantUserAlreadyExistsException e) {
             log.error("User registration error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Error("User already exists", e.getMessage()));
-        }
-        catch (Exception e)
-        {
-       log.error("error while registering "+ e.toString());
-       return  ResponseEntity.internalServerError().body(new Error("Unable to process request  ", e.toString() ));
+        } catch (Exception e) {
+            log.error("error while registering " + e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Unable to process request  ", e.toString()));
         }
     }
+
     @PostMapping("/encrypt")
-    public ResponseEntity<?>encrypt(@RequestBody  Test test) throws Exception {
-        return  ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
+    public ResponseEntity<?> encrypt(@RequestBody Test test) throws Exception {
+        return ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
     }
 
     @PostMapping("/decrypt")
-    public ResponseEntity<?>decrypt(@RequestBody Test test) throws Exception {
-        return  ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
+    public ResponseEntity<?> decrypt(@RequestBody Test test) throws Exception {
+        return ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePassword changePassword)
-    {
-        if(!userRepo.findByMobileNumber(changePassword.getMobile()).isPresent())
-        {
-            return  ResponseEntity.badRequest().body(new Error("No User found","No user found"));
-        }
-        if(changePassword.getTransactionId()==null && !changePassword.getIsNew())
-        {
-            return ResponseEntity.badRequest().body(new Error("Transaction Id is missing","Transaction Id is missing"));
-        }
-        if(changePassword.getIsNew())
-        {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePassword changePassword) {
+        try {
+            if (!userRepo.findByMobileNumber(changePassword.getMobile()).isPresent()) {
+                return ResponseEntity.badRequest().body(new Error("No User found", "No user found"));
+            }
+            if (changePassword.getTransactionId() == null && !changePassword.getIsNew()) {
+                return ResponseEntity.badRequest().body(new Error("Transaction Id is missing", "Transaction Id is missing"));
+            }
+            if (changePassword.getIsNew()) {
 
-           if(iUserService.changePassword(changePassword)>0)
-           {
-               return ResponseEntity.ok().body("Password changed Successfully");
-           }
+                if (iUserService.changePassword(changePassword) > 0) {
+                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
+                }
+                log.info("change password is zero");
+            }
+
+            return ResponseEntity.internalServerError().body("");
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while chnaging password", "Error occured while chnaging password"));
         }
-        return ResponseEntity.internalServerError().body(new Error("Error occured while chnaging password","Error occured while chnaging password"));
+
     }
+
 
 
 

@@ -53,18 +53,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     """, nativeQuery = true)
     List<Object[]> shaFinanceDashboardDetails(Integer userId);
 
-    @Query(value = """
-        SELECT 
-            COALESCE(SUM(requested_amount), 0) AS totalRequestedAmount,
-            COALESCE(SUM(released_amount), 0) AS totalReleasedAmount,
-            COUNT(*) FILTER (WHERE flow_status = 9) AS completedProposals,
-            COUNT(*) FILTER (WHERE flow_status != 9) AS pendingProposals,
-            COUNT(*) FILTER (WHERE flow_status = 1) AS pendingQuery,
-            (SELECT COUNT(*) FROM work_flow WHERE user_id = :userId AND action_id = 7) AS respondedQuery
-        FROM grant_requests
-        WHERE user_id = :userId
-    """, nativeQuery = true)
-    List<Object[]> stateCeoDashboardDetails(Integer userId);
+
 
 
     @Modifying
@@ -72,6 +61,23 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     @Query(value = "UPDATE grant_requests SET flow_status = :statusId WHERE request_id = :requestId", nativeQuery = true)
     int updateStatusDescription( String requestId,  Integer statusId);
 
+    @Query(value = """
+    SELECT 
+        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+        COUNT(*) FILTER (WHERE gr.flow_status = 4) AS nha_review,
+        COUNT(*) FILTER (WHERE gr.flow_status = 2) AS pending_proposals,
+        COUNT(*) FILTER (WHERE gr.flow_status = 7) AS pending_query,
+        COUNT(*) FILTER (WHERE gr.flow_status = 1) AS sha_pending,
+        (
+            SELECT COUNT(*) 
+            FROM work_flow wf 
+            WHERE wf.user_id = :userId AND wf.action_id = 7
+        ) AS resolved_query
+    FROM grant_requests gr
+    WHERE gr.state_id = :stateId
+""", nativeQuery = true)
+    List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId);
 
 
 }

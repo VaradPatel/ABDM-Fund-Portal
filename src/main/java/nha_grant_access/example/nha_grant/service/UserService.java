@@ -98,8 +98,10 @@ PasswordEncoder bCryptPasswordEncoder;
     }
     @Override
     public Integer changePassword(ChangePassword changePassword)
+
     {
         String hashedPassword=bCryptPasswordEncoder.encode(changePassword.getPassword());
-        return userRepo.updateUserVerificationStatusByMobile(changePassword.getPassword(),true,hashedPassword );
+        return userRepo.updateUserVerificationStatusByMobile(changePassword.getMobile(),true,hashedPassword );
     }
+
 }

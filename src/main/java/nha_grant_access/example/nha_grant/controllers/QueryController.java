@@ -45,7 +45,7 @@ public class QueryController {
     {
         try {
             iQuery.raiseQuery(request);
-            return ResponseEntity.ok().body("Query Raised Successfully");
+            return ResponseEntity.ok().body(new SuccessResponse("Query Raised Successfully"));
         }
         catch(Exception e)
         {

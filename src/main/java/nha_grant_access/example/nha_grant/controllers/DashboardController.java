@@ -102,7 +102,7 @@ try
 {
 
     if(iUserService.approveUser(request)>0) {
-        return ResponseEntity.ok().body("User Approval Updated Succesully");
+        return ResponseEntity.ok().body(new SuccessResponse("User Approval Updated Succesully"));
     }
     else {
         return ResponseEntity.badRequest().body("user not found");
@@ -164,6 +164,37 @@ catch (Exception e)
             return ResponseEntity.internalServerError().body(new Error("Failed while fetching review data ", e.toString()));
         }
     }
+@GetMapping("/state-ceo")
+public ResponseEntity<?> getStateCeoDashboard(
+        @RequestParam Integer stateId,
+        @RequestParam Integer userId)
+{
+    try
+    {
+        List<Object[]>results=iGrantRequestsRepo.getStateCeoDashboard(stateId,userId);
+        if (results.isEmpty()) {
+          return ResponseEntity.ok().body(new StateCeoDashboatd());
+        }
 
+        Object[] row = results.get(0);
+
+        StateCeoDashboatd result=StateCeoDashboatd.builder()
+                .totalRequestedAmount((BigDecimal) row[0])
+                .totalReleasedAmount((BigDecimal) row[1])
+                .nhaReview((Long) row[2])
+                .pendingProposals((Long) row[3])
+                .pendingQuery((Long) row[4])
+                .shaPending((Long) row[5])
+                .resolvedQuery((Long) row[6])
+                .build();
+        return ResponseEntity.ok().body(result);
+
+    }
+    catch(Exception e)
+    {
+        log.error(e.toString());
+        return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details",e.toString()));
+    }
+}
 
     }
