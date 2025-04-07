@@ -62,7 +62,7 @@ public class LoginController {
         Optional<User> userOpt = userRepo.findByEmail(request.getEmail());
 
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(401).body(new Error("Invalid email or password! ", "Invalid email or password!"));
+            return ResponseEntity.status(401).body(new Error("Invalid email or password! ", "Invalid email or password  !"));
         }
 
         User user = userOpt.get();
@@ -71,7 +71,8 @@ public class LoginController {
             String decryptedPassword = rsaUtil.decrypt(request.getPassword());
 
             if (!PasswordEncoder.matches(decryptedPassword, user.getPassword())) {
-                return ResponseEntity.status(401).body(new Error("Invalid email or password! ", "Invalid email or password!"));
+
+                return ResponseEntity.status(401).body(new Error("Invalid email or password! ", "Invalid email or password!" + decryptedPassword));
 
             }
 

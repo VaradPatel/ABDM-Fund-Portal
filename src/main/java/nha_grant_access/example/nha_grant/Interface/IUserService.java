@@ -10,6 +10,6 @@ public interface IUserService {
     public void signup(Signup signup) throws RuntimeException, GrantUserAlreadyExistsException;
 
     public Integer approveUser(UserApprovalRequest request);
-    public Integer changePassword(ChangePassword changePassword);
+    public Integer changePassword(ChangePassword changePassword) throws Exception;
 
 }
