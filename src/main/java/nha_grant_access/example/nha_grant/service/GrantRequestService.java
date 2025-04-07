@@ -43,7 +43,7 @@ public class GrantRequestService implements IGrantRequests {
 
     @Override
     @Transactional
-    public GrantRequestInputDto saveGrantRequest(GrantRequestInputDto dto) {
+    public GrantRequestInputDto saveGrantRequest(GrantRequestInputDto dto, Boolean isQueryResponse) {
         try {
             if (dto.getRequestId() != null) {
                 // Update Existing Request
@@ -53,6 +53,11 @@ public class GrantRequestService implements IGrantRequests {
                 }
                existingRequest=updateExistingGrantRequest(existingRequest, dto);
                 iGrantRequestsRepo.save(existingRequest);
+                if(isQueryResponse)
+                {
+                    saveToWorkFlow(existingRequest.getRequestId(),existingRequest.getUser().getId(),7,existingRequest.getProposalType().getId());
+
+                }
                 log.info("edited the grant_requests " + existingRequest.toString());
 
             } else {

@@ -3,6 +3,7 @@ package nha_grant_access.example.nha_grant.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.Interface.IQuery;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
@@ -26,6 +27,8 @@ public class QueryController {
     IQuery iQuery;
     @Autowired
     private IGrantRequestsRepo iGrantRequestsRepo;
+    @Autowired
+    private IGrantRequests iGrantRequests;
     @Autowired
     IQueries iQueries;
     @GetMapping("/get-active-query/{userId}")
@@ -54,16 +57,22 @@ public class QueryController {
     }
 
 
-    @PostMapping("/query-respond")
-    public ResponseEntity<?>respondToQuery(GrantRequestInputDto grantRequestInputDto)
-    {
-        Optional<GrantRequests> existingGrant = iGrantRequestsRepo.findByRequestId(grantRequestInputDto.getRequestId());
-        if(!existingGrant.isPresent())
-        {
-            return ResponseEntity.badRequest().body(new Error("Request Id is not present","Request Id is not present"));
-        }
-   return ResponseEntity.ok().body("Query Responded Successfully");
-    }
+//    @PostMapping("/query-respond")
+//    public ResponseEntity<?>respondToQuery(GrantRequestInputDto grantRequestInputDto) {
+//        try {
+//            Optional<GrantRequests> existingGrant = iGrantRequestsRepo.findByRequestId(grantRequestInputDto.getRequestId());
+//            if (!existingGrant.isPresent()) {
+//                return ResponseEntity.badRequest().body(new Error("Request Id is not present", "Request Id is not present"));
+//            }
+//            GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDto,true);
+//
+//
+//
+//
+//        }
+//
+//   return ResponseEntity.ok().body("Query Responded Successfully");
+//    }
     @GetMapping("/queryhistory-sha/{stateId}")
 
     public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("stateId") Integer stateId) {

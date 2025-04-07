@@ -22,4 +22,5 @@ public class UserRequest {
    private String roleName;
    private String name;
    private Date createdAt;
+   private Boolean isVerified;
 }

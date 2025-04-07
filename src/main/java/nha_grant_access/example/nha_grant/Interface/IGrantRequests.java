@@ -6,6 +6,6 @@ import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
 import java.util.List;
 
 public interface IGrantRequests {
-    GrantRequestInputDto saveGrantRequest(GrantRequestInputDto grantRequestInputDTO);
+    GrantRequestInputDto saveGrantRequest(GrantRequestInputDto grantRequestInputDTO, Boolean isQueryResponse);
     List<AllGrantRequest> getAllGrantRequest(Integer stateId );
 }

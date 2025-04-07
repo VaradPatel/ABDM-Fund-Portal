@@ -77,6 +77,7 @@ public class DashboardController {
                             .roleName((String) row[5])
                             .name((String) row[6])
                             .createdAt((Date) row[7])
+                            .isVerified((Boolean) row[8])
                             .build())
                     .collect(Collectors.toList());
  return ResponseEntity.ok().body(users);

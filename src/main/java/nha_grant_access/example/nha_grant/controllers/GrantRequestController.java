@@ -63,7 +63,7 @@ public class GrantRequestController {
 //
 
 
-            GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO);
+            GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ",e.toString()));
