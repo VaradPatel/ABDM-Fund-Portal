@@ -25,7 +25,7 @@ public class OtpController {
 try {
     OtpResponseTo otpResponseTo=iOtp.generateOtp(otpGenerateRequestTo);
 
-    return ResponseEntity.ok().body(new SuccessResponse("Otp send Successfully"));
+    return ResponseEntity.ok().body(otpResponseTo);
 }
 catch (Exception e)
 {

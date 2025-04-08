@@ -76,8 +76,8 @@ private BigDecimal totalStateShare;
     private Boolean eSignStatusStateCeo=false;
     private String remarks;
 private String queryResponse;
-    private Boolean positiveBalance=false;
-    private String queryId;
+    private Boolean positiveBalance;
+    private Integer queryId;
 
 
 }

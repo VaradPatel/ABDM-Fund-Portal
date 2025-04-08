@@ -8,8 +8,11 @@ import nha_grant_access.example.nha_grant.Interface.IQuery;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
+import nha_grant_access.example.nha_grant.entity.Queries;
+import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IQueries;
+import nha_grant_access.example.nha_grant.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +34,8 @@ public class QueryController {
     private IGrantRequests iGrantRequests;
     @Autowired
     IQueries iQueries;
+    @Autowired
+    UserRepo userRepo;
     @GetMapping("/get-active-query/{userId}")
     public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer userId) {
         try {
@@ -57,22 +62,43 @@ public class QueryController {
     }
 
 
-//    @PostMapping("/query-respond")
-//    public ResponseEntity<?>respondToQuery(GrantRequestInputDto grantRequestInputDto) {
-//        try {
-//            Optional<GrantRequests> existingGrant = iGrantRequestsRepo.findByRequestId(grantRequestInputDto.getRequestId());
-//            if (!existingGrant.isPresent()) {
-//                return ResponseEntity.badRequest().body(new Error("Request Id is not present", "Request Id is not present"));
-//            }
-//            GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDto,true);
-//
-//
-//
-//
-//        }
-//
-//   return ResponseEntity.ok().body("Query Responded Successfully");
-//    }
+    @PostMapping("/query-response")
+    public ResponseEntity<?>respondToQuery(GrantRequestInputDto grantRequestInputDto) {
+        try {
+            Optional<GrantRequests> existingGrant = iGrantRequestsRepo.findByRequestId(grantRequestInputDto.getRequestId());
+            if (!existingGrant.isPresent()) {
+                return ResponseEntity.badRequest().body(new Error("Request Id is Invalid", "Query Id is Invalid"));
+            }
+            Optional<Queries>existingQuery=iQueries.findById(grantRequestInputDto.getQueryId());
+            Optional<User> user =userRepo.findById(grantRequestInputDto.getUserId());
+            if(!existingQuery.isPresent())
+            {
+                return ResponseEntity.badRequest().body(new Error("Query Id is Invalid", "Query Id is not present"));
+
+            }
+            if(grantRequestInputDto.getUserId()==null || user.isEmpty())
+            {
+                return ResponseEntity.badRequest().body(new Error(" User Id is Invalid", "User Id is not present"));
+
+            }
+            GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDto,true);
+
+            existingQuery.get().setQueryResponseComment(grantRequestInputDto.getQueryResponse());
+
+            existingQuery.get().setQueryUser(user.get());
+            iQueries.save(existingQuery.get());
+return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfully"));
+
+
+        }
+        catch (Exception e)
+        {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error while responding to Query" ,e.toString()));
+        }
+
+
+    }
     @GetMapping("/queryhistory-sha/{stateId}")
 
     public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("stateId") Integer stateId) {
