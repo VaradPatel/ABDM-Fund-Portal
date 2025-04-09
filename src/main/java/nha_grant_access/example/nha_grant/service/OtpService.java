@@ -1,23 +1,25 @@
 package nha_grant_access.example.nha_grant.service;
 
+import io.micrometer.common.util.StringUtils;
 import nha_grant_access.example.nha_grant.Interface.IOtp;
 import nha_grant_access.example.nha_grant.dto.OtpGenerateRequest;
 import nha_grant_access.example.nha_grant.dto.OtpResponseTo;
+import nha_grant_access.example.nha_grant.dto.VerifyOtpRequest;
 import nha_grant_access.example.nha_grant.redis.hash.Otp;
 import nha_grant_access.example.nha_grant.redis.repository.IBlacklistTokenRepository;
 import nha_grant_access.example.nha_grant.redis.repository.IOtpRepository;
+import nha_grant_access.example.nha_grant.utils.RSAUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.AlgorithmParametersSpi;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.security.SecureRandom;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,6 +28,8 @@ public class OtpService implements IOtp {
     IOtpRepository iOtpRepository;
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    RSAUtil rsaUtil;
 
 
     @Override
@@ -38,6 +42,45 @@ String contact=otpGenerateRequestTo.getMobile();
         return new OtpResponseTo(otpEntity.getId(),"OTP sent sucessfully",otpEntity.getContact());
 
     }
+
+    @Override
+    public Boolean validateOtp(VerifyOtpRequest otpValidateRequestTo) {
+        String transactionId = otpValidateRequestTo.getTransactionId();
+
+        Optional<Otp> otpDetails =iOtpRepository.findById(transactionId);
+
+        if (otpDetails.isEmpty() || otpDetails.get().isExpired()) {
+            return false;
+            }
+
+        if (otpDetails.get().getAttempts() >= 6) {
+            iOtpRepository.deleteById(otpDetails.get().getId());
+           return false;
+
+        }
+        String decryptedOtp = null;
+        try {
+            decryptedOtp = rsaUtil.decrypt(otpValidateRequestTo.getOtp());
+        }
+        catch (Exception e)
+        {
+            ;
+        }
+
+        if(!decryptedOtp.equals(otpDetails.get().getOtp()))
+        {
+            otpDetails.get().setAttempts(otpDetails.get().getAttempts() + 1);
+            iOtpRepository.save(otpDetails.get());
+            return false;
+        }
+        otpDetails.get().setVerified(true);
+        iOtpRepository.save(otpDetails.get());
+        return true;
+
+
+
+    }
+
     public String sendOtp(String mobileNumber, String otp) {
         String lastFourDigits = mobileNumber.length() > 4
                 ? mobileNumber.substring(mobileNumber.length() - 4)

@@ -61,7 +61,7 @@ public class GrantRequestController {
 //            User user = userRepo.findByEmail(email)
 //                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 //
-
+            System.out.println("positive balance is" +grantRequestInputDTO.getPositiveBalance());
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));

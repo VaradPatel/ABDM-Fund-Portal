@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -13,7 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class GrantRequestInputDto {
-private String requestId;
+
+
 
     @NotNull(message = "stateId is mandatory")
     private Integer stateId;
@@ -78,6 +80,8 @@ private BigDecimal totalStateShare;
 private String queryResponse;
     private Boolean positiveBalance;
     private Integer queryId;
+    @JsonProperty("requestId")
+    private String requestId;
 
 
 }

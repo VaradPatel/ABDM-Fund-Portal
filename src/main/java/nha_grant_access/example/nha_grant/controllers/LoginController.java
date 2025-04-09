@@ -101,6 +101,7 @@ public class LoginController {
                     .build();
             return ResponseEntity.ok().body(loginResponse);
         } catch (Exception e) {
+
             return ResponseEntity.badRequest().body(new Error("Error occured while login ", e.toString()));
         }
 

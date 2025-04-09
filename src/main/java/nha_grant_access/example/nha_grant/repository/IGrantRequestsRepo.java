@@ -21,9 +21,9 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
             nativeQuery = true)
     List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
 
-
+    @Query(value ="Select * from grant_requests where request_id= :requestId", nativeQuery = true)
     Optional<GrantRequests> findByRequestId(String requestId);
-    @Query(value ="Select * from grant_requests where request_id=:requestId", nativeQuery = true)
+    @Query(value ="Select * from grant_requests where request_id= :requestId", nativeQuery = true)
 GrantRequests findGrantRequestByRequestId(String requestId);
     @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
             "FROM grant_requests gr " +

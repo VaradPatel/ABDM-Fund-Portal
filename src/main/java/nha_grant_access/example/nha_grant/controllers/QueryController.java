@@ -63,11 +63,11 @@ public class QueryController {
 
 
     @PostMapping("/query-response")
-    public ResponseEntity<?>respondToQuery(GrantRequestInputDto grantRequestInputDto) {
+    public ResponseEntity<?>respondToQuery(@Valid @RequestBody GrantRequestInputDto grantRequestInputDto) {
         try {
             Optional<GrantRequests> existingGrant = iGrantRequestsRepo.findByRequestId(grantRequestInputDto.getRequestId());
             if (!existingGrant.isPresent()) {
-                return ResponseEntity.badRequest().body(new Error("Request Id is Invalid", "Query Id is Invalid"));
+                return ResponseEntity.badRequest().body(new Error("Request Id is Invalid" + grantRequestInputDto.getRequestId(), "Request Id is Invalid"));
             }
             Optional<Queries>existingQuery=iQueries.findById(grantRequestInputDto.getQueryId());
             Optional<User> user =userRepo.findById(grantRequestInputDto.getUserId());
