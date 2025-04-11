@@ -21,4 +21,6 @@ public class States {
     private BigDecimal nhaShareRatio;
     private BigInteger beneficCount;
     private BigDecimal maxEligibleGrant;
+    private BigDecimal ceilAmount;
+    private BigDecimal nhaShare;
 }
