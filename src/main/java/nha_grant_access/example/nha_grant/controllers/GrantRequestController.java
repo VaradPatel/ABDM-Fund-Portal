@@ -73,7 +73,7 @@ public class GrantRequestController {
     @GetMapping("/get-all/{stateId}")
 
    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
-    public ResponseEntity<?> getAllGrantRequest(@PathVariable("stateId") Integer stateId , @RequestParam(value = "format", defaultValue = "json") String format) {
+    public ResponseEntity<?> getAllGrantRequest(@PathVariable("stateId") Integer stateId , @RequestParam(value = "userId", required = false) Integer userId,@RequestParam(value = "format", defaultValue = "json") String format) {
         try {
 //            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //            if (authentication != null) {
@@ -82,7 +82,7 @@ public class GrantRequestController {
 //            }
 //            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
 //            return ResponseEntity.ok(allGrantRequests);
-            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
+            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId,userId);
 
             if(format.equals("csv"))
             {

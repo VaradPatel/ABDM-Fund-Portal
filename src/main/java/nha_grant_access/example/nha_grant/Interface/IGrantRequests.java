@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface IGrantRequests {
     GrantRequestInputDto saveGrantRequest(GrantRequestInputDto grantRequestInputDTO, Boolean isQueryResponse);
-    List<AllGrantRequest> getAllGrantRequest(Integer stateId );
+    List<AllGrantRequest> getAllGrantRequest(Integer stateId, Integer userId );
 }

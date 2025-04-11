@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.service;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.AllGrantRequest;
@@ -77,10 +78,10 @@ public class GrantRequestService implements IGrantRequests {
     }
 
     @Override
-    public List<AllGrantRequest> getAllGrantRequest(Integer userId) {
+    public List<AllGrantRequest> getAllGrantRequest(Integer stateId, Integer userId) {
 
 
-        return iGrantRequestsRepo.findAllGrantRequest(userId).stream()
+        return iGrantRequestsRepo.findAllGrantRequest(stateId,userId).stream()
                 .map(gr -> AllGrantRequest.builder()
                         .requestId(gr.getRequestId())
                         .dateRequested(gr.getCreatedAt())
