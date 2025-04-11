@@ -150,7 +150,8 @@ public class GrantRequestService implements IGrantRequests {
         existingRequest.setMaxEligibleGrant(dto.getMaxEligibleGrant());
         existingRequest.setReleaseTillDate(dto.getReleaseTillDate());
         existingRequest.setRequestedAmount(dto.getRequestedAmount());
-        existingRequest.setReleasedAmount(dto.getReleaseTillDate());
+        existingRequest.setReleaseTillDate(dto.getReleaseTillDate());
+
         existingRequest.setStateShare(dto.getStateShare());
         existingRequest.setESignStatusStateCeo(dto.getESignStatusStateCeo());
         if(dto.getRemarks()!=null) {
