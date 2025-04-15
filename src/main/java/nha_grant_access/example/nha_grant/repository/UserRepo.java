@@ -22,7 +22,7 @@ public interface UserRepo extends JpaRepository<User, Integer> {
             "JOIN states s ON usr.state_id = s.id " +
             "JOIN roles r ON u.role_id = r.id " +
             "WHERE usr.state_id = :stateId " +
-            "AND u.role_id = 1 ",
+            "AND u.role_id = 1 order by u.is_verified ASC, u.created_at desc",
             nativeQuery = true)
 
 

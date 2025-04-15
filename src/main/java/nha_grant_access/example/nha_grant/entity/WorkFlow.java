@@ -33,6 +33,8 @@ public class WorkFlow {
     @ManyToOne
     @JoinColumn(name = "proposal_type", nullable = false)
     private ProposalType proposalType;
+
+    private String remarks;
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -7,6 +7,7 @@ import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
+import nha_grant_access.example.nha_grant.repository.IQueries;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ public class GrantRequestController {
     private JwtUtil jwtUtil;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private IQueries iQueries;
     @PostMapping("/add")
     //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
@@ -216,7 +219,17 @@ public class GrantRequestController {
     public ResponseEntity<?> getGrantRequestByRequestId(@PathVariable("requestId") String requestId) {
         try {
             GrantRequests grantRequests=iGrantRequestsRepo.findGrantRequestByRequestId(requestId);
-            return ResponseEntity.ok(grantRequests);
+            List<Object[]> rawResults = iQueries.getWorkflowRemarksByRequestId(requestId);
+
+            List<WorkFlowRemarkResponse> remarks = rawResults.stream().map(obj -> {
+                WorkFlowRemarkResponse response = new WorkFlowRemarkResponse();
+                response.setRemarks((String) obj[0]);
+                response.setRoleName((String) obj[1]);
+                response.setCreatedAt(obj[2] != null ? ((java.sql.Timestamp) obj[2]).toLocalDateTime() : null);
+                return response;
+            }).toList();
+
+            return ResponseEntity.ok(new WorkFlowHistory(grantRequests,remarks));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new Error("Failed to fetch grant request details", e.toString()));
         }

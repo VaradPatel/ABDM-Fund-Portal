@@ -15,7 +15,7 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
     @Query(value = """
     SELECT * FROM grant_requests
     WHERE state_id = :stateId
-    AND (:userId IS NULL OR user_id = :userId)
+    AND (:userId IS NULL OR user_id = :userId) 
     """, nativeQuery = true)
     List<GrantRequests> findAllGrantRequest(Integer stateId, Integer userId);
     @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name , gr.created_at  " +

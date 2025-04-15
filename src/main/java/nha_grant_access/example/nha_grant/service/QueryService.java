@@ -82,7 +82,7 @@ throw new RuntimeException(String.valueOf(new Error("error occured while respond
                     .build();
             WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(2, request.getRoleId());
             iGrantRequestsRepo.updateStatusDescription(request.getRequestId(),workFlowConfiguration.getStatusDescription().getId());
-            grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId());
+            grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId(),request.getQuery());
 
             // grantRequestService.saveToDashboard(request.getRequestId(),request.getStateId(),request.getProposalTypeId(), request.getRoleId(),workFlowConfiguration.getAssignTo().getId(),);
 //saveToDashboard

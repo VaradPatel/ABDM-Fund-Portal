@@ -56,7 +56,7 @@ public class GrantRequestService implements IGrantRequests {
                 iGrantRequestsRepo.save(existingRequest);
                 if(isQueryResponse)
                 {
-                    saveToWorkFlow(existingRequest.getRequestId(),existingRequest.getUser().getId(),7,existingRequest.getProposalType().getId());
+                    saveToWorkFlow(existingRequest.getRequestId(),existingRequest.getUser().getId(),7,existingRequest.getProposalType().getId(),dto.getQueryResponse());
 
                 }
                 log.info("edited the grant_requests " + existingRequest.toString());
@@ -69,7 +69,7 @@ public class GrantRequestService implements IGrantRequests {
                 dto.setRequestId(savedRequest.getRequestId());
                 log.info("saved the grant_requests " + savedRequest.toString());
                 //save to user dump
-                saveToWorkFlow(savedRequest.getRequestId(),savedRequest.getUser().getId(),1,savedRequest.getProposalType().getId());
+                saveToWorkFlow(savedRequest.getRequestId(),savedRequest.getUser().getId(),1,savedRequest.getProposalType().getId(),"");
             }
             return dto;
         } catch (Exception e) {
@@ -230,7 +230,7 @@ public void saveToDashboard(
         e.printStackTrace(); // Log or handle exception properly
     }
 }
-    public void saveToWorkFlow(String requestId, Integer userId, Integer actionId, Integer proposalType)
+    public void saveToWorkFlow(String requestId, Integer userId, Integer actionId, Integer proposalType, String remarks)
     {
         try {
 
@@ -239,6 +239,7 @@ public void saveToDashboard(
                     user(getUser(userId)).
                     action(getAction(actionId)).
                     proposalType(getProposalType(proposalType)).
+                    remarks(remarks).
                     build();
             iWorkFlow.save(workFlow);
         }

@@ -85,7 +85,7 @@ public class QueryController {
 
             existingQuery.get().setQueryResponseComment(grantRequestInputDto.getQueryResponse());
 
-            existingQuery.get().setQueryUser(user.get());
+            existingQuery.get().setResponseUser(user.get());
             iQueries.save(existingQuery.get());
 return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfully"));
 
