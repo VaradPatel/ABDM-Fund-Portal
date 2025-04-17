@@ -18,18 +18,20 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
     AND (:userId IS NULL OR user_id = :userId) 
     """, nativeQuery = true)
     List<GrantRequests> findAllGrantRequest(Integer stateId, Integer userId);
-    @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name , gr.created_at  " +
+    @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +
             "FROM grant_requests gr " +
             "JOIN users u ON gr.user_id = u.id " +
+            "JOIN states s ON gr.state_id = s.id " +
             "WHERE gr.state_id = :stateId AND gr.flow_status = :flowStatus",
             nativeQuery = true)
     List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
 
 
-    @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name, gr.created_at " +
+    @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +
             "FROM grant_requests gr " +
             "JOIN user_state_role usr ON gr.state_id = usr.state_id AND usr.role_id = 2 " +
             "JOIN users u ON usr.user_id = u.id " +
+            "JOIN states s ON gr.state_id = s.id " +
             "WHERE gr.state_id IN (:stateId) AND gr.flow_status = :flowStatus",
             nativeQuery = true)
     List<Object[]> getGrantRequestsWithState( List<Integer>stateId, Integer flowStatus);

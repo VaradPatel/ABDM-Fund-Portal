@@ -18,5 +18,6 @@ public class ReviewProposal {
     private BigDecimal requestedAmount;
     private String userName;
     private Date createdAt;
+    private String stateName;
 
 }

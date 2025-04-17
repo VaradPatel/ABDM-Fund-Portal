@@ -198,7 +198,8 @@ catch (Exception e)
                     (String) obj[1],   // remarks
                     (BigDecimal) obj[2],   // requested_amount
                     (String) obj[3]  ,
-                    (Date) obj[4]// user_name
+                    (Date) obj[4],
+                    (String) obj[5]// user_name
             )).toList();
             return ResponseEntity.ok().body(result);
 
@@ -265,7 +266,8 @@ public ResponseEntity<?> getStateCeoDashboard(
                     (String) obj[1],   // remarks
                     (BigDecimal) obj[2],   // requested_amount
                     (String) obj[3]  ,
-                    (Date) obj[4]// user_name
+                    (Date) obj[4],
+                    (String)obj[5] //
             )).toList();
             return ResponseEntity.ok().body(result);
 
