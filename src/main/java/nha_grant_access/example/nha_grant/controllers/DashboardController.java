@@ -96,14 +96,17 @@ public class DashboardController {
 
 
        }
-    @GetMapping("/admin-user-management")
+    @GetMapping("/admin-user-management/{status}")
     //@PreAuthorize("hasAuthority('State CEO') ")
-    public ResponseEntity<?> getUserApprovalBAdmin() throws AccessDeniedException {
+    public ResponseEntity<?> getUserApprovalByAdmin(@PathVariable("status") Integer status) throws AccessDeniedException {
         try {
+            List<Object[]> user=null;
 
-
-
-            List<Object[]> user = userRepo.findUsersRequestByAdmin();
+            if(status!=0) {
+                user = userRepo.findUsersRequestByAdmin(true);
+            }
+            else
+                user=userRepo.findUsersRequestByAdmin(false);
 
             List<UserRequest> users = user.stream()
                     .map(row -> UserRequest.builder()
