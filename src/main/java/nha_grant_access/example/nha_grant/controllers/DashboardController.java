@@ -255,7 +255,7 @@ public ResponseEntity<?> getStateCeoDashboard(
 
 
 
-                  List<Integer>StateIds=userRepo.findStateIdByRole(2,user.getId());
+                  List<Integer>StateIds=userRepo.findStateIdByRole(3,user.getId());
                 System.out.println("stateIds "+ StateIds.toString() + " user "+ user.toString());
                   results=iGrantRequestsRepo.getGrantRequestsWithState(StateIds,4);
 
