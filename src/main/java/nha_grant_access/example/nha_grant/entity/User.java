@@ -54,6 +54,9 @@ public class User {
     @Column(name= "designation")
     private String designation;
 
+    @Column(name="is_activated")
+    private Boolean isActivated;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<UserStateRole> userStateRoles = new HashSet<>();
     @PrePersist

@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,6 +58,7 @@ public class LoginController {
     IRolesRepository iRolesRepository;
 
 
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         Optional<User> userOpt = userRepo.findByEmail(request.getEmail());
@@ -65,7 +67,13 @@ public class LoginController {
             return ResponseEntity.status(401).body(new Error("Invalid email or password! ", "Invalid email or password  !"));
         }
 
+
         User user = userOpt.get();
+        if(!user.getIsActivated())
+        {
+            return ResponseEntity.status(401).body(new Error("User is Not activated ", "User is Not activated  !"));
+
+        }
 
         try {
             String decryptedPassword = rsaUtil.decrypt(request.getPassword());
@@ -152,8 +160,29 @@ public class LoginController {
             return ResponseEntity.internalServerError().body("");
         } catch (Exception e) {
             log.error(e.toString());
-            return ResponseEntity.internalServerError().body(new Error("Error occured while chnaging password", "Error occured while chnaging password"));
+            return ResponseEntity.internalServerError().body(new Error("Error occured while changing password", "Error occured while chnaging password"));
         }
+
+    }
+    @PostMapping("/user-activate/{userId}/{status}")
+            public ResponseEntity<?> UserActivation(@PathVariable("userId") Integer userId , @PathVariable("status") Integer status)
+    {
+ try
+ {
+     if(status!=0)
+     {
+         userRepo.updateUserActivationStatus(userId,true);
+         return ResponseEntity.ok().body(new SuccessResponse("Successfully activated user"));
+     }
+     else {
+         userRepo.updateUserActivationStatus(userId,false);
+         return ResponseEntity.ok().body(new SuccessResponse("Successfully deactivated user"));
+     }
+ }
+       catch (Exception e) {
+        log.error(e.toString());
+        return ResponseEntity.internalServerError().body(new Error("Error occured while activate/deactivate user", "Error occured while chnaging password"));
+    }
 
     }
 
