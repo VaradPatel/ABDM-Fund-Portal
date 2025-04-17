@@ -44,10 +44,10 @@ public class OtpController {
     public ResponseEntity<?> generateOtp(@Valid @RequestBody OtpGenerateRequest otpGenerateRequestTo)
              {
 try {
-    if(userRepo.findActiveByMobile(otpGenerateRequestTo.getMobile()).isEmpty())
-    {
-        return  ResponseEntity.badRequest().body(new Error ("No User found for mobile number","No User found for mobile number"));
-    }
+//    if(userRepo.findActiveByMobile(otpGenerateRequestTo.getMobile()).isEmpty())
+//    {
+//        return  ResponseEntity.badRequest().body(new Error ("No User found for mobile number","No User found for mobile number"));
+//    }
 
     OtpResponseTo otpResponseTo=iOtp.generateOtp(otpGenerateRequestTo);
 
