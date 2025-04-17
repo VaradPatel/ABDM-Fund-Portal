@@ -28,8 +28,22 @@ public interface UserRepo extends JpaRepository<User, Integer> {
 
 
     List<Object[]> findUsersRequestByStateId(Integer stateId);
-    @Query(value = "SELECT u.*  FROM users u JOIN user_state_role usr ON u.id = usr.user_id WHERE  u.role_id <> 1 and u.is_verified=false", nativeQuery = true)
-    List<User> findUsersRequestByAdmin();
+
+    @Query(value = "SELECT u.id, u.email, u.mobile_number, u.designation, " +
+            "STRING_AGG(s.name, ', ') AS state_names, " +
+            "r.name AS role_name, u.name, u.created_at, u.is_verified " +
+            "FROM users u " +
+            "JOIN user_state_role usr ON u.id = usr.user_id " +
+            "JOIN states s ON usr.state_id = s.id " +
+            "JOIN roles r ON u.role_id = r.id " +
+            "WHERE u.role_id <> 1 " +
+            "GROUP BY u.id, u.email, u.mobile_number, u.designation, r.name, u.name, u.created_at, u.is_verified " +
+            "ORDER BY u.is_verified ASC, u.created_at DESC",
+            nativeQuery = true)List<Object[]> findUsersRequestByAdmin();
+
+    @Query(value="select usr.state_id from user_state_role usr where usr.role_id= :roleId and usr.user_id= :userId ", nativeQuery = true)
+    List<Integer> findStateIdByRole(Integer roleId, Integer userId);
+
 
 
     @Transactional

@@ -14,11 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -92,6 +96,40 @@ public class DashboardController {
 
 
        }
+    @GetMapping("/admin-user-management")
+    //@PreAuthorize("hasAuthority('State CEO') ")
+    public ResponseEntity<?> getUserApprovalBAdmin() throws AccessDeniedException {
+        try {
+
+
+
+            List<Object[]> user = userRepo.findUsersRequestByAdmin();
+
+            List<UserRequest> users = user.stream()
+                    .map(row -> UserRequest.builder()
+                            .id((Integer) row[0])                 // u.id
+                            .email((String) row[1])               // u.email
+                            .mobile((String) row[2])              // u.mobile_number
+                            .designation((String) row[3])         // u.designation
+                            .stateName((String) row[4])           // s.name (state_name)
+                            .roleName((String) row[5])
+                            .name((String) row[6])
+                            .createdAt((Date) row[7])
+                            .isVerified((Boolean) row[8])
+                            .build())
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok().body(users);
+
+
+        }
+        catch(Exception e)
+        {
+            log.info("error occured while fetching user-approval" + e.toString());
+            return ResponseEntity.ok().body(new Error("error occured while fetching user-approval",e.toString()));
+        }
+
+
+    }
 
 
 
@@ -197,5 +235,43 @@ public ResponseEntity<?> getStateCeoDashboard(
         return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details",e.toString()));
     }
 }
+    @GetMapping("/statecord-review/{stateId}")
+    //@PreAuthorize("hasAuthority('State CEO') ")
+    public ResponseEntity<?>stateCordReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
+        try
+        {
+            Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+            String name=authentication.getName();
+            List<Object[]> results=null;
+            if(stateId!=0) {
+                 results = iGrantRequestsRepo.getGrantRequestsWithState(Collections.singletonList(stateId), 4);
+            }
+            else {
+                User user=userRepo.findByEmail(name).get();
+
+
+
+                  List<Integer>StateIds=userRepo.findStateIdByRole(2,user.getId());
+                System.out.println("stateIds "+ StateIds.toString() + " user "+ user.toString());
+                  results=iGrantRequestsRepo.getGrantRequestsWithState(StateIds,4);
+
+            }
+            List<ReviewProposal>result=results.stream().map(obj -> new ReviewProposal(
+                    (String) obj[0],   // request_id
+                    (String) obj[1],   // remarks
+                    (BigDecimal) obj[2],   // requested_amount
+                    (String) obj[3]  ,
+                    (Date) obj[4]// user_name
+            )).toList();
+            return ResponseEntity.ok().body(result);
+
+        } catch(Exception e)
+        {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details",e.toString()));
+        }
+
+    }
+
 
     }
