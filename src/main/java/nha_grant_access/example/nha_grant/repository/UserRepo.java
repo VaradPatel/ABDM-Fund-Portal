@@ -31,7 +31,7 @@ public interface UserRepo extends JpaRepository<User, Integer> {
 
     @Query(value = "SELECT u.id, u.email, u.mobile_number, u.designation, " +
             "STRING_AGG(s.name, ', ') AS state_names, " +
-            "r.name AS role_name, u.name, u.created_at, u.is_verified " +
+            "r.name AS role_name, u.name, u.created_at, u.is_verified , u.is_activated " +
             "FROM users u " +
             "JOIN user_state_role usr ON u.id = usr.user_id " +
             "JOIN states s ON usr.state_id = s.id " +

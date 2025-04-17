@@ -23,4 +23,5 @@ public class UserRequest {
    private String name;
    private Date createdAt;
    private Boolean isVerified;
+   private Boolean isActivated;
 }

@@ -119,6 +119,7 @@ public class DashboardController {
                             .name((String) row[6])
                             .createdAt((Date) row[7])
                             .isVerified((Boolean) row[8])
+                            .isActivated((Boolean) row[9])
                             .build())
                     .collect(Collectors.toList());
             return ResponseEntity.ok().body(users);
