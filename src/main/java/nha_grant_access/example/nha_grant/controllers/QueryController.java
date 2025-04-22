@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -36,10 +37,33 @@ public class QueryController {
     IQueries iQueries;
     @Autowired
     UserRepo userRepo;
+
     @GetMapping("/get-active-query/{userId}")
     public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer userId) {
         try {
             List<GetActiveQuery> getActiveQuery = iQuery.getActiveQueryByUserId(userId);
+            return ResponseEntity.ok().body(getActiveQuery);
+        }
+        catch(Exception e)
+        {
+            log.info("error while fetching active queries "+ e.toString());
+            return ResponseEntity.internalServerError().body("Error while fetching active queries "+ e.toString());
+        }
+    }
+    @GetMapping("/stateceo-getactivequery/{stateId}")
+    public ResponseEntity<?> getStateCeoActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
+        try {
+            List<Object[]> results= iGrantRequestsRepo.findStateActiveQueryFromStateID(StateId);
+            List<GetActiveQuery> getActiveQuery=results.stream()
+                    .map(obj -> new GetActiveQuery(
+                            (Integer) obj[0],
+                            (String) obj[1],  // requestId
+                            (String) obj[2],  // queryComment
+                            (String) obj[3],
+                            (Date)obj[4],
+                            (String) obj[5]// queryDoc
+                    ))
+                    .collect(Collectors.toList());
             return ResponseEntity.ok().body(getActiveQuery);
         }
         catch(Exception e)
@@ -99,7 +123,20 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 
 
     }
-    @GetMapping("/queryhistory-sha/{stateId}")
+    @PostMapping("/query-forward")
+//    public ResponseEntity<?>forwardQuery(@Valid @RequestBody GrantRequestInputDto grantRequestInputDto) {
+//        try
+//        {
+//
+//        }
+//        catch(Exception e)
+//        {
+//
+//        }
+//
+//    }
+
+        @GetMapping("/queryhistory-sha/{stateId}")
 
     public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("stateId") Integer stateId) {
         try

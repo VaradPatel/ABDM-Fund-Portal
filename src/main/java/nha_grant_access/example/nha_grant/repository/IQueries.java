@@ -23,7 +23,7 @@ public interface IQueries extends JpaRepository<Queries, Integer> {
            nativeQuery = true)
    List<Object[]> findActiveQueriesShaFinance( Integer stateId);
 
-   @Query(value = "SELECT wf.remarks, r.name, wf.created_at " +
+   @Query(value = "SELECT DISTINCT wf.remarks, r.name, wf.created_at " +
            "FROM work_flow wf " +
            "JOIN user_state_role usr ON wf.user_id = usr.user_id " +
            "JOIN roles r ON r.id = usr.role_id " +
