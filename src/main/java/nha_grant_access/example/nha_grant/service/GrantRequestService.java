@@ -78,7 +78,7 @@ public class GrantRequestService implements IGrantRequests {
     }
 
     @Override
-    public List<AllGrantRequest> getAllGrantRequest(Integer stateId, Integer userId) {
+    public List<AllGrantRequest> getAllGrantRequest(List<Integer> stateId, Integer userId) {
 
 
         return iGrantRequestsRepo.findAllGrantRequest(stateId,userId).stream()
@@ -97,6 +97,7 @@ public class GrantRequestService implements IGrantRequests {
                         .policyStartDate(gr.getPolicyStartDate())
                         .financialYear(gr.getFinancialYear())
                         .sanctionDate(gr.getSanctionDate())
+                        .states(gr.getState())
 
 
 

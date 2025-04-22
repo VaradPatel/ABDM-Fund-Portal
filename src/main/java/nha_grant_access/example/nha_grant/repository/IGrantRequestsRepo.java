@@ -14,10 +14,12 @@ import java.util.Optional;
 public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer> {
     @Query(value = """
     SELECT * FROM grant_requests
-    WHERE state_id = :stateId
+    WHERE state_id IN ( :stateId)
     AND (:userId IS NULL OR user_id = :userId) 
     """, nativeQuery = true)
-    List<GrantRequests> findAllGrantRequest(Integer stateId, Integer userId);
+    List<GrantRequests> findAllGrantRequest(List<Integer>stateId, Integer userId);
+
+
     @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +
             "FROM grant_requests gr " +
             "JOIN users u ON gr.user_id = u.id " +

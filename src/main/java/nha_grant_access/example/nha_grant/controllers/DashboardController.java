@@ -3,13 +3,14 @@ package nha_grant_access.example.nha_grant.controllers;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.User;
-import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
-import nha_grant_access.example.nha_grant.repository.IactionRepository;
-import nha_grant_access.example.nha_grant.repository.UserRepo;
+import nha_grant_access.example.nha_grant.entity.WorkFlowConfiguration;
+import nha_grant_access.example.nha_grant.repository.*;
+import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,7 +36,12 @@ public class DashboardController {
     UserRepo userRepo;
     @Autowired
     IUserService iUserService;
-
+@Autowired
+    IGrantRequests iGrantRequests;
+@Autowired
+    IWorkFlowConfRepo iWorkFlowConfRepo;
+@Autowired
+    GrantRequestService grantRequestService;
     @GetMapping("/sha-finance/{userId}")
     @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId) {
@@ -276,6 +282,56 @@ public ResponseEntity<?> getStateCeoDashboard(
             log.error(e.toString());
             return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details",e.toString()));
         }
+
+    }
+    @GetMapping("/statecord-all/{stateId}")
+    //@PreAuthorize("hasAuthority('State CEO') ")
+    public ResponseEntity<?>stateCordAllProposal(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
+        try {
+
+            Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+            String name=authentication.getName();
+            List<AllGrantRequest> allGrantRequests=null;
+            if(stateId!=0) {
+              allGrantRequests = iGrantRequests.getAllGrantRequest(Collections.singletonList(stateId),null);
+                //results = iGrantRequestsRepo.getGrantRequestsWithState(Collections.singletonList(stateId), 4);
+            }
+            else {
+                User user=userRepo.findByEmail(name).get();
+
+
+
+                List<Integer>StateIds=userRepo.findStateIdByRole(3,user.getId());
+                System.out.println("stateIds "+ StateIds.toString() + " user "+ user.toString());
+                allGrantRequests = iGrantRequests.getAllGrantRequest(StateIds,null);
+
+            }
+
+            return ResponseEntity.ok().body(allGrantRequests);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching  details",e.toString()));
+        }
+
+    }
+    @PostMapping("/stateceo-approve")
+    public ResponseEntity<?> StateCeoApproval(@Valid @RequestBody RequestId requestId) {
+        {
+            try {
+                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 2);
+                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+                return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
+            } catch (Exception e) {
+                log.error(e.toString());
+                return ResponseEntity.internalServerError().body(new Error("Error occured while Approving request", e.toString()));
+
+            }
+        }
+
 
     }
 

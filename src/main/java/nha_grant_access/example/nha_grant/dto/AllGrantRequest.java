@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nha_grant_access.example.nha_grant.entity.ImplementationTypes;
 import nha_grant_access.example.nha_grant.entity.ProposalType;
+import nha_grant_access.example.nha_grant.entity.States;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,4 +34,5 @@ public class AllGrantRequest {
     private LocalDate policyEndDate;
     private String financialYear;
     private LocalDateTime sanctionDate;
+    private States states;
 }

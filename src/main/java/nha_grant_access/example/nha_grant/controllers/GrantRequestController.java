@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,7 +86,7 @@ public class GrantRequestController {
 //            }
 //            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
 //            return ResponseEntity.ok(allGrantRequests);
-            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId,userId);
+            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(Collections.singletonList(stateId),userId);
 
             if(format.equals("csv"))
             {
