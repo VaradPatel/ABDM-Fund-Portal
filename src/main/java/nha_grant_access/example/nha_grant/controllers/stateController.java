@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -70,7 +71,7 @@ public class stateController {
         try {
             List<Object[]> results = iGrantRequestsRepo.findDistinctPolicyPeriodsByStateId(stateId);
             List<PolicyPeriodDto> result = results.stream()
-                    .map(obj -> new PolicyPeriodDto((Date) obj[0], (Date) obj[1]))
+                    .map(obj -> new PolicyPeriodDto((Date) obj[0], (Date) obj[1],(BigDecimal) obj[2]))
                     .toList();
             return ResponseEntity.ok().body(result);
         }

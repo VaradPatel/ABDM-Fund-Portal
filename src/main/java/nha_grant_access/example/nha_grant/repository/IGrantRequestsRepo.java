@@ -100,11 +100,14 @@ GrantRequests findGrantRequestByRequestId(String requestId);
 """, nativeQuery = true)
     List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId);
 
-    @Query(value = """
-    SELECT DISTINCT policy_start_date AS policyStartDate, policy_end_date AS policyEndDate
-    FROM grant_requests 
-    WHERE state_id = :stateId
-""", nativeQuery = true)
+    @Query(value = "SELECT " +
+            "policy_start_date AS policyStartDate, " +
+            "policy_end_date AS policyEndDate, " +
+            "SUM(release_till_date) AS totalAmountReleaseTillDate " +
+            "FROM grant_requests " +
+            "WHERE state_id = :stateId " +
+            "GROUP BY policy_start_date, policy_end_date",
+            nativeQuery = true)
     List<Object[]> findDistinctPolicyPeriodsByStateId(Integer stateId);
 
 }
