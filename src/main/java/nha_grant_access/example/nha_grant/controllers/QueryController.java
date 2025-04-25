@@ -15,6 +15,8 @@ import nha_grant_access.example.nha_grant.repository.IQueries;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -123,7 +125,7 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 
 
     }
-    @PostMapping("/query-forward")
+//    @PostMapping("/query-forward")
 //    public ResponseEntity<?>forwardQuery(@Valid @RequestBody GrantRequestInputDto grantRequestInputDto) {
 //        try
 //        {
@@ -136,29 +138,27 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 //
 //    }
 
-        @GetMapping("/queryhistory-sha/{stateId}")
-
-    public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("stateId") Integer stateId) {
-        try
-        {
-
-            List<Object[]> results=iQueries.findActiveQueriesShaFinance(stateId);
-            List<QueryHistoryResponse>result=results.stream().map(obj -> new QueryHistoryResponse(
-                    (String) obj[0],   // request_id
-                    (BigDecimal) obj[1],   // requested_amount
-                    (Date) obj[2],   // created_at
-                    (String) obj[3],   // query_comment
-                    (String) obj[4]    // query_response_comment
-            )).toList();
-            return ResponseEntity.ok().body(result);
-
-
-        }
-        catch (Exception e)
-        {
-            log.error(e.toString());
-            return ResponseEntity.internalServerError().body(new Error ("Error While fetching the Active Queries ", e.toString() ));
-        }
-    }
+//        @GetMapping("/queryhistory/{roleId}")
+//
+//    public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("roleId") Integer roleId) {
+//        try
+//        {
+//            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+//            String name=authentication.getName();
+//
+//            User user=userRepo.findByEmail(name).get();
+//
+//
+//
+//            List<Integer>StateIds=userRepo.findStateIdByRole(roleId,user.getId());
+//
+//
+//        }
+//        catch (Exception e)
+//        {
+//            log.error(e.toString());
+//            return ResponseEntity.internalServerError().body(new Error ("Error While fetching the Query History ", e.toString() ));
+//        }
+//    }
 
 }

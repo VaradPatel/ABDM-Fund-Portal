@@ -36,6 +36,7 @@ public class DashboardController {
     UserRepo userRepo;
     @Autowired
     IUserService iUserService;
+
 @Autowired
     IGrantRequests iGrantRequests;
 @Autowired
@@ -246,6 +247,55 @@ public ResponseEntity<?> getStateCeoDashboard(
         return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details",e.toString()));
     }
 }
+@GetMapping("/statecord/{stateId}")
+public ResponseEntity<?> getStateCordDashboard(@PathVariable("stateId") Integer stateId)
+{
+    try
+    {
+
+
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+        String name=authentication.getName();
+        User user=userRepo.findByEmail(name).get();
+
+
+
+        List<Integer>StateIds=userRepo.findStateIdByRole(3,user.getId());
+        List<Object[]> results=null;
+        if(stateId!=0)
+        {
+            results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId));
+        }
+        else {
+
+             results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), StateIds);
+        }
+        List<StateCordDashboardResponse> responseList = results.stream()
+                .map(row -> StateCordDashboardResponse.builder()
+                        .totalRequestedAmount((BigDecimal) row[0])
+                        .totalReleasedAmount((BigDecimal) row[1])
+                        .pending(((Number) row[2]).intValue())
+                        .pendingForSanction(((Number) row[3]).intValue())
+                        .pendingAtNhareviewer(((Number) row[4]).intValue())
+                        .sanctionUpload(((Number) row[5]).intValue())
+                        .pendingQuery(((Number) row[6]).intValue())
+                        .queryRaised(((Number) row[7]).intValue())
+                        .resolvedQuery(((Number) row[8]).intValue())
+                        .build()
+                ).toList();
+
+        return ResponseEntity.ok().body(results);
+
+    }
+    catch(Exception e)
+    {
+        log.error(e.toString());
+        return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details",e.toString()));
+
+    }
+}
+
+
     @GetMapping("/statecord-review/{stateId}")
     //@PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?>stateCordReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {

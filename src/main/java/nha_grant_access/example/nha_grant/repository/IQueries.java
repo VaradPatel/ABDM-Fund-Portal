@@ -34,5 +34,7 @@ public interface IQueries extends JpaRepository<Queries, Integer> {
    List<Object[]> getWorkflowRemarksByRequestId( String requestId);
 
 
+
+
 }
 

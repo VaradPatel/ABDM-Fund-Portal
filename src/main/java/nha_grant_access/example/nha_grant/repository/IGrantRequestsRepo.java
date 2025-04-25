@@ -53,7 +53,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.state_id = :stateId AND gr.flow_status = 5", nativeQuery = true)
+            "WHERE gr.state_id = :stateId AND gr.flow_status = 7 ", nativeQuery = true)
     List<Object[]> findStateActiveQueryFromStateID(Integer stateId);
 
     boolean existsByRequestId(String requestId);
@@ -99,6 +99,28 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     WHERE gr.state_id = :stateId
 """, nativeQuery = true)
     List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId);
+
+    @Query(value = """
+    SELECT 
+        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+        COUNT(*) FILTER (WHERE gr.flow_status = 4) AS pending,
+        COUNT(*) FILTER (WHERE gr.flow_status = 8) AS pending_for_sanction,
+        COUNT(*) FILTER (WHERE gr.flow_status = 6) AS pending_at_nhareviewer,
+        COUNT(*) FILTER (WHERE gr.flow_status = 9) AS sanction_upload,
+        COUNT(*) FILTER (WHERE gr.flow_status = 7) AS pending_query,
+        COUNT(*) FILTER (WHERE gr.flow_status = 5) AS query_raised,
+        (
+            SELECT COUNT(*) 
+            FROM work_flow wf 
+            WHERE wf.user_id = :userId AND wf.action_id = 7
+        ) AS resolved_query
+    FROM grant_requests gr
+      WHERE gr.state_id IN (:stateId)
+""", nativeQuery = true)
+
+    List<Object[]>getStateCordDashboard(Integer stateId,  List<Integer>userId);
+
 
     @Query(value = "SELECT " +
             "policy_start_date AS policyStartDate, " +
