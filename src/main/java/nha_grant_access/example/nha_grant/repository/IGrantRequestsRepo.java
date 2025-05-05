@@ -47,7 +47,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.user_id = :userId AND gr.flow_status = 1", nativeQuery = true)
+            "WHERE gr.user_id = :userId AND gr.flow_status = 1 and q.active = true ", nativeQuery = true)
     List<Object[]> findActiveQueryFromUserID(Integer userId);
     @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
             "FROM grant_requests gr " +
@@ -56,12 +56,12 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "WHERE gr.state_id = :stateId AND gr.flow_status = 7 and q.active = true ", nativeQuery = true)
     List<Object[]> findStateActiveQueryFromStateID(Integer stateId);
 
-//    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
-//            "FROM grant_requests gr " +
-//            "JOIN queries q ON q.request_id = gr.request_id " +
-//            "JOIN users u ON q.query_user_id = u.id " +
-//            "WHERE gr.state_id = :stateId AND gr.flow_status = 7 ", nativeQuery = true)
-//    List<Object[]> findStateCordActiveQuery(List<Integer>stateId);
+    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
+            "FROM grant_requests gr " +
+            "JOIN queries q ON q.request_id = gr.request_id " +
+            "JOIN users u ON q.query_user_id = u.id " +
+            "WHERE gr.state_id in (:stateId) AND gr.flow_status = 7 ", nativeQuery = true)
+    List<Object[]> findStateCordActiveQuery(List<Integer>stateId);
     boolean existsByRequestId(String requestId);
 
 
