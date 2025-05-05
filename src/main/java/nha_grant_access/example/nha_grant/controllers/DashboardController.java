@@ -359,7 +359,23 @@ public class DashboardController {
 
 
     }
+    @PostMapping("/statecord-approve")
+    public ResponseEntity<?> StateCordApproval(@Valid @RequestBody RequestId requestId) {
+        {
+            try {
+                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 3);
+                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+                return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
+            } catch (Exception e) {
+                log.error(e.toString());
+                return ResponseEntity.internalServerError().body(new Error("Error occured while Approving request", e.toString()));
 
+            }
+        }
+
+
+    }
 //    @GetMapping("/upload-sanction")
 //    public ResponseEntity<?> (@Valid @RequestBody RequestId requestId) {
 //
