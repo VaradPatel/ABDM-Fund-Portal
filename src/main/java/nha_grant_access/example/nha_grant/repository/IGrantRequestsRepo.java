@@ -60,7 +60,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.state_id in (:stateId) AND gr.flow_status = 7 ", nativeQuery = true)
+            "WHERE gr.state_id in (:stateId) AND gr.flow_status = 10 ", nativeQuery = true)
     List<Object[]> findStateCordActiveQuery(List<Integer>stateId);
     boolean existsByRequestId(String requestId);
 

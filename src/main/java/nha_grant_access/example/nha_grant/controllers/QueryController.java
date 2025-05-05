@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -163,8 +164,21 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 @GetMapping("/statecord-getactivequery/{stateId}")
 public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
     try {
-//need to change
-        List<Object[]> results= iGrantRequestsRepo.findStateActiveQueryFromStateID(StateId);
+        List<Object[]> results=null;
+
+        if(StateId!=0) {
+            results = iGrantRequestsRepo.findStateCordActiveQuery(Collections.singletonList(StateId));
+        }
+        else {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
+
+
+            List<Integer> StateIds = userRepo.findStateIdByRole(3, user.getId());
+            results=iGrantRequestsRepo.findStateCordActiveQuery(StateIds);
+
+        }
         List<GetActiveQuery> getActiveQuery=results.stream()
                 .map(obj -> new GetActiveQuery(
                         (Integer) obj[0],
