@@ -86,7 +86,7 @@ public class GrantRequestController {
 //            }
 //            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
 //            return ResponseEntity.ok(allGrantRequests);
-            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(Collections.singletonList(stateId),userId);
+            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId),userId);
 
             if(format.equals("csv"))
             {

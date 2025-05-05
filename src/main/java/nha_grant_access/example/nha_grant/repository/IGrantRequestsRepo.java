@@ -53,9 +53,15 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.state_id = :stateId AND gr.flow_status = 7 ", nativeQuery = true)
+            "WHERE gr.state_id = :stateId AND gr.flow_status = 7 and q.active = true ", nativeQuery = true)
     List<Object[]> findStateActiveQueryFromStateID(Integer stateId);
 
+//    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
+//            "FROM grant_requests gr " +
+//            "JOIN queries q ON q.request_id = gr.request_id " +
+//            "JOIN users u ON q.query_user_id = u.id " +
+//            "WHERE gr.state_id = :stateId AND gr.flow_status = 7 ", nativeQuery = true)
+//    List<Object[]> findStateCordActiveQuery(List<Integer>stateId);
     boolean existsByRequestId(String requestId);
 
 
@@ -119,7 +125,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
       WHERE gr.state_id IN (:stateId)
 """, nativeQuery = true)
 
-    List<Object[]>getStateCordDashboard(Integer stateId,  List<Integer>userId);
+    List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId);
 
 
     @Query(value = "SELECT " +
@@ -131,5 +137,23 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "GROUP BY policy_start_date, policy_end_date",
             nativeQuery = true)
     List<Object[]> findDistinctPolicyPeriodsByStateId(Integer stateId);
+
+
+    @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +
+            "FROM grant_requests gr " +
+            "JOIN user_state_role usr ON gr.state_id = usr.state_id AND usr.role_id = 3 " +
+            "JOIN users u ON usr.user_id = u.id " +
+            "JOIN states s ON gr.state_id = s.id " +
+            "WHERE  gr.flow_status = :flowStatus",
+            nativeQuery = true)
+    List<Object[]> getNhaReviewerPending(Integer flowStatus);
+
+    @Query(value = """
+    SELECT * FROM grant_requests
+    
+    """, nativeQuery = true)
+    List<GrantRequests> findAllGrantRequestForReviwer();
+
+
 
 }

@@ -110,7 +110,7 @@ public class QueryController {
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDto,true);
 
             existingQuery.get().setQueryResponseComment(grantRequestInputDto.getQueryResponse());
-
+existingQuery.get().setActive(false);
             existingQuery.get().setResponseUser(user.get());
             iQueries.save(existingQuery.get());
 return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfully"));
@@ -160,5 +160,32 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 //            return ResponseEntity.internalServerError().body(new Error ("Error While fetching the Query History ", e.toString() ));
 //        }
 //    }
+//@GetMapping("/statecord-getactivequery/{stateId}")
+//public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
+//    try {
+////need to change
+//        List<Object[]> results= iGrantRequestsRepo.findStateActiveQueryFromStateID(StateId);
+//        List<GetActiveQuery> getActiveQuery=results.stream()
+//                .map(obj -> new GetActiveQuery(
+//                        (Integer) obj[0],
+//                        (String) obj[1],  // requestId
+//                        (String) obj[2],  // queryComment
+//                        (String) obj[3],
+//                        (Date)obj[4],
+//                        (String) obj[5]// queryDoc
+//                ))
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok().body(getActiveQuery);
+//    }
+//    catch(Exception e)
+//    {
+//        log.info("error while fetching active queries "+ e.toString());
+//        return ResponseEntity.internalServerError().body("Error while fetching active queries "+ e.toString());
+//    }
+//}
+
+
+
+
 
 }

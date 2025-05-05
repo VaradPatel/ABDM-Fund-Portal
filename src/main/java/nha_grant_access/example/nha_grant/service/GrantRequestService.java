@@ -78,7 +78,7 @@ public class GrantRequestService implements IGrantRequests {
     }
 
     @Override
-    public List<AllGrantRequest> getAllGrantRequest(List<Integer> stateId, Integer userId) {
+    public List<AllGrantRequest> getAllGrantRequestByState(List<Integer> stateId, Integer userId) {
 
 
         return iGrantRequestsRepo.findAllGrantRequest(stateId,userId).stream()
@@ -103,6 +103,33 @@ public class GrantRequestService implements IGrantRequests {
 
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AllGrantRequest> getAllGrantRequest() {
+        return iGrantRequestsRepo.findAllGrantRequestForReviwer().stream()
+                .map(gr -> AllGrantRequest.builder()
+                        .requestId(gr.getRequestId())
+                        .dateRequested(gr.getCreatedAt())
+                        .releaseAmount(gr.getReleasedAmount())
+                        .requestedAmount(gr.getRequestedAmount())
+                        .requestStatus(Optional.ofNullable(gr.getStatusDescription())
+                                .map(StatusDescription::getDescription)
+                                .orElse(""))
+                        .proposalType(gr.getProposalType())
+                        .implementationTypes(gr.getImplementationMode())
+                        .Tranche(gr.getTranche())
+                        .policyEndDate(gr.getPolicyEndDate())
+                        .policyStartDate(gr.getPolicyStartDate())
+                        .financialYear(gr.getFinancialYear())
+                        .sanctionDate(gr.getSanctionDate())
+                        .states(gr.getState())
+
+
+
+                        .build())
+                .collect(Collectors.toList());
+
     }
 
     private GrantRequests mapToEntity(GrantRequestInputDto dto) {
