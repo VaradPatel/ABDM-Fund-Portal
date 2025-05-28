@@ -285,14 +285,14 @@ public class DashboardController {
             String name = authentication.getName();
             List<Object[]> results = null;
             if (stateId != 0) {
-                results = iGrantRequestsRepo.getGrantRequestsWithState(Collections.singletonList(stateId), 4);
+                results = iGrantRequestsRepo.getGrantRequestsWithState(Collections.singletonList(stateId), 4,2);
             } else {
                 User user = userRepo.findByEmail(name).get();
 
 
                 List<Integer> StateIds = userRepo.findStateIdByRole(3, user.getId());
                 System.out.println("stateIds " + StateIds.toString() + " user " + user.toString());
-                results = iGrantRequestsRepo.getGrantRequestsWithState(StateIds, 4);
+                results = iGrantRequestsRepo.getGrantRequestsWithState(StateIds, 4, 2);
 
             }
             List<ReviewProposal> result = results.stream().map(obj -> new ReviewProposal(
@@ -376,11 +376,55 @@ public class DashboardController {
 
 
     }
-//    @GetMapping("/upload-sanction")
-//    public ResponseEntity<?> (@Valid @RequestBody RequestId requestId) {
-//
-//
-//    }
+    @PostMapping("/nhareviewer-approve")
+    public ResponseEntity<?> nhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
+        {
+            try {
+                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
+                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+                return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
+            } catch (Exception e) {
+                log.error(e.toString());
+                return ResponseEntity.internalServerError().body(new Error("Error occured while Approving request", e.toString()));
+
+            }
+        }
+
+
+    }
+    @GetMapping("/upload-sanction-list")
+    public ResponseEntity<?> uploadSanctionList() {
+try
+{
+    List<Object[]> results = null;
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String name = authentication.getName();
+    User user = userRepo.findByEmail(name).get();
+
+
+    List<Integer> StateIds = userRepo.findStateIdByRole(3, user.getId());
+    System.out.println("state ids are " + StateIds.toString());
+    results = iGrantRequestsRepo.getGrantRequestsWithState(StateIds, 8,4);
+    List<ReviewProposal> result = results.stream().map(obj -> new ReviewProposal(
+            (String) obj[0],   // request_id
+            (String) obj[1],   // remarks
+            (BigDecimal) obj[2],   // requested_amount
+            (String) obj[3],
+            (Date) obj[4],
+            (String) obj[5] //
+    )).toList();
+    return ResponseEntity.ok().body(result);
+
+}
+catch(Exception e)
+{
+    log.error(e.toString());
+    return ResponseEntity.internalServerError().body(new Error("Error occured while Approving request", e.toString()));
+
+}
+
+    }
 @GetMapping("/nhareviewer-review")
 //@PreAuthorize("hasAuthority('State CEO') ")
 public ResponseEntity<?> NhaReviewerReview() throws AccessDeniedException {
@@ -424,4 +468,104 @@ return ResponseEntity.ok().body(allGrantRequests);
 
         }
     }
+    @PostMapping("/nhaReviewer-approve")
+    public ResponseEntity<?> NhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
+        {
+            try {
+                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
+                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+                return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
+            } catch (Exception e) {
+                log.error(e.toString());
+                return ResponseEntity.internalServerError().body(new Error("Error occured while Approving request", e.toString()));
+
+            }
+        }
+
+
     }
+    @GetMapping("/nhareviewer/{stateId}")
+    public ResponseEntity<?> getNhaReviewerDashboard(@PathVariable("stateId") Integer stateId) {
+        try {
+
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
+
+
+
+            List<Object[]> results = null;
+            if (stateId != 0) {
+                System.out.println("states " + stateId);
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId);
+            } else {
+
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0);
+            }
+            List<NhaReviewerDashboard> responseList = results.stream()
+                    .map(row -> NhaReviewerDashboard.builder()
+                            .totalRequestedAmount((BigDecimal) row[0])
+                            .totalReleasedAmount((BigDecimal) row[1])
+                            .pending(((Number) row[2]).intValue())
+
+                            .accepted(((Number) row[3]).intValue())
+
+                            .pendingQuery(((Number) row[4]).intValue())
+                            .queryRaised(((Number) row[5]).intValue())
+                            .resolvedQuery(((Number) row[6]).intValue())
+                            .build()
+                    ).toList();
+
+            return ResponseEntity.ok().body(responseList);
+
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details", e.toString()));
+
+        }
+    }
+    @GetMapping("/nhaAdmin/{stateId}")
+    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId) {
+        try {
+
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
+
+
+
+            List<Object[]> results = null;
+            if (stateId != 0) {
+                System.out.println("states " + stateId);
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId);
+            } else {
+
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0);
+            }
+            List<NhaReviewerDashboard> responseList = results.stream()
+                    .map(row -> NhaReviewerDashboard.builder()
+                            .totalRequestedAmount((BigDecimal) row[0])
+                            .totalReleasedAmount((BigDecimal) row[1])
+                            .pending(((Number) row[2]).intValue())
+
+                            .accepted(((Number) row[3]).intValue())
+
+                            .pendingQuery(((Number) row[4]).intValue())
+                            .queryRaised(((Number) row[5]).intValue())
+                            .resolvedQuery(((Number) row[6]).intValue())
+                            .build()
+                    ).toList();
+
+            return ResponseEntity.ok().body(responseList);
+
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details", e.toString()));
+
+        }
+    }
+
+}

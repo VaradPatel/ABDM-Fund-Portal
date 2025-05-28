@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +18,7 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
     @Query(value = """
     SELECT * FROM grant_requests
     WHERE state_id IN ( :stateId)
-    AND (:userId IS NULL OR user_id = :userId) 
+    AND (:userId IS NULL OR user_id = :userId) order by grant_requests.created_at desc
     """, nativeQuery = true)
     List<GrantRequests> findAllGrantRequest(List<Integer>stateId, Integer userId);
 
@@ -24,19 +27,19 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
             "FROM grant_requests gr " +
             "JOIN users u ON gr.user_id = u.id " +
             "JOIN states s ON gr.state_id = s.id " +
-            "WHERE gr.state_id = :stateId AND gr.flow_status = :flowStatus",
+            "WHERE gr.state_id = :stateId AND gr.flow_status = :flowStatus order by gr.created_at desc ",
             nativeQuery = true)
     List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
 
 
     @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +
             "FROM grant_requests gr " +
-            "JOIN user_state_role usr ON gr.state_id = usr.state_id AND usr.role_id = 2 " +
+            "JOIN user_state_role usr ON gr.state_id = usr.state_id AND usr.role_id = :roleId  " +
             "JOIN users u ON usr.user_id = u.id " +
             "JOIN states s ON gr.state_id = s.id " +
             "WHERE gr.state_id IN (:stateId) AND gr.flow_status = :flowStatus",
             nativeQuery = true)
-    List<Object[]> getGrantRequestsWithState( List<Integer>stateId, Integer flowStatus);
+    List<Object[]> getGrantRequestsWithState( List<Integer>stateId, Integer flowStatus, Integer roleId);
 
 
     @Query(value ="Select * from grant_requests where request_id= :requestId", nativeQuery = true)
@@ -53,17 +56,23 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.state_id = :stateId AND gr.flow_status = 7 and q.active = true ", nativeQuery = true)
+            "WHERE gr.state_id = :stateId AND gr.flow_status = 10 and q.active = true ", nativeQuery = true)
     List<Object[]> findStateActiveQueryFromStateID(Integer stateId);
 
     @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.state_id in (:stateId) AND gr.flow_status = 10 ", nativeQuery = true)
+            "WHERE gr.state_id in (:stateId) AND gr.flow_status = 7 and q.active = true", nativeQuery = true)
     List<Object[]> findStateCordActiveQuery(List<Integer>stateId);
     boolean existsByRequestId(String requestId);
 
+    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name " +
+            "FROM grant_requests gr " +
+            "JOIN queries q ON q.request_id = gr.request_id " +
+            "JOIN users u ON q.query_user_id = u.id " +
+            "WHERE (:stateId = 0 OR gr.state_id = :stateId) and gr.flow_status = 5 and q.active = true", nativeQuery = true)
+    List<Object[]> findNhaReviewerActiveQuery(Integer stateId);
 
 
 
@@ -127,6 +136,25 @@ GrantRequests findGrantRequestByRequestId(String requestId);
 
     List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId);
 
+    @Query(value = """
+    SELECT 
+        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+        COUNT(*) FILTER (WHERE gr.flow_status = 6) AS pending,
+        COUNT(*) FILTER (WHERE gr.flow_status = 8) AS accepted,
+        COUNT(*) FILTER (WHERE gr.flow_status = 5) AS pending_query,
+        COUNT(*) FILTER (WHERE gr.flow_status = 7) AS query_raised,
+        (
+            SELECT COUNT(*) 
+            FROM work_flow wf 
+            WHERE wf.user_id = :userId AND wf.action_id = 7
+        ) AS resolved_query
+    FROM grant_requests gr
+    WHERE (:stateId = 0 OR gr.state_id = :stateId)
+""", nativeQuery = true)
+    List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId);
+
+
 
     @Query(value = "SELECT " +
             "policy_start_date AS policyStartDate, " +
@@ -154,6 +182,21 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     """, nativeQuery = true)
     List<GrantRequests> findAllGrantRequestForReviwer();
 
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE grant_requests SET " +
+            "sc_amount = :scAmount, " +
+            "st_amount = :stAmount, " +
+            "gc_amount = :gcAmount, " +
+            "sanction_date = :sanctionDate " +
+            " flow_status= 9 " +
+            " WHERE request_id = :requestId", nativeQuery = true)
+    int updateGrantSanctionDetailsByRequestId(BigDecimal scAmount,
+                                              BigDecimal stAmount,
+                                              BigDecimal gcAmount,
+                                              LocalDateTime sanctionDate, // or LocalDate if DB supports
+                                              String requestId );
 
 
 }

@@ -18,4 +18,5 @@ public class RaiseQueryRequest {
     @NotNull(message="stateId cannot be null")
     private Integer stateId;
 
+
 }

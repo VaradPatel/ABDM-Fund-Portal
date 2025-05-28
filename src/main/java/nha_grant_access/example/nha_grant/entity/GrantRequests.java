@@ -128,6 +128,15 @@ private List<StateShare> stateShare;
     @Column(name="total_state_share")
 
     private BigDecimal totalStateShare;
+@Column(name="sc_amount")
+private BigDecimal amountSc;
+
+    @Column(name="st_amount")
+    private BigDecimal amountSt;
+
+    @Column(name="gc_amount")
+    private BigDecimal amountGc;
+
 
     @PrePersist
     protected void onCreate() {

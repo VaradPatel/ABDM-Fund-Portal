@@ -248,4 +248,28 @@ public class GrantRequestController {
         if (value instanceof BigDecimal) return value.toString();
         return value.toString().replace(",", " "); // Prevent CSV corruption
     }
+
+@PostMapping("upload-sanction")
+        public ResponseEntity<?>UploadSanction(@RequestBody UploadSanction uploadSanction)
+{
+
+    try
+    {
+int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId());
+if(op>0)
+{
+    return ResponseEntity.ok().body(new SuccessResponse("Successfully Uploaded sanction"));
+}
+else
+{
+    return ResponseEntity.internalServerError().body(new Error("Failed to  Uploaded sanction","Failed to  Uploaded sanction"));
+}
+
+    }
+    catch(Exception e)
+    {
+        return ResponseEntity.internalServerError().body(new Error("Failed to upload Sanction ", e.toString()));
+
+    }
+}
 }

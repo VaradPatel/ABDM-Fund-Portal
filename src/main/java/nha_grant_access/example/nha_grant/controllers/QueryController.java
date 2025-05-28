@@ -10,9 +10,11 @@ import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.entity.Queries;
 import nha_grant_access.example.nha_grant.entity.User;
+import nha_grant_access.example.nha_grant.entity.WorkFlowConfiguration;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IQueries;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
+import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -40,6 +42,8 @@ public class QueryController {
     IQueries iQueries;
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    GrantRequestService grantRequestService;
 
     @GetMapping("/get-active-query/{userId}")
     public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer userId) {
@@ -75,6 +79,8 @@ public class QueryController {
             return ResponseEntity.internalServerError().body("Error while fetching active queries "+ e.toString());
         }
     }
+
+
     @PostMapping("/raise-query")
             public ResponseEntity<?> raiseQuery(@Valid @RequestBody RaiseQueryRequest request)
     {
@@ -126,18 +132,38 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 
 
     }
-//    @PostMapping("/query-forward")
-//    public ResponseEntity<?>forwardQuery(@Valid @RequestBody GrantRequestInputDto grantRequestInputDto) {
-//        try
-//        {
-//
-//        }
-//        catch(Exception e)
-//        {
-//
-//        }
-//
-//    }
+    @PostMapping("/query-forward")
+    public ResponseEntity<?>forwardQuery(@Valid @RequestBody RaiseQueryRequest request) {
+        try
+        {
+            Queries query = Queries.builder()
+                    .requestId(request.getRequestId())
+                    .active(true)
+                    .queryComment(request.getQuery())
+
+                    .queryUser(grantRequestService.getUser(request.getUserId()))
+
+
+                    .build();
+            //WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(2, request.getRoleId());
+            iGrantRequestsRepo.updateStatusDescription(request.getRequestId(),10);
+            grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId(),request.getQuery());
+
+            // grantRequestService.saveToDashboard(request.getRequestId(),request.getStateId(),request.getProposalTypeId(), request.getRoleId(),workFlowConfiguration.getAssignTo().getId(),);
+//saveToDashboard
+//Save To Query
+
+            iQueries.save(query);
+            return  ResponseEntity.ok().body(new SuccessResponse("Query Raised Successfully"));
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error while Raising Query" ,e.toString()));
+
+        }
+
+    }
 
 //        @GetMapping("/queryhistory/{roleId}")
 //
@@ -197,6 +223,32 @@ public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") 
         return ResponseEntity.internalServerError().body("Error while fetching active queries "+ e.toString());
     }
 }
+
+    @GetMapping("/nhareviewer-getactivequery/{stateId}")
+    public ResponseEntity<?> getNhaReviewerActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
+        try {
+            List<Object[]> results=null;
+
+          results=iGrantRequestsRepo.findNhaReviewerActiveQuery(StateId);
+
+            List<GetActiveQuery> getActiveQuery=results.stream()
+                    .map(obj -> new GetActiveQuery(
+                            (Integer) obj[0],
+                            (String) obj[1],  // requestId
+                            (String) obj[2],  // queryComment
+                            (String) obj[3],
+                            (Date)obj[4],
+                            (String) obj[5]// queryDoc
+                    ))
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok().body(getActiveQuery);
+        }
+        catch(Exception e)
+        {
+            log.info("error while fetching active queries "+ e.toString());
+            return ResponseEntity.internalServerError().body("Error while fetching active queries "+ e.toString());
+        }
+    }
 
 
 
