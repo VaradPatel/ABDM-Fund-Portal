@@ -132,8 +132,8 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 
 
     }
-    @PostMapping("/query-forward")
-    public ResponseEntity<?>forwardQuery(@Valid @RequestBody RaiseQueryRequest request) {
+    @PostMapping("/query-action/{actionId}")
+    public ResponseEntity<?>forwardQuery(@Valid @RequestBody RaiseQueryRequest request , @PathVariable("actionId") Integer actionId) {
         try
         {
             Queries query = Queries.builder()
@@ -145,15 +145,29 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 
 
                     .build();
-            //WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(2, request.getRoleId());
-            iGrantRequestsRepo.updateStatusDescription(request.getRequestId(),10);
-            grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId(),request.getQuery());
+            if(actionId==1) {
+                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 10);
+                grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 2, request.getProposalTypeId(), request.getQuery());
+                iQueries.save(query);
+            }
+            else if (actionId==3){
+                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 5);
+                grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
+                iQueries.save(query);
+            }
+            else
+            {
+                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 4);
+                grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
+              query.setActive(false);
+              iQueries.save(query);
+              //set all this trail as false;
+                iQueries.deactivateQueriesByRequestId(request.getRequestId());
 
-            // grantRequestService.saveToDashboard(request.getRequestId(),request.getStateId(),request.getProposalTypeId(), request.getRoleId(),workFlowConfiguration.getAssignTo().getId(),);
-//saveToDashboard
-//Save To Query
+            }
 
-            iQueries.save(query);
+
+
             return  ResponseEntity.ok().body(new SuccessResponse("Query Raised Successfully"));
         }
         catch(Exception e)
