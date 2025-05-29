@@ -379,6 +379,8 @@ public class DashboardController {
     @PostMapping("/nhareviewer-approve")
     public ResponseEntity<?> nhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
         {
+
+
             try {
                 WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
                 iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
@@ -515,6 +517,7 @@ return ResponseEntity.ok().body(allGrantRequests);
                             .pendingQuery(((Number) row[4]).intValue())
                             .queryRaised(((Number) row[5]).intValue())
                             .resolvedQuery(((Number) row[6]).intValue())
+                            .totalMaxEligibleGrants((BigDecimal) row [7])
                             .build()
                     ).toList();
 

@@ -137,21 +137,26 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId);
 
     @Query(value = """
-    SELECT 
-        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
-        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
-        COUNT(*) FILTER (WHERE gr.flow_status = 6) AS pending,
-        COUNT(*) FILTER (WHERE gr.flow_status = 8) AS accepted,
-        COUNT(*) FILTER (WHERE gr.flow_status = 5) AS pending_query,
-        COUNT(*) FILTER (WHERE gr.flow_status = 7) AS query_raised,
-        (
-            SELECT COUNT(*) 
-            FROM work_flow wf 
-            WHERE wf.user_id = :userId AND wf.action_id = 7
-        ) AS resolved_query
-    FROM grant_requests gr
-    WHERE (:stateId = 0 OR gr.state_id = :stateId)
-""", nativeQuery = true)
+                SELECT 
+                    COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+                    COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 6) AS pending,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 8) AS accepted,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 5) AS pending_query,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 7) AS query_raised,
+                    (
+                        SELECT COUNT(*) 
+                        FROM work_flow wf 
+                        WHERE wf.user_id = :userId AND wf.action_id = 7
+                    ) AS resolved_query  , 
+                     (
+                                            SELECT SUM(s.max_eligible_grant )
+                                            FROM states s  
+                                            WHERE (:stateId = 0 OR s.id = :stateId)
+                                        ) AS total_max_eligible_grants
+                FROM grant_requests gr
+                WHERE (:stateId = 0 OR gr.state_id = :stateId)
+            """, nativeQuery = true)
     List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId);
 
 

@@ -21,4 +21,5 @@ public class NhaReviewerDashboard {
     private Integer pendingQuery;
     private Integer queryRaised;
     private Integer resolvedQuery;
+    private BigDecimal totalMaxEligibleGrants;
 }
