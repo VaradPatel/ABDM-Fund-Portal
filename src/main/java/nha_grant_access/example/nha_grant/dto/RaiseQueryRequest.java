@@ -17,6 +17,7 @@ public class RaiseQueryRequest {
     private Integer proposalTypeId;
     @NotNull(message="stateId cannot be null")
     private Integer stateId;
+    private Integer isStateCeo;
 
 
 }
