@@ -27,7 +27,7 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
             "FROM grant_requests gr " +
             "JOIN users u ON gr.user_id = u.id " +
             "JOIN states s ON gr.state_id = s.id " +
-            "WHERE gr.state_id = :stateId AND gr.flow_status = :flowStatus order by gr.created_at desc ",
+            "WHERE gr.state_id = :stateId AND gr.flow_status = :flowStatus  order by gr.created_at desc ",
             nativeQuery = true)
     List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
 
@@ -111,9 +111,11 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             WHERE wf.user_id = :userId AND wf.action_id = 7
         ) AS resolved_query
     FROM grant_requests gr
-    WHERE gr.state_id = :stateId
+    WHERE gr.state_id = :stateId  AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND 
+    TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
+    
 """, nativeQuery = true)
-    List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId);
+    List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId, String policyStartDate, String policyEndDate);
 
     @Query(value = """
     SELECT 

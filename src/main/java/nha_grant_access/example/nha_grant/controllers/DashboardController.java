@@ -12,6 +12,7 @@ import nha_grant_access.example.nha_grant.entity.WorkFlowConfiguration;
 import nha_grant_access.example.nha_grant.repository.*;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -144,6 +147,7 @@ public class DashboardController {
         try {
 
             if (iUserService.approveUser(request) > 0) {
+                //sent sms ;
                 return ResponseEntity.ok().body(new SuccessResponse("User Approval Updated Succesully"));
             } else {
                 return ResponseEntity.badRequest().body("user not found");
@@ -187,6 +191,7 @@ public class DashboardController {
     public ResponseEntity<?> getstateCeoReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
 
         try {
+
             List<Object[]> results = iGrantRequestsRepo.findAllGrantRequestByStatus(stateId, 2);
 
             List<ReviewProposal> result = results.stream().map(obj -> new ReviewProposal(
@@ -208,9 +213,15 @@ public class DashboardController {
     @GetMapping("/state-ceo")
     public ResponseEntity<?> getStateCeoDashboard(
             @RequestParam Integer stateId,
-            @RequestParam Integer userId) {
+            @RequestParam Integer userId,
+            @RequestParam String policyStartDate,
+            @RequestParam String policyEndDate
+            ) {
         try {
-            List<Object[]> results = iGrantRequestsRepo.getStateCeoDashboard(stateId, userId);
+
+
+            List<Object[]> results = iGrantRequestsRepo.getStateCeoDashboard(stateId, userId,policyStartDate, policyEndDate);
+
             if (results.isEmpty()) {
                 return ResponseEntity.ok().body(new StateCeoDashboatd());
             }

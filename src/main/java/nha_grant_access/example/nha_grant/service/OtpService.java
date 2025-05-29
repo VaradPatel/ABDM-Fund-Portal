@@ -12,6 +12,7 @@ import nha_grant_access.example.nha_grant.utils.RSAUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.AlgorithmParametersSpi;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -31,6 +32,8 @@ public class OtpService implements IOtp {
     @Autowired
     RSAUtil rsaUtil;
 
+    @Value("${sms.url}")
+    private String url;
 
     @Override
     public OtpResponseTo generateOtp(OtpGenerateRequest otpGenerateRequestTo) {
@@ -88,7 +91,7 @@ String contact=otpGenerateRequestTo.getMobile();
 
         String message = String.format("Dear User, %s is OTP for verification of your mobile number ending with %s. National Health Authority", otp, lastFourDigits);
 
-        String url = "https://sbx.sms24hours.com/SMSApi/send";
+
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("userid", "abhaotp");
@@ -112,6 +115,7 @@ String contact=otpGenerateRequestTo.getMobile();
 
         return response.getBody();
     }
+
 }
 
 

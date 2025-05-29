@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -15,8 +16,8 @@ import java.util.Date;
 public class PolicyPeriodDto {
 
 
-    private Date policyStartDate;
-        private Date policyEndDate;
+    private Timestamp policyStartDate;
+        private Timestamp  policyEndDate;
         private BigDecimal amountReleasedTillDate;
 
 

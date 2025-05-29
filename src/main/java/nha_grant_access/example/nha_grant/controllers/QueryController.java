@@ -22,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -179,28 +181,32 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
 
     }
 
-//        @GetMapping("/queryhistory/{roleId}")
-//
-//    public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("roleId") Integer roleId) {
-//        try
-//        {
-//            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-//            String name=authentication.getName();
-//
-//            User user=userRepo.findByEmail(name).get();
-//
-//
-//
-//            List<Integer>StateIds=userRepo.findStateIdByRole(roleId,user.getId());
-//
-//
-//        }
-//        catch (Exception e)
-//        {
-//            log.error(e.toString());
-//            return ResponseEntity.internalServerError().body(new Error ("Error While fetching the Query History ", e.toString() ));
-//        }
-//    }
+        @GetMapping("/queryhistory/{userId}")
+
+    public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("userId") Integer userId) {
+        try
+        {
+
+            List<Object[]> queries=iQueries.findWorkflowDetailsByUserId(userId);
+            List<QueryHistory> queryHistoryList = queries.stream()
+                    .map(row -> QueryHistory.builder()
+                            .query((String) row[0])
+                            .requestId((String) row[1])
+                            .createdAt(((Timestamp) row[2]).toLocalDateTime())
+                            .state((String) row[3])
+                            .build())
+                    .toList();
+
+            return ResponseEntity.ok().body(queryHistoryList);
+
+
+        }
+        catch (Exception e)
+        {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error ("Error While fetching the Query History ", e.toString() ));
+        }
+    }
 @GetMapping("/statecord-getactivequery/{stateId}")
 public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
     try {

@@ -35,6 +35,24 @@ public interface IQueries extends JpaRepository<Queries, Integer> {
            nativeQuery = true)
    List<Object[]> getWorkflowRemarksByRequestId( String requestId);
 
+   @Query(value = """
+    SELECT  
+        wf.remarks, 
+        gr.request_id, 
+        wf.created_at, 
+        s.name AS state_name
+    FROM work_flow wf
+    JOIN user_state_role usr ON wf.user_id = usr.user_id
+    JOIN grant_requests gr ON wf.request_id = gr.request_id
+    JOIN states s ON gr.state_id = s.id
+    WHERE wf.user_id = :userId
+      AND wf.action_id IN (2, 7)
+    ORDER BY wf.created_at
+    """, nativeQuery = true)
+   List<Object[]> findWorkflowDetailsByUserId(Integer userId);
+
+
+
    @Modifying
    @Transactional
    @Query(value = "UPDATE queries SET active = false WHERE request_id = :requestId", nativeQuery = true)
