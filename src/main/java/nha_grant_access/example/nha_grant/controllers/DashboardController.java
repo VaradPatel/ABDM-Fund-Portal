@@ -264,6 +264,7 @@ public class DashboardController {
                             .pendingQuery(((Number) row[6]).intValue())
                             .queryRaised(((Number) row[7]).intValue())
                             .resolvedQuery(((Number) row[8]).intValue())
+                            .maxEligibleGrants((BigDecimal) row[9] )
                             .build()
                     ).toList();
 

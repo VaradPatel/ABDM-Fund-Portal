@@ -21,4 +21,5 @@ public class StateCordDashboardResponse {
     private Integer pendingQuery;
     private Integer queryRaised;
     private Integer resolvedQuery;
+    private BigDecimal maxEligibleGrants;
 }
