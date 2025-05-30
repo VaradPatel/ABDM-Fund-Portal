@@ -10,6 +10,7 @@ import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IQueries;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
+import nha_grant_access.example.nha_grant.service.OtpService;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -52,6 +53,8 @@ public class GrantRequestController {
     private IQueries iQueries;
     @Autowired
     GrantRequestService grantRequestService;
+    @Autowired
+    OtpService otpService;
     @PostMapping("/add")
     //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
@@ -72,6 +75,7 @@ public class GrantRequestController {
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
             //sendnotification
+            otpService.ApplicationSend(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
 
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {

@@ -174,15 +174,26 @@ GrantRequests findGrantRequestByRequestId(String requestId);
 
 
 
-    @Query(value = "SELECT " +
-            "policy_start_date AS policyStartDate, " +
-            "policy_end_date AS policyEndDate, " +
-            "SUM(release_till_date) AS totalAmountReleaseTillDate " +
-            "FROM grant_requests " +
-            "WHERE state_id = :stateId " +
-            "GROUP BY policy_start_date, policy_end_date",
-            nativeQuery = true)
-    List<Object[]> findDistinctPolicyPeriodsByStateId(Integer stateId);
+    @Query(value = """
+    SELECT 
+        policy_start_date AS policyStartDate,
+        policy_end_date AS policyEndDate,
+        SUM(release_till_date) AS totalAmountReleaseTillDate
+    FROM grant_requests
+    WHERE state_id IN (:stateIds)
+    GROUP BY policy_start_date, policy_end_date
+    """, nativeQuery = true)
+    List<Object[]> findDistinctPolicyPeriodsByStateId(List<Integer> stateIds);
+
+    @Query(value = """
+    SELECT 
+        policy_start_date AS policyStartDate,
+        policy_end_date AS policyEndDate,
+        SUM(release_till_date) AS totalAmountReleaseTillDate
+    FROM grant_requests
+    GROUP BY policy_start_date, policy_end_date
+    """, nativeQuery = true)
+    List<Object[]> findAllDistinctPolicyPeriods();
 
 
     @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +

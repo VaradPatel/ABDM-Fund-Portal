@@ -75,6 +75,15 @@ public interface UserRepo extends JpaRepository<User, Integer> {
             String password
     );
 
+    @Query(value = """
+    SELECT u.*
+    FROM users u
+    JOIN user_state_role usr ON u.id = usr.user_id
+    WHERE usr.state_id = :stateId
+      AND usr.role_id = :roleId
+    """, nativeQuery = true)
+    User findUserByStateAndRole(Integer roleId, Integer stateId);
+
 
 
 
