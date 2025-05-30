@@ -47,7 +47,7 @@ public interface IQueries extends JpaRepository<Queries, Integer> {
     JOIN states s ON gr.state_id = s.id
     WHERE wf.user_id = :userId
       AND wf.action_id IN (2, 7)
-    ORDER BY wf.created_at
+    ORDER BY wf.created_at desc
     """, nativeQuery = true)
    List<Object[]> findWorkflowDetailsByUserId(Integer userId);
 
