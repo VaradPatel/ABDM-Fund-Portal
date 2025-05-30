@@ -38,11 +38,11 @@ public class OtpService implements IOtp {
     @Override
     public OtpResponseTo generateOtp(OtpGenerateRequest otpGenerateRequestTo) {
         String otp = String.valueOf(new SecureRandom().nextInt(899999) + 100000);
-String contact=otpGenerateRequestTo.getMobile();
-        Otp otpEntity = new Otp(UUID.randomUUID().toString(), otp, 0, contact, false, 10,false);
+        String contact = otpGenerateRequestTo.getMobile();
+        Otp otpEntity = new Otp(UUID.randomUUID().toString(), otp, 0, contact, false, 10, false);
         iOtpRepository.save(otpEntity);
-        sendOtp(otpGenerateRequestTo.getMobile(),otpEntity.getOtp());
-        return new OtpResponseTo(otpEntity.getId(),"OTP sent sucessfully",otpEntity.getContact());
+        sendOtp(otpGenerateRequestTo.getMobile(), otpEntity.getOtp());
+        return new OtpResponseTo(otpEntity.getId(), "OTP sent sucessfully", otpEntity.getContact());
 
     }
 
@@ -50,28 +50,25 @@ String contact=otpGenerateRequestTo.getMobile();
     public Boolean validateOtp(VerifyOtpRequest otpValidateRequestTo) {
         String transactionId = otpValidateRequestTo.getTransactionId();
 
-        Optional<Otp> otpDetails =iOtpRepository.findById(transactionId);
+        Optional<Otp> otpDetails = iOtpRepository.findById(transactionId);
 
         if (otpDetails.isEmpty() || otpDetails.get().isExpired()) {
             return false;
-            }
+        }
 
         if (otpDetails.get().getAttempts() >= 6) {
             iOtpRepository.deleteById(otpDetails.get().getId());
-           return false;
+            return false;
 
         }
         String decryptedOtp = null;
         try {
             decryptedOtp = rsaUtil.decrypt(otpValidateRequestTo.getOtp());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             ;
         }
 
-        if(!decryptedOtp.equals(otpDetails.get().getOtp()))
-        {
+        if (!decryptedOtp.equals(otpDetails.get().getOtp())) {
             otpDetails.get().setAttempts(otpDetails.get().getAttempts() + 1);
             iOtpRepository.save(otpDetails.get());
             return false;
@@ -79,7 +76,6 @@ String contact=otpGenerateRequestTo.getMobile();
         otpDetails.get().setVerified(true);
         iOtpRepository.save(otpDetails.get());
         return true;
-
 
 
     }
@@ -90,7 +86,6 @@ String contact=otpGenerateRequestTo.getMobile();
                 : mobileNumber;
 
         String message = String.format("Dear User, %s is OTP for verification of your mobile number ending with %s. National Health Authority", otp, lastFourDigits);
-
 
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -115,7 +110,8 @@ String contact=otpGenerateRequestTo.getMobile();
 
         return response.getBody();
     }
-
+//public String ApplicationSend(String requestId, String proposalType, )
+//}
 }
 
 

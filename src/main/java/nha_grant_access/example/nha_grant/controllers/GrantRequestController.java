@@ -9,6 +9,7 @@ import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IQueries;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
+import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -49,6 +50,8 @@ public class GrantRequestController {
     private UserRepo userRepo;
     @Autowired
     private IQueries iQueries;
+    @Autowired
+    GrantRequestService grantRequestService;
     @PostMapping("/add")
     //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
@@ -68,6 +71,8 @@ public class GrantRequestController {
             System.out.println("positive balance is" +grantRequestInputDTO.getPositiveBalance());
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
+            //sendnotification
+
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ",e.toString()));
@@ -250,7 +255,7 @@ public class GrantRequestController {
     }
 
 @PostMapping("upload-sanction")
-        public ResponseEntity<?>UploadSanction(@RequestBody UploadSanction uploadSanction)
+        public ResponseEntity<?>UploadSanction(@Valid @RequestBody UploadSanction uploadSanction)
 {
 
     try
@@ -258,6 +263,12 @@ public class GrantRequestController {
 int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId());
 if(op>0)
 {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String name = authentication.getName();
+    User user = userRepo.findByEmail(name).get();
+    //save to workFlow
+    grantRequestService.saveToWorkFlow(uploadSanction.getRequestId(),user.getId(), 8,1, "");
+
     return ResponseEntity.ok().body(new SuccessResponse("Successfully Uploaded sanction"));
 }
 else

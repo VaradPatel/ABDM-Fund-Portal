@@ -20,6 +20,7 @@ private String requestId;
         private BigDecimal amountST;
         private BigDecimal amountGC;
 
+
         private LocalDateTime sanctionDate; // You can change to LocalDate if parsing needed
     }
 

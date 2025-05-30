@@ -207,7 +207,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "sc_amount = :scAmount, " +
             "st_amount = :stAmount, " +
             "gc_amount = :gcAmount, " +
-            "sanction_date = :sanctionDate " +
+            "sanction_date = :sanctionDate , " +
             " flow_status= 9 " +
             " WHERE request_id = :requestId", nativeQuery = true)
     int updateGrantSanctionDetailsByRequestId(BigDecimal scAmount,

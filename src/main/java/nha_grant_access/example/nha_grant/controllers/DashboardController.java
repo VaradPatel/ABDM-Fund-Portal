@@ -421,7 +421,7 @@ try
 
     List<Integer> StateIds = userRepo.findStateIdByRole(3, user.getId());
     System.out.println("state ids are " + StateIds.toString());
-    results = iGrantRequestsRepo.getGrantRequestsWithState(StateIds, 8,4);
+    results = iGrantRequestsRepo.getGrantRequestsWithState(StateIds, 8,3);
     List<ReviewProposal> result = results.stream().map(obj -> new ReviewProposal(
             (String) obj[0],   // request_id
             (String) obj[1],   // remarks
