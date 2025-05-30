@@ -63,15 +63,17 @@ public class QueryController {
     public ResponseEntity<?> getStateCeoActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
         try {
             List<Object[]> results= iGrantRequestsRepo.findStateActiveQueryFromStateID(StateId);
-            List<GetActiveQuery> getActiveQuery=results.stream()
-                    .map(obj -> new GetActiveQuery(
-                            (Integer) obj[0],
-                            (String) obj[1],  // requestId
-                            (String) obj[2],  // queryComment
-                            (String) obj[3],
-                            (Date)obj[4],
-                            (String) obj[5]// queryDoc
-                    ))
+            List<GetActiveQuery> getActiveQuery = results.stream()
+                    .map(obj -> GetActiveQuery.builder()
+                            .queryId((Integer) obj[0])
+                            .requestId((String) obj[1])
+                            .QueryComment((String) obj[2])
+                            .queryDoc((String) obj[3])
+                            .createdAt((Date) obj[4])
+                            .userName((String) obj[5])  // Assuming this maps to u.name
+
+                             // If added in your query
+                            .build())
                     .collect(Collectors.toList());
             return ResponseEntity.ok().body(getActiveQuery);
         }
@@ -225,15 +227,18 @@ public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") 
             results=iGrantRequestsRepo.findStateCordActiveQuery(StateIds);
 
         }
-        List<GetActiveQuery> getActiveQuery=results.stream()
-                .map(obj -> new GetActiveQuery(
-                        (Integer) obj[0],
-                        (String) obj[1],  // requestId
-                        (String) obj[2],  // queryComment
-                        (String) obj[3],
-                        (Date)obj[4],
-                        (String) obj[5]// queryDoc
-                ))
+        List<GetActiveQuery> getActiveQuery = results.stream()
+                .map(obj -> GetActiveQuery.builder()
+                        .queryId((Integer) obj[0])
+                        .requestId((String) obj[1])
+                        .QueryComment((String) obj[2])
+                        .queryDoc((String) obj[3])
+                        .createdAt((Date) obj[4])
+                        .userName((String) obj[5])  // Assuming this maps to u.name
+                        .stateName((String) obj[6])
+                        .proposalTypeId((Integer) obj[7])
+                        // If added in your query
+                        .build())
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(getActiveQuery);
     }
@@ -258,7 +263,9 @@ public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") 
                             (String) obj[2],  // queryComment
                             (String) obj[3],
                             (Date)obj[4],
-                            (String) obj[5]// queryDoc
+                            (String) obj[5],
+                            (String) obj[6],
+                            (Integer) obj[7]// queryDoc
                     ))
                     .collect(Collectors.toList());
             return ResponseEntity.ok().body(getActiveQuery);

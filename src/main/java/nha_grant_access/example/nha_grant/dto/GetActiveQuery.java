@@ -18,4 +18,6 @@ public class GetActiveQuery {
     private String queryDoc;
     private Date createdAt;
     private String userName;
+    private String stateName;
+    private Integer proposalTypeId;
 }

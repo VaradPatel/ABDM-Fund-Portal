@@ -34,15 +34,17 @@ public class QueryService implements IQuery {
     public List<GetActiveQuery> getActiveQueryByUserId(Integer userID) {
 
         List<Object[]> results = iGrantRequestsRepo.findActiveQueryFromUserID(userID);
-        return results.stream()
-                .map(obj -> new GetActiveQuery(
-                        (Integer) obj[0],
-                        (String) obj[1],  // requestId
-                        (String) obj[2],  // queryComment
-                        (String) obj[3],
-        (Date)obj[4],
-                        (String) obj[5]// queryDoc
-                ))
+       return  results.stream()
+                .map(obj -> GetActiveQuery.builder()
+                        .queryId((Integer) obj[0])
+                        .requestId((String) obj[1])
+                        .QueryComment((String) obj[2])
+                        .queryDoc((String) obj[3])
+                        .createdAt((Date) obj[4])
+                        .userName((String) obj[5])  // Assuming this maps to u.name
+
+                        // If added in your query
+                        .build())
                 .collect(Collectors.toList());
 
     }
