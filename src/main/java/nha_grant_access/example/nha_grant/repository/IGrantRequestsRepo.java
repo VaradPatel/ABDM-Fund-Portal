@@ -77,17 +77,19 @@ GrantRequests findGrantRequestByRequestId(String requestId);
 
 
     @Query(value = """
-        SELECT 
-            COALESCE(SUM(requested_amount), 0) AS totalRequestedAmount,
-            COALESCE(SUM(released_amount), 0) AS totalReleasedAmount,
-            COUNT(*) FILTER (WHERE flow_status = 9) AS completedProposals,
-            COUNT(*) FILTER (WHERE flow_status != 9) AS pendingProposals,
-            COUNT(*) FILTER (WHERE flow_status = 1) AS pendingQuery,
-            (SELECT COUNT(*) FROM work_flow WHERE user_id = :userId AND action_id = 7) AS respondedQuery
-        FROM grant_requests
-        WHERE user_id = :userId
-    """, nativeQuery = true)
-    List<Object[]> shaFinanceDashboardDetails(Integer userId);
+                SELECT 
+                    COALESCE(SUM(requested_amount), 0) AS totalRequestedAmount,
+                    COALESCE(SUM(released_amount), 0) AS totalReleasedAmount,
+                    COUNT(*) FILTER (WHERE flow_status = 9) AS completedProposals,
+                    COUNT(*) FILTER (WHERE flow_status != 9) AS pendingProposals,
+                    COUNT(*) FILTER (WHERE flow_status = 1) AS pendingQuery,
+                    (SELECT COUNT(*) FROM work_flow WHERE user_id = :userId AND action_id = 7) AS respondedQuery
+                FROM grant_requests gr
+                WHERE user_id = :userId AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND
+                                                    TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
+                                                   
+            """, nativeQuery = true)
+    List<Object[]> shaFinanceDashboardDetails(Integer userId, String policyStartDate , String policyEndDate);
 
 
 
@@ -138,10 +140,12 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             WHERE s.id IN (:stateId)
         ) AS max_eligible_grant
     FROM grant_requests gr
-    WHERE gr.state_id IN (:stateId)
+    WHERE gr.state_id IN (:stateId) AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND 
+    TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
+    
 """, nativeQuery = true)
 
-    List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId);
+    List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId , String policyStartDate , String policyEndDate);
 
     @Query(value = """
                 SELECT 
@@ -162,9 +166,11 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                                             WHERE (:stateId = 0 OR s.id = :stateId)
                                         ) AS total_max_eligible_grants
                 FROM grant_requests gr
-                WHERE (:stateId = 0 OR gr.state_id = :stateId)
+                WHERE (:stateId = 0 OR gr.state_id = :stateId )  AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND 
+                                                                     TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
+                                                                    
             """, nativeQuery = true)
-    List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId);
+    List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId, String policyStartDate, String policyEndDate);
 
 
 

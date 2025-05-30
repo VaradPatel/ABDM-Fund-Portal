@@ -49,10 +49,11 @@ public class DashboardController {
 
     @GetMapping("/sha-finance/{userId}")
     @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
-    public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId) {
+    public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId,  @RequestParam String policyStartDate,
+                                                    @RequestParam String policyEndDate) {
         try {
 
-            List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId);
+            List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId,policyStartDate, policyEndDate);
             Object[] result = results.get(0);
             DashboardShaFin dashboardShaFin = DashboardShaFin.builder()
                     .totalAmountRequested(result[0] != null ? (BigDecimal) result[0] : BigDecimal.ZERO)
@@ -246,7 +247,8 @@ public class DashboardController {
     }
 
     @GetMapping("/statecord/{stateId}")
-    public ResponseEntity<?> getStateCordDashboard(@PathVariable("stateId") Integer stateId) {
+    public ResponseEntity<?> getStateCordDashboard(@PathVariable("stateId") Integer stateId , @RequestParam String policyStartDate,
+                                                   @RequestParam String policyEndDate) {
         try {
 
 
@@ -259,10 +261,10 @@ public class DashboardController {
             List<Object[]> results = null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId));
+                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId), policyStartDate, policyEndDate );
             } else {
                 System.out.println("states" + StateIds.toString());
-                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), StateIds);
+                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), StateIds , policyStartDate, policyEndDate);
             }
             List<StateCordDashboardResponse> responseList = results.stream()
                     .map(row -> StateCordDashboardResponse.builder()
@@ -500,7 +502,8 @@ return ResponseEntity.ok().body(allGrantRequests);
 
     }
     @GetMapping("/nhareviewer/{stateId}")
-    public ResponseEntity<?> getNhaReviewerDashboard(@PathVariable("stateId") Integer stateId) {
+    public ResponseEntity<?> getNhaReviewerDashboard(@PathVariable("stateId") Integer stateId ,     @RequestParam String policyStartDate,
+                                                     @RequestParam String policyEndDate) {
         try {
 
 
@@ -513,10 +516,10 @@ return ResponseEntity.ok().body(allGrantRequests);
             List<Object[]> results = null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId);
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId, policyStartDate, policyEndDate);
             } else {
 
-                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0);
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0, policyStartDate, policyEndDate);
             }
             List<NhaReviewerDashboard> responseList = results.stream()
                     .map(row -> NhaReviewerDashboard.builder()
@@ -541,46 +544,46 @@ return ResponseEntity.ok().body(allGrantRequests);
 
         }
     }
-    @GetMapping("/nhaAdmin/{stateId}")
-    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId) {
-        try {
-
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String name = authentication.getName();
-            User user = userRepo.findByEmail(name).get();
-
-
-
-            List<Object[]> results = null;
-            if (stateId != 0) {
-                System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId);
-            } else {
-
-                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0);
-            }
-            List<NhaReviewerDashboard> responseList = results.stream()
-                    .map(row -> NhaReviewerDashboard.builder()
-                            .totalRequestedAmount((BigDecimal) row[0])
-                            .totalReleasedAmount((BigDecimal) row[1])
-                            .pending(((Number) row[2]).intValue())
-
-                            .accepted(((Number) row[3]).intValue())
-
-                            .pendingQuery(((Number) row[4]).intValue())
-                            .queryRaised(((Number) row[5]).intValue())
-                            .resolvedQuery(((Number) row[6]).intValue())
-                            .build()
-                    ).toList();
-
-            return ResponseEntity.ok().body(responseList);
-
-        } catch (Exception e) {
-            log.error(e.toString());
-            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details", e.toString()));
-
-        }
-    }
+//    @GetMapping("/nhaAdmin/{stateId}")
+//    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId) {
+//        try {
+//
+//
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            String name = authentication.getName();
+//            User user = userRepo.findByEmail(name).get();
+//
+//
+//
+//            List<Object[]> results = null;
+//            if (stateId != 0) {
+//                System.out.println("states " + stateId);
+//                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId);
+//            } else {
+//
+//                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0);
+//            }
+//            List<NhaReviewerDashboard> responseList = results.stream()
+//                    .map(row -> NhaReviewerDashboard.builder()
+//                            .totalRequestedAmount((BigDecimal) row[0])
+//                            .totalReleasedAmount((BigDecimal) row[1])
+//                            .pending(((Number) row[2]).intValue())
+//
+//                            .accepted(((Number) row[3]).intValue())
+//
+//                            .pendingQuery(((Number) row[4]).intValue())
+//                            .queryRaised(((Number) row[5]).intValue())
+//                            .resolvedQuery(((Number) row[6]).intValue())
+//                            .build()
+//                    ).toList();
+//
+//            return ResponseEntity.ok().body(responseList);
+//
+//        } catch (Exception e) {
+//            log.error(e.toString());
+//            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details", e.toString()));
+//
+//        }
+//    }
 
 }
