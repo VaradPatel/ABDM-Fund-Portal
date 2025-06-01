@@ -70,7 +70,10 @@ public class QueryController {
                             .QueryComment((String) obj[2])
                             .queryDoc((String) obj[3])
                             .createdAt((Date) obj[4])
-                            .userName((String) obj[5])  // Assuming this maps to u.name
+                            .userName((String) obj[5])
+                            .stateId((Integer) obj[6])
+                            .stateName((String) obj[7])
+                            .proposalTypeId((Integer) obj[8])
 
                              // If added in your query
                             .build())
@@ -274,7 +277,8 @@ public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") 
                             (Date)obj[4],
                             (String) obj[5],
                             (String) obj[6],
-                            (Integer) obj[7]// queryDoc
+                            (Integer) obj[7],
+                            (Integer) obj[8]// queryDoc
                     ))
                     .collect(Collectors.toList());
             return ResponseEntity.ok().body(getActiveQuery);

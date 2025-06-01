@@ -20,4 +20,5 @@ public class GetActiveQuery {
     private String userName;
     private String stateName;
     private Integer proposalTypeId;
+    private Integer stateId;
 }
