@@ -159,7 +159,7 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
                 iQueries.save(query);
             }
-            else
+            else if(actionId==2)
             {
                 iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 4);
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
@@ -167,6 +167,15 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
               iQueries.save(query);
               //set all this trail as false;
                 iQueries.deactivateQueriesByRequestId(request.getRequestId());
+
+            }
+            else
+            {
+                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 3);
+                grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
+
+                iQueries.save(query);
+                //set all this trail as false;
 
             }
 
