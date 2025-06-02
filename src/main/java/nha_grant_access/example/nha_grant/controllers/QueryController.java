@@ -177,7 +177,7 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
             }
             else
             {
-                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 3);
+                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 1);
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
 
                 iQueries.save(query);
