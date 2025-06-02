@@ -50,14 +50,14 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.user_id = :userId AND gr.flow_status = 1 and q.active = true ", nativeQuery = true)
+            "WHERE gr.user_id = :userId AND gr.flow_status = 1 and q.active = true and u.role_id = 2 ", nativeQuery = true)
     List<Object[]> findActiveQueryFromUserID(Integer userId);
     @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name, s.id AS state_id, s.name AS state_name , gr.proposal_type_id " +
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
             "JOIN states s ON s.id = gr.state_id " +
-            "WHERE gr.state_id = :stateId AND gr.flow_status = 10 AND q.active = true",
+            "WHERE gr.state_id = :stateId AND gr.flow_status = 10 AND q.active = true and u.role_id = 4 ",
             nativeQuery = true)
     List<Object[]> findStateActiveQueryFromStateID(Integer stateId);
 
@@ -66,7 +66,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
             "JOIN states s ON gr.state_id = s.id " +
-            "WHERE gr.state_id IN (:stateId) AND gr.flow_status = 7 AND q.active = true",
+            "WHERE gr.state_id IN (:stateId) AND gr.flow_status = 7 AND q.active = true and u.role_id = 4 ",
             nativeQuery = true)
     List<Object[]> findStateCordActiveQuery(List<Integer>stateId);
     boolean existsByRequestId(String requestId);
@@ -78,6 +78,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "JOIN states s ON gr.state_id = s.id " +
             "WHERE (:stateId = 0 OR gr.state_id = :stateId) " +
             "AND gr.flow_status = 5 " +
+            "And u.role_id = 3 " +
             "AND q.active = true",
             nativeQuery = true) List<Object[]> findNhaReviewerActiveQuery(Integer stateId);
 
