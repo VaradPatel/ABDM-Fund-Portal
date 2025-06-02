@@ -61,7 +61,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             nativeQuery = true)
     List<Object[]> findStateActiveQueryFromStateID(Integer stateId);
 
-    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name, s.name AS state_name, gr.proposal_type_id " +
+    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name, s.name AS state_name, gr.proposal_type_id , s.id as state_id " +
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
@@ -105,6 +105,11 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     @Transactional
     @Query(value = "UPDATE grant_requests SET flow_status = :statusId WHERE request_id = :requestId", nativeQuery = true)
     int updateStatusDescription( String requestId,  Integer statusId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE grant_requests SET e_sign_status_state_ceo = :status WHERE request_id = :requestId", nativeQuery = true)
+    int updateESignStatus( String requestId,  boolean status);
 
     @Query(value = """
     SELECT 
@@ -196,7 +201,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     SELECT 
         policy_start_date AS policyStartDate,
         policy_end_date AS policyEndDate,
-        SUM(release_till_date) AS totalAmountReleaseTillDate
+        SUM( released_amount ) AS totalAmountReleaseTillDate
     FROM grant_requests
     GROUP BY policy_start_date, policy_end_date
     """, nativeQuery = true)
@@ -225,9 +230,11 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "sc_amount = :scAmount, " +
             "st_amount = :stAmount, " +
             "gc_amount = :gcAmount, " +
-            "sanction_date = :sanctionDate , " +
-            " flow_status= 9 " +
-            " WHERE request_id = :requestId", nativeQuery = true)
+            "sanction_date = :sanctionDate, " +
+            "released_amount = :scAmount + :stAmount + :gcAmount , " +
+            "flow_status = 9 " +
+            "WHERE request_id = :requestId",
+            nativeQuery = true)
     int updateGrantSanctionDetailsByRequestId(BigDecimal scAmount,
                                               BigDecimal stAmount,
                                               BigDecimal gcAmount,

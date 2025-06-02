@@ -75,7 +75,7 @@ public class GrantRequestController {
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
             //sendnotification
-           // otpService.ApplicationSend(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
+           otpService.ApplicationSend(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
 
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {

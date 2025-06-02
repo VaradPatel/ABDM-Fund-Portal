@@ -155,6 +155,7 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
             if(actionId==1) {
                 iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 10);
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 2, request.getProposalTypeId(), request.getQuery());
+                iGrantRequestsRepo.updateESignStatus(request.getRequestId(),false);
                 iQueries.save(query);
             }
             else if (actionId==3){
@@ -170,6 +171,8 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
               iQueries.save(query);
               //set all this trail as false;
                 iQueries.deactivateQueriesByRequestId(request.getRequestId());
+
+
 
             }
             else
@@ -249,6 +252,7 @@ public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") 
                         .userName((String) obj[5])  // Assuming this maps to u.name
                         .stateName((String) obj[6])
                         .proposalTypeId((Integer) obj[7])
+                        .stateId((Integer) obj[8])
                         // If added in your query
                         .build())
                 .collect(Collectors.toList());
