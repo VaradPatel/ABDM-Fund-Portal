@@ -36,7 +36,7 @@ public interface IQueries extends JpaRepository<Queries, Integer> {
    List<Object[]> getWorkflowRemarksByRequestId( String requestId);
 
    @Query(value = """
-    SELECT  
+    SELECT  distinct
         wf.remarks, 
         gr.request_id, 
         wf.created_at, 

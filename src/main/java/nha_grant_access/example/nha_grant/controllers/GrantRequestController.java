@@ -96,6 +96,15 @@ public class GrantRequestController {
 //            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
 //            return ResponseEntity.ok(allGrantRequests);
             List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId),userId);
+            for (AllGrantRequest request : allGrantRequests) {
+                if (request.getStatusId()>=5 && request.getStatusId()<=8 ) {
+                  request.setRequestStatus("NHA_Review");
+                }
+                else if(request.getStatusId()==10 )
+                {
+                    request.setRequestStatus("Query by NHA");
+                }
+            }
 
             if(format.equals("csv"))
             {
@@ -264,6 +273,7 @@ public class GrantRequestController {
 
     try
     {
+
 int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId());
 if(op>0)
 {

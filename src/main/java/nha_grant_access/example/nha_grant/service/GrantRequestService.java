@@ -98,6 +98,8 @@ public class GrantRequestService implements IGrantRequests {
                         .financialYear(gr.getFinancialYear())
                         .sanctionDate(gr.getSanctionDate())
                         .states(gr.getState())
+                        .statusId(gr.getStatusDescription().getId())
+
 
 
 

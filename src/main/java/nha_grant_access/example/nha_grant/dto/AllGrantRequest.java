@@ -35,4 +35,5 @@ public class AllGrantRequest {
     private String financialYear;
     private LocalDateTime sanctionDate;
     private States states;
+    private Integer statusId;
 }
