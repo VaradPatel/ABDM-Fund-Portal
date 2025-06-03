@@ -98,7 +98,7 @@ public class GrantRequestController {
             List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId),userId);
             for (AllGrantRequest request : allGrantRequests) {
                 if (request.getStatusId()>=5 && request.getStatusId()<=8 ) {
-                  request.setRequestStatus("NHA_Review");
+                  request.setRequestStatus("NHA Review");
                 }
                 else if(request.getStatusId()==10 )
                 {
