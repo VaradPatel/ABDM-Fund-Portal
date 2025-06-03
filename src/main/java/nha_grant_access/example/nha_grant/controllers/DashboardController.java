@@ -7,10 +7,12 @@ import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.Interface.IUserService;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
+import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.entity.WorkFlowConfiguration;
 import nha_grant_access.example.nha_grant.repository.*;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
+import nha_grant_access.example.nha_grant.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +48,10 @@ public class DashboardController {
     IWorkFlowConfRepo iWorkFlowConfRepo;
     @Autowired
     GrantRequestService grantRequestService;
+
+
+    @Autowired
+    OtpService otpService;
 
     @GetMapping("/sha-finance/{userId}")
     @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
@@ -363,6 +369,8 @@ public class DashboardController {
                 WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 2);
                 iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
                 grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
+otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getProposalTypeId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
                 return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
             } catch (Exception e) {
                 log.error(e.toString());

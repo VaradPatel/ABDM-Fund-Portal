@@ -53,6 +53,8 @@ PasswordEncoder bCryptPasswordEncoder;
                     .isNew(true)
                     .designation(signup.getDesignation())
                     .isVerified(false)
+                    .gender(signup.getGender())
+                    .dob(signup.getDob())
 
                                             .
                     build();

@@ -12,6 +12,7 @@ import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.redis.hash.Otp;
 import nha_grant_access.example.nha_grant.redis.repository.IBlacklistTokenRepository;
 import nha_grant_access.example.nha_grant.redis.repository.IOtpRepository;
+import nha_grant_access.example.nha_grant.repository.IstatesRepository;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.utils.RSAUtil;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.AlgorithmParametersSpi;
@@ -24,6 +25,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,6 +41,8 @@ public class OtpService implements IOtp {
     RSAUtil rsaUtil;
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    IstatesRepository istatesRepository;
 @Autowired
 GrantRequestService grantRequestService;
     @Value("${sms.url}")
@@ -95,7 +100,7 @@ GrantRequestService grantRequestService;
 
         String message = String.format("Dear User, %s is OTP for verification of your mobile number ending with %s. National Health Authority", otp, lastFourDigits);
 
-
+        System.out.println("message is " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("userid", "abhaotp");
         body.add("password", "f9F3r]{S");
@@ -115,32 +120,39 @@ GrantRequestService grantRequestService;
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
-
+        System.out.println("response is " + response.getBody());
         return response.getBody();
     }
-public String ApplicationSend(String requestId, Integer proposalType, Integer State, Integer ImplemetationType)
+public String ApplicationSendTOCEO(String requestId, Integer proposalType, Integer State, Integer ImplemetationType)
 {
     ProposalType proposal= grantRequestService.getProposalType(proposalType);
     ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
-
+Optional<States> states=istatesRepository.findById(State);
 User user=userRepo.findUserByStateAndRole(2,State);
    // System.out.println("user is " + user.toString() );
     String message = String.format(
-            "Dear User ,\n\n" +
-                    "GIA Request No. %s for the %s scheme (Proposal Type: %s) has been received from the SHA %s for your review.\n\n" +
+            "Dear User ,  \n" +
+                    "GIA Request No. %s for the %s scheme (Proposal Type: %s) has been received from the SHA %s for your review. \n" +
                     "National Health Authority",
-             requestId, implementationTypes.getName(), proposal.getName(), user.getName()
+            requestId,
+            implementationTypes.getName(),
+            proposal.getName(),
+            states.get().getName()
+
     );
-    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+
+
+    System.out.println("sms message " + message);
+     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("userid", "abhaotp");
     body.add("password", "f9F3r]{S");
     body.add("mobile", user.getMobileNumber());
     body.add("senderid", "NHASMS");
-    body.add("dltEntityId", "1007855346570995386");
+    body.add("dltEntityId", "1001548700000010184");
     body.add("msg", message);
     body.add("sendMethod", "quick");
     body.add("msgType", "text");
-    body.add("dltTemplateId", "1007654642424465739");
+    body.add("dltTemplateId", "1007855346570995386");
     body.add("output", "json");
     body.add("duplicatecheck", "true");
 
@@ -154,6 +166,90 @@ User user=userRepo.findUserByStateAndRole(2,State);
 
     return "";
 }
+    public String ApplicationSendMsgToSha(String requestId, Integer proposalType, Integer State, Integer ImplemetationType)
+    {
+        ProposalType proposal= grantRequestService.getProposalType(proposalType);
+        ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
+        Optional<States> states=istatesRepository.findById(State);
+        User user=userRepo.findUserByStateAndRole(2,State);
+        // System.out.println("user is " + user.toString() );
+        String message = String.format(
+                "Dear User , \n" +
+                        "GIA Request No. %s for the %s scheme (Proposal Type: %s) has been submitted to CEO for verification. \n" +
+                        "National Health Authority",
+
+                requestId,
+                implementationTypes.getName(),
+                proposal.getName()
+        );
+
+
+        System.out.println("sms message " + message);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("userid", "abhaotp");
+        body.add("password", "f9F3r]{S");
+        body.add("mobile", user.getMobileNumber());
+        body.add("senderid", "NHASMS");
+        body.add("dltEntityId", "1001548700000010184");
+        body.add("msg", message);
+        body.add("sendMethod", "quick");
+        body.add("msgType", "text");
+        body.add("dltTemplateId", "1007139939459847170");
+        body.add("output", "json");
+        body.add("duplicatecheck", "true");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
+        System.out.println("Response is "+ response.getBody());
+
+        return "";
+    }
+    public String ApplicationApprovedMsgToCEO(String requestId, Integer proposalType, Integer State, Integer ImplemetationType)
+    {
+        ProposalType proposal= grantRequestService.getProposalType(proposalType);
+        ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
+        Optional<States> states=istatesRepository.findById(State);
+        User user=userRepo.findUserByStateAndRole(2,State);
+        // System.out.println("user is " + user.toString() );
+        String message = String.format(
+                "Dear User , \n"+
+                        "GIA Request No. %s for the %s scheme (Proposal Type: %s) has been verified by you and submitted for verification to NHA. \n" +
+                        "National Health Authority",
+
+                requestId,
+                implementationTypes.getName(),
+                proposal.getName()
+        );
+
+
+        System.out.println("sms message " + message);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("userid", "abhaotp");
+        body.add("password", "f9F3r]{S");
+        body.add("mobile", user.getMobileNumber());
+        body.add("senderid", "NHASMS");
+        body.add("dltEntityId", "1001548700000010184");
+        body.add("msg", message);
+        body.add("sendMethod", "quick");
+        body.add("msgType", "text");
+        body.add("dltTemplateId", "1007888067112951344");
+        body.add("output", "json");
+        body.add("duplicatecheck", "true");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
+        System.out.println("Response is "+ response.getBody());
+
+        return "";
+    }
 
 }
 

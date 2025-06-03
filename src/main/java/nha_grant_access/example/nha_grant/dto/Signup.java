@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import nha_grant_access.example.nha_grant.entity.Roles;
 
+import java.time.LocalDate;
 import java.util.List;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,4 +36,11 @@ public class Signup {
 
     @NotBlank(message = "Designation is mandatory")
     private String designation;
+    @NotBlank(message="gender is compulsory")
+
+    private String gender;
+
+    @NotNull(message = "dob is mandatory")
+    private LocalDate dob;
+
 }

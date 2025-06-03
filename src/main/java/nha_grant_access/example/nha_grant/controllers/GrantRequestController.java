@@ -75,8 +75,8 @@ public class GrantRequestController {
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
             //sendnotification
-           otpService.ApplicationSend(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
-
+           otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
+otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ",e.toString()));

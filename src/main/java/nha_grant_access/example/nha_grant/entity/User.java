@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -56,6 +57,11 @@ public class User {
 
     @Column(name="is_activated")
     private Boolean isActivated;
+
+    @Column(name="gender")
+    private String gender;
+    @Column(name="dob", columnDefinition = "DATE")
+    private LocalDate dob;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<UserStateRole> userStateRoles = new HashSet<>();
