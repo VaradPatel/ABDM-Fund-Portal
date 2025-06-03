@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,5 +36,6 @@ public class AllGrantRequest {
     private String financialYear;
     private LocalDateTime sanctionDate;
     private States states;
+    @JsonIgnore
     private Integer statusId;
 }
