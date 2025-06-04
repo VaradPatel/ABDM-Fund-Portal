@@ -15,6 +15,7 @@ import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IQueries;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
+import nha_grant_access.example.nha_grant.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -44,8 +45,11 @@ public class QueryController {
     IQueries iQueries;
     @Autowired
     UserRepo userRepo;
+
     @Autowired
     GrantRequestService grantRequestService;
+    @Autowired
+    OtpService otpService;
 
     @GetMapping("/get-active-query/{userId}")
     public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer userId) {
@@ -93,6 +97,17 @@ public class QueryController {
     {
         try {
             iQuery.raiseQuery(request);
+            if(request.getRoleId()==2)
+            {
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
+                otpService.ApplicationQueryRaiseMsgToSha(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
+            }
+            if(request.getRoleId()==4)
+            {
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
+                otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
+
+            }
             return ResponseEntity.ok().body(new SuccessResponse("Query Raised Successfully"));
         }
         catch(Exception e)
@@ -157,6 +172,9 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 2, request.getProposalTypeId(), request.getQuery());
                 iGrantRequestsRepo.updateESignStatus(request.getRequestId(),false);
                 iQueries.save(query);
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
+                otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
+
             }
             else if (actionId==3){
                 iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 5);
@@ -181,6 +199,10 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
 
                 iQueries.save(query);
+
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
+                otpService.ApplicationQueryRaiseMsgToSha(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
+
                 //set all this trail as false;
 
             }

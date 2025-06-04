@@ -155,6 +155,8 @@ public class DashboardController {
 
             if (iUserService.approveUser(request) > 0) {
                 //sent sms ;
+               Optional<User> user=userRepo.findById(request.getUserId());
+               otpService.LoginCredentials(user.get().getName(), "Nisg@123",user.get().getMobileNumber());
                 return ResponseEntity.ok().body(new SuccessResponse("User Approval Updated Succesully"));
             } else {
                 return ResponseEntity.badRequest().body("user not found");
@@ -366,11 +368,18 @@ public class DashboardController {
     public ResponseEntity<?> StateCeoApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
+                if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=2)
+                {
+                    return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
+                }
+
                 WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 2);
                 iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
                 grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
-                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
+               // Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
 otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getProposalTypeId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
+                otpService.ApplicationApprovedMsgToStateCordAndSha(requestId.getRequestId(),requestId.getProposalTypeId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
                 return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
             } catch (Exception e) {
                 log.error(e.toString());
@@ -385,6 +394,12 @@ otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getPro
     public ResponseEntity<?> StateCordApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
+                if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=4)
+                {
+                    return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
+                }
+
                 WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 3);
                 iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
                 grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
@@ -404,6 +419,11 @@ otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getPro
 
 
             try {
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
+                if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=6)
+                {
+                    return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
+                }
                 WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
                 iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
                 grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
@@ -496,6 +516,11 @@ return ResponseEntity.ok().body(allGrantRequests);
     public ResponseEntity<?> NhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
+                Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
+                if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=6)
+                {
+                    return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
+                }
                 WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
                 iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
                 grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");

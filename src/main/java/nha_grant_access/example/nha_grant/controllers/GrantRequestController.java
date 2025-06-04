@@ -75,8 +75,8 @@ public class GrantRequestController {
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
             //sendnotification
-           otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
-otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId());
+           otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
+otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ",e.toString()));
@@ -97,7 +97,7 @@ otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRe
 //            return ResponseEntity.ok(allGrantRequests);
             List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId),userId);
             for (AllGrantRequest request : allGrantRequests) {
-                if (request.getStatusId()>=5 && request.getStatusId()<=8 ) {
+                if (request.getStatusId()>=4 && request.getStatusId()<=8 ) {
                   request.setRequestStatus("NHA Review");
                 }
                 else if(request.getStatusId()==10 )
@@ -273,8 +273,13 @@ otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRe
 
     try
     {
+        Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(uploadSanction.getRequestId());
+        if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=8)
+        {
+            return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
+        }
 
-int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId());
+        int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId());
 if(op>0)
 {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -282,7 +287,8 @@ if(op>0)
     User user = userRepo.findByEmail(name).get();
     //save to workFlow
     grantRequestService.saveToWorkFlow(uploadSanction.getRequestId(),user.getId(), 8,1, "");
-
+   // Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(uploadSanction.getRequestId());
+  otpService.ApplicationFinalApprovalToShaAndCeo(uploadSanction.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
     return ResponseEntity.ok().body(new SuccessResponse("Successfully Uploaded sanction"));
 }
 else
