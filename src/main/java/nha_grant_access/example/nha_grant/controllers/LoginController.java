@@ -132,7 +132,9 @@ public class LoginController {
 
     @PostMapping("/encrypt")
     public ResponseEntity<?> encrypt(@RequestBody Test test) throws Exception {
-        return ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
+       String data= rsaUtil.encrypt(test.getEncrypt());
+
+        return ResponseEntity.ok().body(new SuccessResponse(data));
     }
 
     @PostMapping("/decrypt")
