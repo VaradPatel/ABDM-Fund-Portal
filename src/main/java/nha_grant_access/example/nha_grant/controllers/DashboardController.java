@@ -502,6 +502,8 @@ try
 
         List<AllGrantRequest>
             allGrantRequests = iGrantRequests.getAllGrantRequest();
+
+
 return ResponseEntity.ok().body(allGrantRequests);
 
 
@@ -593,8 +595,9 @@ return ResponseEntity.ok().body(allGrantRequests);
 
                 results = iGrantRequestsRepo.getNhaAdminDashboard( 0);
             }
-            List<NhaAdminDashboard> responseList = results.stream()
-                    .map(row -> NhaAdminDashboard.builder()
+            Object[] row=results.get(0);
+            NhaAdminDashboard responseList =
+                     NhaAdminDashboard.builder()
                             .totalRequestedAmount((BigDecimal) row[0])
                             .totalReleasedAmount((BigDecimal) row[1])
                             .approved(((Number) row[2]).intValue())
@@ -604,9 +607,9 @@ return ResponseEntity.ok().body(allGrantRequests);
                             .verifiedUsers(((Number) row[6]).intValue())
                             .pendingUsers(((Number) row[7]).intValue())
                             .totalMaxEligibleGrants((BigDecimal) row[8])
-                            .build()
-                    )
-                    .toList();
+                            .build();
+
+
 
             return ResponseEntity.ok().body(responseList);
 

@@ -93,9 +93,9 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                     COUNT(*) FILTER (WHERE flow_status = 1) AS pendingQuery,
                     (SELECT COUNT(*) FROM work_flow WHERE user_id = :userId AND action_id = 7) AS respondedQuery
                 FROM grant_requests gr
-                WHERE user_id = :userId AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND
-                                                    TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
-                                                   
+                WHERE user_id = :userId AND 
+               AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
+                                                         AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
             """, nativeQuery = true)
     List<Object[]> shaFinanceDashboardDetails(Integer userId, String policyStartDate , String policyEndDate);
 
@@ -113,50 +113,52 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     int updateESignStatus( String requestId,  boolean status);
 
     @Query(value = """
-    SELECT 
-        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
-        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
-        COUNT(*) FILTER (WHERE gr.flow_status = 4) AS nha_review,
-        COUNT(*) FILTER (WHERE gr.flow_status = 2) AS pending_proposals,
-        COUNT(*) FILTER (WHERE gr.flow_status = 7) AS pending_query,
-        COUNT(*) FILTER (WHERE gr.flow_status = 1) AS sha_pending,
-        (
-            SELECT COUNT(*) 
-            FROM work_flow wf 
-            WHERE wf.user_id = :userId AND wf.action_id = 7
-        ) AS resolved_query
-    FROM grant_requests gr
-    WHERE gr.state_id = :stateId  AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND 
-    TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
-    
-""", nativeQuery = true)
+                SELECT 
+                    COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+                    COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 4) AS nha_review,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 2) AS pending_proposals,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 7) AS pending_query,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 1) AS sha_pending,
+                    (
+                        SELECT COUNT(*) 
+                        FROM work_flow wf 
+                        WHERE wf.user_id = :userId AND wf.action_id = 7
+                    ) AS resolved_query
+                FROM grant_requests gr
+                WHERE gr.state_id = :stateId  
+                AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
+                                 AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
+                
+            """, nativeQuery = true)
     List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId, String policyStartDate, String policyEndDate);
 
     @Query(value = """
-    SELECT 
-        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
-        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
-        COUNT(*) FILTER (WHERE gr.flow_status = 4) AS pending,
-        COUNT(*) FILTER (WHERE gr.flow_status = 8) AS pending_for_sanction,
-        COUNT(*) FILTER (WHERE gr.flow_status = 6) AS pending_at_nhareviewer,
-        COUNT(*) FILTER (WHERE gr.flow_status = 9) AS sanction_upload,
-        COUNT(*) FILTER (WHERE gr.flow_status = 7) AS pending_query,
-        COUNT(*) FILTER (WHERE gr.flow_status = 5) AS query_raised,
-        (
-            SELECT COUNT(*) 
-            FROM work_flow wf 
-            WHERE wf.user_id = :userId AND wf.action_id = 7
-        ) AS resolved_query,
-        (
-            SELECT COALESCE(SUM(s.max_eligible_grant), 0)
-            FROM states s
-            WHERE s.id IN (:stateId)
-        ) AS max_eligible_grant
-    FROM grant_requests gr
-    WHERE gr.state_id IN (:stateId) AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND 
-    TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
-    
-""", nativeQuery = true)
+                SELECT 
+                    COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+                    COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 4) AS pending,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 8) AS pending_for_sanction,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 6) AS pending_at_nhareviewer,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 9) AS sanction_upload,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 7) AS pending_query,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 5) AS query_raised,
+                    (
+                        SELECT COUNT(*) 
+                        FROM work_flow wf 
+                        WHERE wf.user_id = :userId AND wf.action_id = 7
+                    ) AS resolved_query,
+                    (
+                        SELECT COALESCE(SUM(s.max_eligible_grant), 0)
+                        FROM states s
+                        WHERE s.id IN (:stateId)
+                    ) AS max_eligible_grant
+                FROM grant_requests gr
+                WHERE gr.state_id IN (:stateId) 
+               AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
+                                AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
+                
+            """, nativeQuery = true)
 
     List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId , String policyStartDate , String policyEndDate);
 
@@ -179,8 +181,9 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                                             WHERE (:stateId = 0 OR s.id = :stateId)
                                         ) AS total_max_eligible_grants
                 FROM grant_requests gr
-                WHERE (:stateId = 0 OR gr.state_id = :stateId )  AND TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate AND 
-                                                                     TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate
+                WHERE (:stateId = 0 OR gr.state_id = :stateId ) 
+                 AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
+                      AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
                                                                     
             """, nativeQuery = true)
     List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId, String policyStartDate, String policyEndDate);
