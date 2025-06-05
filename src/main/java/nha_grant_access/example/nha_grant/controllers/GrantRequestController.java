@@ -1,5 +1,8 @@
 package nha_grant_access.example.nha_grant.controllers;
 
+
+import com.lowagie.text.Font;
+import com.lowagie.text.PageSize;
 import lombok.RequiredArgsConstructor;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.*;
@@ -12,6 +15,12 @@ import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import nha_grant_access.example.nha_grant.service.OtpService;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import com.lowagie.text.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +35,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+
+
+import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
+
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,7 +53,17 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.*;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 @RestController
 @RequestMapping("/grant-requests")
@@ -55,6 +83,7 @@ public class GrantRequestController {
     GrantRequestService grantRequestService;
     @Autowired
     OtpService otpService;
+
     @PostMapping("/add")
     //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
@@ -71,22 +100,22 @@ public class GrantRequestController {
 //            User user = userRepo.findByEmail(email)
 //                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 //
-            System.out.println("positive balance is" +grantRequestInputDTO.getPositiveBalance());
+            System.out.println("positive balance is" + grantRequestInputDTO.getPositiveBalance());
 
-            GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO,false);
+            GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO, false);
             //sendnotification
-           otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
-otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRequest.getProposalTypeId(),savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
+            otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
+            otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ",e.toString()));
+            return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ", e.toString()));
         }
     }
 
     @GetMapping("/get-all/{stateId}")
 
-   //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
-    public ResponseEntity<?> getAllGrantRequest(@PathVariable("stateId") Integer stateId , @RequestParam(value = "userId", required = false) Integer userId,@RequestParam(value = "format", defaultValue = "json") String format) {
+    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+    public ResponseEntity<?> getAllGrantRequest(@PathVariable("stateId") Integer stateId, @RequestParam(value = "userId", required = false) Integer userId, @RequestParam(value = "format", defaultValue = "json") String format) {
         try {
 //            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //            if (authentication != null) {
@@ -95,19 +124,16 @@ otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRe
 //            }
 //            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
 //            return ResponseEntity.ok(allGrantRequests);
-            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId),userId);
+            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId), userId);
             for (AllGrantRequest request : allGrantRequests) {
-                if (request.getStatusId()>=4 && request.getStatusId()<=8 ) {
-                  request.setRequestStatus("NHA Review");
-                }
-                else if(request.getStatusId()==10 )
-                {
+                if (request.getStatusId() >= 4 && request.getStatusId() <= 8) {
+                    request.setRequestStatus("NHA Review");
+                } else if (request.getStatusId() == 10) {
                     request.setRequestStatus("Query by NHA");
                 }
             }
 
-            if(format.equals("csv"))
-            {
+            if (format.equals("csv")) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8))) {
@@ -148,92 +174,92 @@ otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(),savedGrantRe
                 headers.setContentType(MediaType.TEXT_PLAIN);
 
                 return new ResponseEntity<>(new InputStreamResource(bais), headers, HttpStatus.OK);
+            } else if (format.equals("pdf")) {
+                try {
+                  com.lowagie.text.Document document = new Document(PageSize.A4.rotate()); // rotate for wide table
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    PdfWriter.getInstance(document, baos);
+                    document.open();
+
+                    // Title
+                    Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+                    Paragraph title = new Paragraph("All Grant Requests Report", titleFont);
+                    title.setAlignment(Element.ALIGN_CENTER);
+                    title.setSpacingAfter(20f);
+                    document.add(title);
+
+                    // Define table with number of columns (adjust as per fields)
+                    PdfPTable table = new PdfPTable(13);
+                    table.setWidthPercentage(100);
+                    table.setWidths(new float[]{5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f}); // column widths
+
+                    // Header font
+                    Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+
+                    // Add table headers
+                    String[] headers = {
+                            "Request ID", "Requested Amount", "Release Amount", "Date Requested", "Released Date",
+                            "Request Status", "Proposal Type", "Implementation Types", "Tranche", "Policy Start Date",
+                            "Policy End Date", "Financial Year", "Sanction Date"
+                    };
+
+                    for (String header : headers) {
+                        PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                        cell.setBackgroundColor(new Color(220, 220, 220));
+                        table.addCell(cell);
+                    }
+
+                    // Content font
+                    Font contentFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+
+                    // Add rows for each AllGrantRequest
+                    for (AllGrantRequest row : allGrantRequests) {
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getRequestId()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getRequestedAmount()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getReleaseAmount()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getDateRequested()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getReleasedDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getRequestStatus()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getProposalType().getName()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getImplementationTypes().getName()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getTranche()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getPolicyStartDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getPolicyEndDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getFinancialYear()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getSanctionDate()), contentFont)));
+                    }
+
+                    // Add table to document
+                    document.add(table);
+
+                    document.close();
+
+                    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+
+                    HttpHeaders headersHttp = new HttpHeaders();
+                    headersHttp.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=AllGrantRequests.pdf");
+                    headersHttp.setContentType(MediaType.APPLICATION_PDF);
+
+                    return ResponseEntity.ok()
+                            .headers(headersHttp)
+                            .body(new InputStreamResource(bais));
+
+                } catch (Exception e) {
+                    throw new RuntimeException("Error generating PDF", e);
+                }
             }
-//            else if (format.equals("pdf"))
-//            {
-//                try (PDDocument document = new PDDocument();
-//                     ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-//
-//                    PDPage page = new PDPage(PDRectangle.A4);
-//                    document.addPage(page);
-//
-//                    try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-//                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
-//                        contentStream.beginText();
-//                        contentStream.setLeading(16);
-//                        contentStream.newLineAtOffset(50, 750);
-//                        contentStream.showText("All Grant Requests Report");
-//                        contentStream.newLine();
-//                        contentStream.endText();
-//
-//                        contentStream.setFont(PDType1Font.HELVETICA, 10);
-//                        float y = 730; // Start position
-//
-//                        for (AllGrantRequest row : data) {
-//                            if (y < 50) { // Create a new page if content exceeds limit
-//                                contentStream.close();
-//                                PDPage newPage = new PDPage(PDRectangle.A4);
-//                                document.addPage(newPage);
-//                                contentStream = new PDPageContentStream(document, newPage);
-//                                y = 750;
-//                            }
-//
-//                            contentStream.beginText();
-//                            contentStream.newLineAtOffset(50, y);
-//                            contentStream.showText("Request ID: " + sanitizeValue(row.getRequestId()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Requested Amount: " + sanitizeValue(row.getRequestedAmount()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Release Amount: " + sanitizeValue(row.getReleaseAmount()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Date Requested: " + sanitizeValue(row.getDateRequested()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Released Date: " + sanitizeValue(row.getReleasedDate()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Request Status: " + sanitizeValue(row.getRequestStatus()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Proposal Type: " + sanitizeValue(row.getProposalType()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Implementation Types: " + sanitizeValue(row.getImplementationTypes()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Tranche: " + sanitizeValue(row.getTranche()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Policy Start Date: " + sanitizeValue(row.getPolicyStartDate()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Policy End Date: " + sanitizeValue(row.getPolicyEndDate()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Financial Year: " + sanitizeValue(row.getFinancialYear()));
-//                            contentStream.newLine();
-//                            contentStream.showText("Sanction Date: " + sanitizeValue(row.getSanctionDate()));
-//                            contentStream.newLine();
-//
-//                            y -= 220; // Adjust spacing
-//                            contentStream.endText();
-//                        }
-//                        contentStream.close();
-//                    }
-//
-//                    document.save(baos);
-//                    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-//
-//                    HttpHeaders headers = new HttpHeaders();
-//                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=AllGrantRequests.pdf");
-//                    headers.setContentType(MediaType.APPLICATION_PDF);
-//
-//                    return new ResponseEntity<>(new InputStreamResource(bais), headers, HttpStatus.OK);
-//                } catch (IOException e) {
-//                    throw new RuntimeException("Error generating PDF", e);
-//                }
-//            }
-            else {
+        else {
                 return ResponseEntity.ok().body(allGrantRequests);
             }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(new Error("failed to fetch details ", e.toString()));
         }
-        catch(Exception e){
-                return ResponseEntity.internalServerError().body(new Error("failed to fetch details ", e.toString()));
-            }
 
     }
+
+
     @GetMapping("/get/{requestId}")
     public ResponseEntity<?> getGrantRequestByRequestId(@PathVariable("requestId") String requestId) {
         try {
