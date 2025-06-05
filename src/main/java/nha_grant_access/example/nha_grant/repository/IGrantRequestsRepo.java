@@ -93,7 +93,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                     COUNT(*) FILTER (WHERE flow_status = 1) AS pendingQuery,
                     (SELECT COUNT(*) FROM work_flow WHERE user_id = :userId AND action_id = 7) AS respondedQuery
                 FROM grant_requests gr
-                WHERE user_id = :userId AND 
+                WHERE user_id = :userId
                AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
                                                          AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
             """, nativeQuery = true)

@@ -67,7 +67,7 @@ public class DashboardController {
     OtpService otpService;
 
     @GetMapping("/sha-finance/{userId}")
-    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId,  @RequestParam String policyStartDate,
                                                     @RequestParam String policyEndDate) {
         try {
