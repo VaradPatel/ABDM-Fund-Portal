@@ -185,6 +185,45 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             """, nativeQuery = true)
     List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId, String policyStartDate, String policyEndDate);
 
+    @Query(value = """
+    SELECT 
+        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+        COUNT(*) FILTER (WHERE gr.flow_status = 9) AS approved,
+        COUNT(*) FILTER (WHERE gr.flow_status = 8) AS accepted,
+        COUNT(*) FILTER (WHERE gr.flow_status NOT IN (8,9)) AS review,
+
+        (
+            SELECT COUNT(*)
+            FROM users u
+            WHERE u.is_activated = false
+        ) AS deactivated_users,
+
+        (
+            SELECT COUNT(*)
+            FROM users u
+            WHERE u.is_verified = true AND u.role_id > 1
+        ) AS verified_users,
+
+        (
+            SELECT COUNT(*)
+            FROM users u
+            WHERE u.is_verified = false AND u.role_id > 1
+        ) AS pending_users,
+
+        (
+            SELECT SUM(s.max_eligible_grant)
+            FROM states s  
+            WHERE (:stateId = 0 OR s.id = :stateId)
+        ) AS total_max_eligible_grants
+
+    FROM grant_requests gr
+    WHERE (:stateId = 0 OR gr.state_id = :stateId)
+""", nativeQuery = true)
+
+    List<Object[]>getNhaAdminDashboard(Integer stateId);
+
+
 
 
     @Query(value = """

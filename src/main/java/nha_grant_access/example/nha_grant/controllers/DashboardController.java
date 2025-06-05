@@ -577,46 +577,44 @@ return ResponseEntity.ok().body(allGrantRequests);
 
         }
     }
-//    @GetMapping("/nhaAdmin/{stateId}")
-//    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId) {
-//        try {
-//
-//
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            String name = authentication.getName();
-//            User user = userRepo.findByEmail(name).get();
-//
-//
-//
-//            List<Object[]> results = null;
-//            if (stateId != 0) {
-//                System.out.println("states " + stateId);
-//                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId);
-//            } else {
-//
-//                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0);
-//            }
-//            List<NhaReviewerDashboard> responseList = results.stream()
-//                    .map(row -> NhaReviewerDashboard.builder()
-//                            .totalRequestedAmount((BigDecimal) row[0])
-//                            .totalReleasedAmount((BigDecimal) row[1])
-//                            .pending(((Number) row[2]).intValue())
-//
-//                            .accepted(((Number) row[3]).intValue())
-//
-//                            .pendingQuery(((Number) row[4]).intValue())
-//                            .queryRaised(((Number) row[5]).intValue())
-//                            .resolvedQuery(((Number) row[6]).intValue())
-//                            .build()
-//                    ).toList();
-//
-//            return ResponseEntity.ok().body(responseList);
-//
-//        } catch (Exception e) {
-//            log.error(e.toString());
-//            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details", e.toString()));
-//
-//        }
-//    }
+    @GetMapping("/nhaAdmin/{stateId}")
+    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId) {
+        try {
+
+
+
+
+
+            List<Object[]> results = null;
+            if (stateId != 0) {
+                System.out.println("states " + stateId);
+                results = iGrantRequestsRepo.getNhaAdminDashboard(stateId);
+            } else {
+
+                results = iGrantRequestsRepo.getNhaAdminDashboard( 0);
+            }
+            List<NhaAdminDashboard> responseList = results.stream()
+                    .map(row -> NhaAdminDashboard.builder()
+                            .totalRequestedAmount((BigDecimal) row[0])
+                            .totalReleasedAmount((BigDecimal) row[1])
+                            .approved(((Number) row[2]).intValue())
+                            .accepted(((Number) row[3]).intValue())
+                            .review(((Number) row[4]).intValue())
+                            .deactivatedUsers(((Number) row[5]).intValue())
+                            .verifiedUsers(((Number) row[6]).intValue())
+                            .pendingUsers(((Number) row[7]).intValue())
+                            .totalMaxEligibleGrants((BigDecimal) row[8])
+                            .build()
+                    )
+                    .toList();
+
+            return ResponseEntity.ok().body(responseList);
+
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching dashboard details", e.toString()));
+
+        }
+    }
 
 }
