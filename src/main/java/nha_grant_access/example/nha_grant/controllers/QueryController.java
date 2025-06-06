@@ -18,6 +18,7 @@ import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import nha_grant_access.example.nha_grant.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +66,7 @@ public class QueryController {
         }
     }
     @GetMapping("/stateceo-getactivequery/{stateId}")
+    @PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?> getStateCeoActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
         try {
             List<Object[]> results= iGrantRequestsRepo.findStateActiveQueryFromStateID(StateId);
@@ -119,6 +121,8 @@ public class QueryController {
 
 
     @PostMapping("/query-response")
+    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+
     public ResponseEntity<?>respondToQuery(@Valid @RequestBody GrantRequestInputDto grantRequestInputDto) {
         try {
             Optional<GrantRequests> existingGrant = iGrantRequestsRepo.findByRequestId(grantRequestInputDto.getRequestId());
@@ -252,6 +256,7 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
         }
     }
 @GetMapping("/statecord-getactivequery/{stateId}")
+@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
 public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
     try {
         List<Object[]> results=null;
@@ -293,6 +298,7 @@ public ResponseEntity<?> getStateCordActiveQueryRaised(@PathVariable("stateId") 
 }
 
     @GetMapping("/nhareviewer-getactivequery/{stateId}")
+    @PreAuthorize("hasAuthority('NHA reviewer') ")
     public ResponseEntity<?> getNhaReviewerActiveQueryRaised(@PathVariable("stateId") Integer StateId) {
         try {
             List<Object[]> results=null;

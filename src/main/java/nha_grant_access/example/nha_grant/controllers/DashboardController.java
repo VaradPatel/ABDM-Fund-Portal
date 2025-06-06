@@ -68,7 +68,7 @@ public class DashboardController {
     OtpService otpService;
 
     @GetMapping("/sha-finance/{userId}")
-    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId,  @RequestParam String policyStartDate,
                                                     @RequestParam String policyEndDate) {
         try {
@@ -94,7 +94,7 @@ public class DashboardController {
     }
 
     @GetMapping("/user-management/{stateId}")
-    //@PreAuthorize("hasAuthority('State CEO') ")
+    @PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?> getUserApprovalByStateCeo(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
 
@@ -126,7 +126,7 @@ public class DashboardController {
     }
 
     @GetMapping("/admin-user-management/{status}")
-    //@PreAuthorize("hasAuthority('State CEO') ")
+    @PreAuthorize("hasAuthority('NHA Admin') ")
     public ResponseEntity<?> getUserApprovalByAdmin(@PathVariable("status") Integer status) throws AccessDeniedException {
         try {
             List<Object[]> user = null;
@@ -163,7 +163,7 @@ public class DashboardController {
 
 
     @PostMapping("/user-approval")
-    //@PreAuthorize("hasAuthority('State CEO') or hasAuthority('NHA admin')")
+    @PreAuthorize("hasAuthority('State CEO') or hasAuthority('NHA admin')")
 
     public ResponseEntity<?> approveUser(@Valid @RequestBody UserApprovalRequest request) {
         try {
@@ -211,7 +211,7 @@ public class DashboardController {
 //    }
 
     @GetMapping("/stateceo-review/{stateId}")
-    //@PreAuthorize("hasAuthority('State CEO') ")
+    @PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?> getstateCeoReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
 
         try {
@@ -235,6 +235,7 @@ public class DashboardController {
     }
 
     @GetMapping("/state-ceo")
+    @PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?> getStateCeoDashboard(
             @RequestParam Integer stateId,
             @RequestParam Integer userId,
@@ -270,6 +271,7 @@ public class DashboardController {
     }
 
     @GetMapping("/statecord/{stateId}")
+    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> getStateCordDashboard(@PathVariable("stateId") Integer stateId , @RequestParam String policyStartDate,
                                                    @RequestParam String policyEndDate) {
         try {
@@ -315,7 +317,7 @@ public class DashboardController {
 
 
     @GetMapping("/statecord-review/{stateId}")
-    //@PreAuthorize("hasAuthority('State CEO') ")
+    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> stateCordReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -350,7 +352,7 @@ public class DashboardController {
     }
 
     @GetMapping("/statecord-all/{stateId}")
-    //@PreAuthorize("hasAuthority('State CEO') ")
+    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> stateCordAllProposal(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
 
@@ -380,6 +382,7 @@ public class DashboardController {
     }
 
     @PostMapping("/stateceo-approve")
+    @PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?> StateCeoApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
@@ -406,6 +409,7 @@ otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getPro
 
     }
     @PostMapping("/statecord-approve")
+    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> StateCordApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
@@ -429,6 +433,7 @@ otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getPro
 
     }
     @PostMapping("/nhareviewer-approve")
+    @PreAuthorize("hasAuthority('NHA reviewer') ")
     public ResponseEntity<?> nhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
         {
 
@@ -453,6 +458,7 @@ otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getPro
 
     }
     @GetMapping("/upload-sanction-list")
+    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> uploadSanctionList() {
 try
 {
@@ -485,7 +491,7 @@ catch(Exception e)
 
     }
 @GetMapping("/nhareviewer-review")
-//@PreAuthorize("hasAuthority('State CEO') ")
+@PreAuthorize("hasAuthority('NHA reviewer') ")
 public ResponseEntity<?> NhaReviewerReview() throws AccessDeniedException {
 try
 {
@@ -510,7 +516,8 @@ try
 
 }
     @GetMapping("/nhareviewer-all")
-//@PreAuthorize("hasAuthority('NHA reviewer') ")
+    @PreAuthorize("hasAuthority('NHA reviewer') or hasAuthority('NHA Admin')")
+
     public ResponseEntity<?> NhaReviewerAll(@RequestParam(value = "format", defaultValue = "json") String format) throws AccessDeniedException {
         try
         {
@@ -649,6 +656,7 @@ try
         }
     }
     @PostMapping("/nhaReviewer-approve")
+    @PreAuthorize("hasAuthority('NHA reviewer') ")
     public ResponseEntity<?> NhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
@@ -671,6 +679,7 @@ try
 
     }
     @GetMapping("/nhareviewer/{stateId}")
+    @PreAuthorize("hasAuthority('NHA reviewer') ")
     public ResponseEntity<?> getNhaReviewerDashboard(@PathVariable("stateId") Integer stateId ,     @RequestParam String policyStartDate,
                                                      @RequestParam String policyEndDate) {
         try {
@@ -714,6 +723,7 @@ try
         }
     }
     @GetMapping("/nhaAdmin/{stateId}")
+    @PreAuthorize("hasAuthority('NHA Admin') ")
     public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId) {
         try {
 

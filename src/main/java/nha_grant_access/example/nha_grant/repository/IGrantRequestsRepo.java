@@ -118,7 +118,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                     COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
                     COUNT(*) FILTER (WHERE gr.flow_status = 4) AS nha_review,
                     COUNT(*) FILTER (WHERE gr.flow_status = 2) AS pending_proposals,
-                    COUNT(*) FILTER (WHERE gr.flow_status = 7) AS pending_query,
+                    COUNT(*) FILTER (WHERE gr.flow_status = 10) AS pending_query,
                     COUNT(*) FILTER (WHERE gr.flow_status = 1) AS sha_pending,
                     (
                         SELECT COUNT(*) 

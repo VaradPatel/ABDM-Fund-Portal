@@ -85,7 +85,7 @@ public class GrantRequestController {
     OtpService otpService;
 
     @PostMapping("/add")
-    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
         try {
 //
@@ -113,8 +113,9 @@ public class GrantRequestController {
     }
 
     @GetMapping("/get-all/{stateId}")
+    @PreAuthorize("hasAuthority('SHA Finance Division Individual') or hasAuthority('State CEO')")
 
-    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+
     public ResponseEntity<?> getAllGrantRequest(@PathVariable("stateId") Integer stateId, @RequestParam(value = "userId", required = false) Integer userId, @RequestParam(value = "format", defaultValue = "json") String format) {
         try {
 //            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -294,6 +295,7 @@ public class GrantRequestController {
     }
 
 @PostMapping("upload-sanction")
+@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
         public ResponseEntity<?>UploadSanction(@Valid @RequestBody UploadSanction uploadSanction)
 {
 
