@@ -40,7 +40,11 @@ public interface IQueries extends JpaRepository<Queries, Integer> {
         wf.remarks, 
         gr.request_id, 
         wf.created_at, 
-        s.name AS state_name
+        s.name AS state_name,
+        gr.policy_start_date,
+        gr.policy_end_date,
+        gr.proposal_type_id 
+        
     FROM work_flow wf
     JOIN user_state_role usr ON wf.user_id = usr.user_id
     JOIN grant_requests gr ON wf.request_id = gr.request_id

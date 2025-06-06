@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
@@ -233,6 +234,10 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                             .requestId((String) row[1])
                             .createdAt(((Timestamp) row[2]).toLocalDateTime())
                             .state((String) row[3])
+                            .policyStartDate(LocalDate.from(((Timestamp) row[4] ).toLocalDateTime()))
+                            .policyEndDate(LocalDate.from(((Timestamp) row[5] ).toLocalDateTime()))
+                            .implementationTypes((String )grantRequestService.getProposalType((Integer) row[6]).getName())
+
                             .build())
                     .toList();
 
