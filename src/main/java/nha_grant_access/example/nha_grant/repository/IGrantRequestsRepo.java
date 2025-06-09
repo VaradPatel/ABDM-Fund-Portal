@@ -274,6 +274,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "st_amount = :stAmount, " +
             "gc_amount = :gcAmount, " +
             "sanction_date = :sanctionDate, " +
+            "sanction_letter = :sanctionLetter, "+
             "released_amount = :scAmount + :stAmount + :gcAmount , " +
             "flow_status = 9 " +
             "WHERE request_id = :requestId",
@@ -282,7 +283,8 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                                               BigDecimal stAmount,
                                               BigDecimal gcAmount,
                                               LocalDateTime sanctionDate, // or LocalDate if DB supports
-                                              String requestId );
+                                              String requestId,
+                                               byte[] sanctionLetter);
 
 
 }

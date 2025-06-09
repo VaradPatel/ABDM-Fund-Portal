@@ -4,6 +4,7 @@ package nha_grant_access.example.nha_grant.controllers;
 import com.lowagie.text.Font;
 import com.lowagie.text.PageSize;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
@@ -68,6 +69,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/grant-requests")
 @RequiredArgsConstructor
+@Slf4j
 public class GrantRequestController {
     @Autowired
     IGrantRequests iGrantRequests;
@@ -107,7 +109,9 @@ public class GrantRequestController {
             otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
             otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
+            log.error("exception " + e.getClass().getSimpleName());
             return ResponseEntity.internalServerError().body(new Error("Failed to create Grant Request ", e.toString()));
         }
     }
@@ -307,7 +311,7 @@ public class GrantRequestController {
             return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
         }
 
-        int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId());
+        int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId(),uploadSanction.getSanctionLetterBytes());
 if(op>0)
 {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

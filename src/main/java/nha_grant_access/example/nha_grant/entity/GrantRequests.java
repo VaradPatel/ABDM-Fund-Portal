@@ -137,6 +137,10 @@ private BigDecimal amountSc;
     @Column(name="gc_amount")
     private BigDecimal amountGc;
 
+    @Lob
+    @Column(name = "sanction_letter")
+    private byte[] sanctionLetter;
+
 
     @PrePersist
     protected void onCreate() {
