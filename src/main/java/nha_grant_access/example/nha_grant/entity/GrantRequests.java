@@ -139,7 +139,10 @@ private BigDecimal amountSc;
 
     @Lob
     @Column(name = "sanction_letter")
-    private byte[] sanctionLetter;
+    @JdbcTypeCode(SqlTypes.BINARY)
+    private byte[] sanction_letter;
+
+
 
 
     @PrePersist

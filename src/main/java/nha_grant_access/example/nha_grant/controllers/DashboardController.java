@@ -352,7 +352,7 @@ public class DashboardController {
     }
 
     @GetMapping("/statecord-all/{stateId}")
-    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
+   // @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> stateCordAllProposal(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
 
