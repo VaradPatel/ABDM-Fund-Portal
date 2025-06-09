@@ -38,4 +38,5 @@ public class AllGrantRequest {
     private States states;
     @JsonIgnore
     private Integer statusId;
+    private byte[] sanction_letter;
 }

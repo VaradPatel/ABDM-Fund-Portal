@@ -99,6 +99,7 @@ public class GrantRequestService implements IGrantRequests {
                         .sanctionDate(gr.getSanctionDate())
                         .states(gr.getState())
                         .statusId(gr.getStatusDescription().getId())
+                        .sanction_letter(gr.getSanction_letter())
 
 
 
@@ -127,6 +128,7 @@ public class GrantRequestService implements IGrantRequests {
                         .financialYear(gr.getFinancialYear())
                         .sanctionDate(gr.getSanctionDate())
                         .states(gr.getState())
+                        .sanction_letter(gr.getSanction_letter())
 
 
 
