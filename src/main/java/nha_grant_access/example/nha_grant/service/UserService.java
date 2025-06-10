@@ -88,7 +88,7 @@ PasswordEncoder bCryptPasswordEncoder;
     @Transactional
     public Integer approveUser(UserApprovalRequest request) {
         if(request.getIsApproved()) {
-            String hashedPassword = bCryptPasswordEncoder.encode("Nisg@123");
+            String hashedPassword = bCryptPasswordEncoder.encode("Nha@123");
             int updated = userRepo.updateUserVerificationStatus(request.getUserId(), request.getIsApproved(),hashedPassword);
             return updated;
         }

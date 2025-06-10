@@ -301,8 +301,8 @@ SendEmail(message,user.getEmail());
         String message = String.format(
                 "Dear User , \n" +
                         "Your credentials for NHA Grants Portal are as below: \n" +
-                        "Username: %s \n" +
-                        "Temporary password: %s \n" +
+                        "Username: %s  \n" +
+                        "Temporary password: %s  \n" +
                         "Kindly login to the application and reset your password. \n" +
                         "National Health Authority",
                  Username, password
