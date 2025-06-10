@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.dto.Esign;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +11,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class BeneficiaryAndFundingDetails {
-    private String tranche;
-    private String numberOfPMJAYBeneficiaries;
-    private String premiumValue;
-    private String nHAShare;
-    private String maxEligibleGrant;
-    private String releasedAmountTillDate;
-    private String requestedAmount;
+@JsonProperty("Tranche")
+    private String Tranche;
+    @JsonProperty("NumberOfPMJAYBeneficiaries")
+    private String NumberOfPMJAYBeneficiaries;
+
+    @JsonProperty("PremiumValue")
+    private String PremiumValue;
+
+    @JsonProperty("NHAShare")
+    private String NHAShare;
+
+    @JsonProperty("MaxEligibleGrant")
+    private String MaxEligibleGrant;
+    @JsonProperty("ReleasedAmountTillDate")
+    private String ReleasedAmountTillDate;
+    @JsonProperty("RequestedAmount")
+    private String RequestedAmount;
 }

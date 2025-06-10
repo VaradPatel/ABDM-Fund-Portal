@@ -1,4 +1,5 @@
 package nha_grant_access.example.nha_grant.dto.Esign;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,21 +10,36 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class GIARequestDetails {
-
+    @JsonProperty("ProposalDetail")
     private ProposalDetail proposalDetail;
+
+    @JsonProperty("BeneficiaryAndFundingDetails")
     private BeneficiaryAndFundingDetails beneficiaryAndFundingDetails;
-    //private StateShareContributionForPMJAYEligibleFamilies stateShareContributionForPMJAYEligibleFamilies;
+
+    @JsonProperty("StateShareContributionForPMJAYEligibleFamilies")
+    private StateShareContributionForPMJAYEligibleFamilies stateShareContributionForPMJAYEligibleFamilies;
+
+    @JsonProperty("ComplianceAndRequiredDocuments")
     private ComplianceAndRequiredDocuments complianceAndRequiredDocuments;
 
-    private String claimPaidSummarySheetAdminExpenditureSheetHasBeenEnclosedChecked;
-    private String mandateFormIsEnclosedChecked;
+    @JsonProperty("ClaimPaidSummarySheetAdminExpenditureSheetHasBeenEnclosedChecked")
+    private String ClaimPaidSummarySheetAdminExpenditureSheetHasBeenEnclosedChecked;
+    @JsonProperty("MandateFormIsEnclosedChecked")
+    private String MandateFormIsEnclosedChecked;
+    @JsonProperty("ProvisionalUtilizationCertificateAndAuditedUtilizationCertificateForTheCentralShareAreEnclosedWithAPositiveOpeningAndClosingBalanceChecked")
     private String provisionalUtilizationCertificateAndAuditedUtilizationCertificateForTheCentralShareAreEnclosedWithAPositiveOpeningAndClosingBalanceChecked;
-    private String theOpeningBalanceOfTheUtilizationCertificateMatchesTheClosingBalanceOfThePreviousFinancialYearChecked;
-    private String interestDepositCertificateReceiptAmountIsMentionedInTheUtilizationCertificateIfApplicableChecked;
-    private String receiptAndPaymentAccountAndIncomeAndExpenditureAccountAreEnclosedShowingTheSeparateCentralShareAndAreInAgreementWithTheAuditedUtilizationCertificateChecked;
-    private String auditedFinancialAccountsReportIsAccompaniedByTheAuditReportLetterChecked;
-    private String complianceActionTakenNotesAreEnclosedIfApplicableChecked;
-    private String copyOfTheChallanTowardsTheDepositOfInterestToCFIThroughTheBharatKoshPortalIsEnclosedIfApplicableChecked;
+    @JsonProperty("TheOpeningBalanceOfTheUtilizationCertificateMatchesTheClosingBalanceOfThePreviousFinancialYearChecked")
+    private String TheOpeningBalanceOfTheUtilizationCertificateMatchesTheClosingBalanceOfThePreviousFinancialYearChecked;
+    @JsonProperty("InterestDepositCertificateReceiptAmountIsMentionedInTheUtilizationCertificateIfApplicableChecked")
+    private String InterestDepositCertificateReceiptAmountIsMentionedInTheUtilizationCertificateIfApplicableChecked;
+    @JsonProperty("ReceiptAndPaymentAccountAndIncomeAndExpenditureAccountAreEnclosedShowingTheSeparateCentralShareAndAreInAgreementWithTheAuditedUtilizationCertificateChecked")
+    private String ReceiptAndPaymentAccountAndIncomeAndExpenditureAccountAreEnclosedShowingTheSeparateCentralShareAndAreInAgreementWithTheAuditedUtilizationCertificateChecked;
+    @JsonProperty("AuditedFinancialAccountsReportIsAccompaniedByTheAuditReportLetterChecked")
+    private String AuditedFinancialAccountsReportIsAccompaniedByTheAuditReportLetterChecked;
+    @JsonProperty("ComplianceActionTakenNotesAreEnclosedIfApplicableChecked")
+    private String ComplianceActionTakenNotesAreEnclosedIfApplicableChecked;
+    @JsonProperty("CopyOfTheChallanTowardsTheDepositOfInterestToCFIThroughTheBharatKoshPortalIsEnclosedIfApplicableChecked")
+    private String CopyOfTheChallanTowardsTheDepositOfInterestToCFIThroughTheBharatKoshPortalIsEnclosedIfApplicableChecked;
 }
 
 

@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.dto.Esign;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,14 +11,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Document {
-    private String integratorName;
-    private String templateId;
+    private String integratorName="NHAGRANTS";
+    private String templateId="TEMPLATE_1";
+    @JsonProperty("StateCEOName")
     private String stateCEOName;
-    private String signingPlace;
+    private String signingPlace="Delhi";
     private String mobileNumber;
     private String emailId;
     private String state;
-    private String proposalRaisedDate;
+    @JsonProperty("ProposalRaisedDate")
+    private String ProposalRaisedDate;
+    @JsonProperty("GIARequestDetails")
     private GIARequestDetails giaRequestDetails;
     private MatchAadharDetailsTO matchAadharDetailsTO;
 
