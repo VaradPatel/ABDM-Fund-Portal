@@ -233,7 +233,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     SELECT 
         policy_start_date AS policyStartDate,
         policy_end_date AS policyEndDate,
-        SUM(release_till_date) AS totalAmountReleaseTillDate
+        SUM(released_amount) AS totalAmountReleaseTillDate
     FROM grant_requests
     WHERE state_id IN (:stateIds)
     GROUP BY policy_start_date, policy_end_date
