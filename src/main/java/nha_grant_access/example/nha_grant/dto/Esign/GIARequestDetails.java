@@ -1,0 +1,29 @@
+package nha_grant_access.example.nha_grant.dto.Esign;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class GIARequestDetails {
+
+    private ProposalDetail proposalDetail;
+    private BeneficiaryAndFundingDetails beneficiaryAndFundingDetails;
+    //private StateShareContributionForPMJAYEligibleFamilies stateShareContributionForPMJAYEligibleFamilies;
+    private ComplianceAndRequiredDocuments complianceAndRequiredDocuments;
+
+    private String claimPaidSummarySheetAdminExpenditureSheetHasBeenEnclosedChecked;
+    private String mandateFormIsEnclosedChecked;
+    private String provisionalUtilizationCertificateAndAuditedUtilizationCertificateForTheCentralShareAreEnclosedWithAPositiveOpeningAndClosingBalanceChecked;
+    private String theOpeningBalanceOfTheUtilizationCertificateMatchesTheClosingBalanceOfThePreviousFinancialYearChecked;
+    private String interestDepositCertificateReceiptAmountIsMentionedInTheUtilizationCertificateIfApplicableChecked;
+    private String receiptAndPaymentAccountAndIncomeAndExpenditureAccountAreEnclosedShowingTheSeparateCentralShareAndAreInAgreementWithTheAuditedUtilizationCertificateChecked;
+    private String auditedFinancialAccountsReportIsAccompaniedByTheAuditReportLetterChecked;
+    private String complianceActionTakenNotesAreEnclosedIfApplicableChecked;
+    private String copyOfTheChallanTowardsTheDepositOfInterestToCFIThroughTheBharatKoshPortalIsEnclosedIfApplicableChecked;
+}
+
+

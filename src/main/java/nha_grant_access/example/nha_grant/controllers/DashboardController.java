@@ -163,7 +163,7 @@ public class DashboardController {
 
 
     @PostMapping("/user-approval")
-    @PreAuthorize("hasAuthority('State CEO') or hasAuthority('NHA admin')")
+    @PreAuthorize("hasAuthority('State CEO') or hasAuthority('NHA Admin')")
 
     public ResponseEntity<?> approveUser(@Valid @RequestBody UserApprovalRequest request) {
         try {
