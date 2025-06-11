@@ -1,5 +1,7 @@
 package nha_grant_access.example.nha_grant.service;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import nha_grant_access.example.nha_grant.dto.Esign.Document;
 import nha_grant_access.example.nha_grant.dto.Esign.DocumentRequest;
 import nha_grant_access.example.nha_grant.dto.Esign.EspResponse;
@@ -9,8 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.*;
 import java.security.cert.X509Certificate;
-
-
+import java.util.regex.Matcher;
 
 
 @Service
@@ -47,7 +48,28 @@ public class EsignService {
         System.out.println("request is " + request.toString());
 
         ResponseEntity<EspResponse> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, EspResponse.class);
+
+        String xml=response.getBody().getEspRequest();
+        Pattern pattern = Pattern.compile("(<Esign.*?</Esign>)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(xml);
+
+        if (matcher.find()) {
+            String esignBlock = matcher.group(1);
+
+            // Clean the <Esign> block
+            String cleaned = esignBlock
+                    .replace("\r", "")
+                    .replace("\n", "")
+
+                    .trim();
+            xml = xml.replace(esignBlock, cleaned);
+        }
+
         EspResponse espResponse = response.getBody();
+        espResponse.setEspRequest(xml);
+
+
+
         return  espResponse;
     }
 }

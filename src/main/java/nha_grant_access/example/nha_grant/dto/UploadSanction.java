@@ -24,7 +24,7 @@ private String requestId;
 
 
         private LocalDateTime sanctionDate;
-    @NotBlank
+  //  @NotBlank
     private String sanctionLetter;
 
     public byte[] getSanctionLetterBytes() {

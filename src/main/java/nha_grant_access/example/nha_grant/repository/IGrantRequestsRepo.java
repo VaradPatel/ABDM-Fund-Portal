@@ -266,6 +266,8 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     """, nativeQuery = true)
     List<GrantRequests> findAllGrantRequestForReviwer();
 
+    @Query(value = "SELECT COALESCE(SUM(released_amount), 0) FROM grant_requests WHERE state_id = :stateId", nativeQuery = true)
+    BigDecimal getTotalReleasedAmountByStateId(Integer stateId);
 
     @Modifying
     @Transactional

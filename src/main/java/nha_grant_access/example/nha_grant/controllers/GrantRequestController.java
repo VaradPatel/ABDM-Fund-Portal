@@ -9,9 +9,11 @@ import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
+import nha_grant_access.example.nha_grant.entity.States;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IQueries;
+import nha_grant_access.example.nha_grant.repository.IstatesRepository;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import nha_grant_access.example.nha_grant.service.OtpService;
@@ -75,6 +77,8 @@ public class GrantRequestController {
     IGrantRequests iGrantRequests;
     @Autowired
     IGrantRequestsRepo iGrantRequestsRepo;
+    @Autowired
+    IstatesRepository istatesRepository;
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -299,17 +303,39 @@ public class GrantRequestController {
     }
 
 @PostMapping("upload-sanction")
-@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
+//@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
         public ResponseEntity<?>UploadSanction(@Valid @RequestBody UploadSanction uploadSanction)
 {
 
     try
     {
         Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(uploadSanction.getRequestId());
+
         if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=8)
         {
             return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
         }
+        BigDecimal AmountReleased=iGrantRequestsRepo.getTotalReleasedAmountByStateId(grantRequests.get().getState().getId());
+        Optional<States> state=istatesRepository.findById(grantRequests.get().getState().getId());
+
+
+
+        BigDecimal totalAmount = uploadSanction.getAmountSC()
+                .add(uploadSanction.getAmountGC())
+                .add(uploadSanction.getAmountST());
+        if(totalAmount.compareTo(state.get().getMaxEligibleGrant())>0)
+        {
+            return ResponseEntity.badRequest().body(new Error("Total amount cannot be more than the Max Eligible Grants ","Total amount cannot be more than the Max Eligible Grants"));
+
+        }
+        if(totalAmount.compareTo(grantRequests.get().getRequestedAmount()) > 0)
+        {
+               return ResponseEntity.badRequest().body(new Error("Total amount cannot be more than the requested Amount","Total amount cannot be more than the requested Amount"));
+
+        }
+
+
+
 
         int op=iGrantRequestsRepo.updateGrantSanctionDetailsByRequestId(uploadSanction.getAmountSC(),uploadSanction.getAmountST(),uploadSanction.getAmountGC(),uploadSanction.getSanctionDate(),uploadSanction.getRequestId(),uploadSanction.getSanctionLetterBytes());
 if(op>0)
