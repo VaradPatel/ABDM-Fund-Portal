@@ -142,6 +142,13 @@ private BigDecimal amountSc;
     @JdbcTypeCode(SqlTypes.BINARY)
     private byte[] sanction_letter;
 
+    @Lob
+    @Column(name = "esign_pdf")
+    @JdbcTypeCode(SqlTypes.BINARY)
+    private byte[] esign_pdf;
+    @Column (name="esign_txn_id")
+    private String esignTxnId;
+
 
 
 
