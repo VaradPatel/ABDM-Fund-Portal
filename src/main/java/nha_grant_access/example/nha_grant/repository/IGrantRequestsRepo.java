@@ -288,5 +288,20 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                                               String requestId,
                                                byte[] sanctionLetter);
 
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE grant_requests SET " +
+            "e_sign_status_state_ceo = true ," +
+            "esign_txn_id = :txnId  ," +
+            "esign_pdf = :esignLetter " +
+
+
+
+
+            "WHERE request_id = :requestId",
+            nativeQuery = true)
+    int updateEsignStatusByRequestID(String requestId,
+                                              byte[] esignLetter, String txnId);
+
 
 }

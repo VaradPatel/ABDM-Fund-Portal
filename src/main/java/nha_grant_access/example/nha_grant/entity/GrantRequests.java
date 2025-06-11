@@ -110,7 +110,7 @@ private List<StateShare> stateShare;
     private LocalDateTime updatedAt;
 
     @Column(name = "e_sign_status_state_ceo")
-    private Boolean eSignStatusStateCeo;
+    private Boolean eSignStatusStateCeo=false;
 
     @ManyToOne
     @JoinColumn(name = "flow_status", referencedColumnName = "id")

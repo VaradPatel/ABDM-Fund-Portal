@@ -1,5 +1,7 @@
 package nha_grant_access.example.nha_grant.service;
 
+import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -12,9 +14,11 @@ import java.util.List;
 public class DelayedFollowUpService {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    IGrantRequestsRepo iGrantRequestsRepo;
 
     @Async
-    public void fetchSignedPdfOnce(String txnId) {
+    public void fetchSignedPdfOnce(String txnId, String requestId) {
         try {
             // ⏳ Wait 3 minutes
             Thread.sleep(180_000);
@@ -31,7 +35,10 @@ public class DelayedFollowUpService {
 
             if (MediaType.APPLICATION_PDF.equals(contentType)) {
                 byte[] pdfBytes = response.getBody();
-                System.out.println("✅ PDF received (size = " + pdfBytes.length + " bytes)");
+
+                iGrantRequestsRepo.updateEsignStatusByRequestID(requestId,pdfBytes,txnId);
+
+              //  System.out.println("✅ PDF received (size = " + pdfBytes.length + " bytes)");
                 // You can store the PDF here if needed
             } else if (MediaType.TEXT_HTML.equals(contentType)) {
                 String html = new String(response.getBody(), StandardCharsets.UTF_8);
