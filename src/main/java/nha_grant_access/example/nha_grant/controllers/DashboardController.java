@@ -170,8 +170,11 @@ public class DashboardController {
 
             if (iUserService.approveUser(request) > 0) {
                 //sent sms ;
-               Optional<User> user=userRepo.findById(request.getUserId());
-               otpService.LoginCredentials(user.get().getName(), "Nha@123",user.get().getMobileNumber());
+
+               if(request.getIsApproved()) {
+                   Optional<User> user=userRepo.findById(request.getUserId());
+                   otpService.LoginCredentials(user.get().getName(), "Nha@123", user.get().getMobileNumber());
+               }
                 return ResponseEntity.ok().body(new SuccessResponse("User Approval Updated Succesully"));
             } else {
                 return ResponseEntity.badRequest().body("user not found");
