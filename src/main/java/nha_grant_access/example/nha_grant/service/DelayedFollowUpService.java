@@ -21,7 +21,7 @@ public class DelayedFollowUpService {
     public void fetchSignedPdfOnce(String txnId, String requestId) {
         try {
             // ⏳ Wait 3 minutes
-            Thread.sleep(180_000);
+            Thread.sleep(10_000);
 
             String pdfUrl = "https://digisignbeta.abdm.gov.in/digiSign/pdf/" + txnId;
 
