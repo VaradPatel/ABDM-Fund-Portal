@@ -53,7 +53,7 @@ documentRequest.getDocument().setSigningPlace(documentRequest.getDocument().getS
             EspResponse response = esignService.sendToDigiSignApi(documentRequest);
 
 
-            delayedFollowUpService.fetchSignedPdfOnce("a6ff99a5f7794b36b52dcfe83b5cf865","NHA7483258");
+            delayedFollowUpService.fetchSignedPdfOnce(response.getAspTxnId(), requestId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
