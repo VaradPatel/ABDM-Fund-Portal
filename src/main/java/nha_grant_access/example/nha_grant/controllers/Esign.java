@@ -40,7 +40,7 @@ public class Esign {
             {
                 return ResponseEntity.badRequest().body(new Error ("Already Esigned","Already Esigned"));
             }
-            MatchAadharDetailsTO matchAadharDetailsTO=new MatchAadharDetailsTO(user.getDob().toString(),user.getName(),user.getGender(),"NHAGRANTS");
+            MatchAadharDetailsTO matchAadharDetailsTO=new MatchAadharDetailsTO(user.getDob().toString().substring(0, 4),user.getName(),user.getGender(),"NHAGRANTS");
 documentRequest.getDocument().setMatchAadharDetailsTO(matchAadharDetailsTO);
 
 documentRequest.getDocument().setEmailId(user.getEmail());
@@ -48,6 +48,7 @@ documentRequest.getDocument().setStateCEOName(user.getName());
 documentRequest.getDocument().setMobileNumber(user.getMobileNumber());
 documentRequest.getDocument().setSigningPlace(documentRequest.getDocument().getState());
 
+            System.out.println("document is "+ documentRequest.toString());
 
             EspResponse response = esignService.sendToDigiSignApi(documentRequest);
 
