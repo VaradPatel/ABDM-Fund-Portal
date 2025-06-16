@@ -390,7 +390,7 @@ public class DashboardController {
         {
             try {
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
-                if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=2)
+                if(grantRequests.isEmpty() || grantRequests.get().getStatusDescription().getId()!=2 || !grantRequests.get().getESignStatusStateCeo())
                 {
                     return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
                 }
