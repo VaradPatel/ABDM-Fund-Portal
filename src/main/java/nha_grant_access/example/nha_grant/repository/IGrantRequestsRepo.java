@@ -291,7 +291,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
     @Modifying
     @Transactional
     @Query(value = "UPDATE grant_requests SET " +
-            "e_sign_status_state_ceo = true ," +
+            "e_sign_status_state_ceo = :status ," +
             "esign_txn_id = :txnId  ," +
             "esign_pdf = :esignLetter " +
 
@@ -301,7 +301,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "WHERE request_id = :requestId",
             nativeQuery = true)
     int updateEsignStatusByRequestID(String requestId,
-                                              byte[] esignLetter, String txnId);
+                                              byte[] esignLetter, String txnId, boolean status);
 
 
 }

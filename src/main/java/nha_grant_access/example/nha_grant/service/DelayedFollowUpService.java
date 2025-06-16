@@ -36,7 +36,7 @@ public class DelayedFollowUpService {
             if (MediaType.APPLICATION_PDF.equals(contentType)) {
                 byte[] pdfBytes = response.getBody();
 
-                iGrantRequestsRepo.updateEsignStatusByRequestID(requestId,pdfBytes,txnId);
+                iGrantRequestsRepo.updateEsignStatusByRequestID(requestId,pdfBytes,txnId,true);
 
               //  System.out.println("✅ PDF received (size = " + pdfBytes.length + " bytes)");
                 // You can store the PDF here if needed

@@ -109,7 +109,11 @@ public class QueryController {
             {
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
                 otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
-
+if(request.getIsStateCeo()==1)
+{
+    byte [] bytes=null;
+    iGrantRequestsRepo.updateEsignStatusByRequestID(request.getRequestId(), bytes,"",false);
+}
             }
             return ResponseEntity.ok().body(new SuccessResponse("Query Raised Successfully"));
         }
@@ -179,7 +183,8 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                 iQueries.save(query);
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
                 otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
-
+                byte [] bytes=null;
+                iGrantRequestsRepo.updateEsignStatusByRequestID(request.getRequestId(), bytes,"",false);
             }
             else if (actionId==3){
                 iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 5);
