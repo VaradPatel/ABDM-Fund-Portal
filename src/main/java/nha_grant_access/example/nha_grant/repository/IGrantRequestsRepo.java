@@ -32,7 +32,8 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
     List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
 
 
-    @Query(value = "SELECT DISTINCT ON (gr.request_id)  " +
+    @Query(value = "SELECT DISTINCT ON (gr.request_id) " +
+            "gr.request_id, " +
 
             "gr.remarks, " +
             "gr.requested_amount, " +

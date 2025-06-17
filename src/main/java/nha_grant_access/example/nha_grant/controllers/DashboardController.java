@@ -320,7 +320,7 @@ public class DashboardController {
 
 
     @GetMapping("/statecord-review/{stateId}")
-    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
+    //@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> stateCordReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
