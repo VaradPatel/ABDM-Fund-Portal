@@ -32,12 +32,21 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
     List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
 
 
-    @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +
-            "FROM grant_requests gr " +
-            "JOIN user_state_role usr ON gr.state_id = usr.state_id AND usr.role_id = :roleId  " +
+    @Query(value = "SELECT DISTINCT ON (gr.request_id)  " +
+
+            "gr.remarks, " +
+            "gr.requested_amount, " +
+            "u.name AS user_name, " +
+            "gr.created_at, " +
+            "s.name AS state_name " +
+            "FROM " +
+            "grant_requests gr " +
+            "JOIN work_flow wf ON wf.request_id = gr.request_id " +
+            "JOIN user_state_role usr ON wf.user_id = usr.user_id AND usr.role_id = :roleId " +
             "JOIN users u ON usr.user_id = u.id " +
             "JOIN states s ON gr.state_id = s.id " +
-            "WHERE gr.state_id IN (:stateId) AND gr.flow_status = :flowStatus",
+            "WHERE gr.state_id IN (:stateId) " +
+            "AND gr.flow_status = :flowStatus",
             nativeQuery = true)
     List<Object[]> getGrantRequestsWithState( List<Integer>stateId, Integer flowStatus, Integer roleId);
 

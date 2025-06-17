@@ -103,13 +103,26 @@ public class QueryController {
             if(request.getRoleId()==2)
             {
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
-                otpService.ApplicationQueryRaiseMsgToSha(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
-            }
+                try {
+                    otpService.ApplicationQueryRaiseMsgToSha(request.getRequestId(), grantRequests.get().getProposalType().getId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()), grantRequests.get().getUser().getId());
+                }
+                catch (Exception e)
+                {
+                    ;
+                }
+                }
             if(request.getRoleId()==4)
             {
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
-                otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
-if(request.getIsStateCeo()==1)
+                try {
+                    otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(), grantRequests.get().getProposalType().getId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()), grantRequests.get().getUser().getId());
+                }
+                catch (Exception e)
+                {
+                    ;
+                }
+if
+(request.getIsStateCeo()==1)
 {
     byte [] bytes=null;
     iGrantRequestsRepo.updateEsignStatusByRequestID(request.getRequestId(), bytes,"",false);
@@ -182,8 +195,16 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                 iGrantRequestsRepo.updateESignStatus(request.getRequestId(),false);
                 iQueries.save(query);
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
-                otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
-                byte [] bytes=null;
+                try {
+                    otpService.ApplicationQueryRaiseMsgToCeo(request.getRequestId(), grantRequests.get().getProposalType().getId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()), grantRequests.get().getUser().getId());
+
+                }
+                catch (Exception e)
+                {
+                    ;
+                }
+                byte[] bytes = null;
+
                 iGrantRequestsRepo.updateEsignStatusByRequestID(request.getRequestId(), bytes,"",false);
             }
             else if (actionId==3){
@@ -211,8 +232,13 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                 iQueries.save(query);
 
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
-                otpService.ApplicationQueryRaiseMsgToSha(request.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
-
+                try {
+                    otpService.ApplicationQueryRaiseMsgToSha(request.getRequestId(), grantRequests.get().getProposalType().getId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()), grantRequests.get().getUser().getId());
+                }
+                catch (Exception e)
+                {
+                    ;
+                }
                 //set all this trail as false;
 
             }

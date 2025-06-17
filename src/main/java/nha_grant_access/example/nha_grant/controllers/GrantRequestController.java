@@ -110,8 +110,15 @@ public class GrantRequestController {
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO, false);
             //sendnotification
-            otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
-            otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
+            try {
+                otpService.ApplicationSendTOCEO(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
+
+                otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
+            }
+            catch (Exception e)
+            {
+                ;
+            }
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         }
         catch (Exception e) {
@@ -346,8 +353,14 @@ if(op>0)
     //save to workFlow
     grantRequestService.saveToWorkFlow(uploadSanction.getRequestId(),user.getId(), 8,1, "");
    // Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(uploadSanction.getRequestId());
-  otpService.ApplicationFinalApprovalToShaAndCeo(uploadSanction.getRequestId(),grantRequests.get().getProposalType().getId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()),grantRequests.get().getUser().getId());
-    return ResponseEntity.ok().body(new SuccessResponse("Successfully Uploaded sanction"));
+    try {
+        otpService.ApplicationFinalApprovalToShaAndCeo(uploadSanction.getRequestId(), grantRequests.get().getProposalType().getId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()), grantRequests.get().getUser().getId());
+    }
+    catch (Exception e)
+    {
+        ;
+    }
+  return ResponseEntity.ok().body(new SuccessResponse("Successfully Uploaded sanction"));
 }
 else
 {

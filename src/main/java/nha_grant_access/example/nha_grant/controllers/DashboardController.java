@@ -399,8 +399,14 @@ public class DashboardController {
                 iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
                 grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
                // Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
-otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(),requestId.getProposalTypeId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
-                otpService.ApplicationApprovedMsgToStateCordAndSha(requestId.getRequestId(),requestId.getProposalTypeId(),grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
+                try {
+                    otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(), requestId.getProposalTypeId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
+                    otpService.ApplicationApprovedMsgToStateCordAndSha(requestId.getRequestId(), requestId.getProposalTypeId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
+                }
+                catch(Exception e)
+                {
+                    ;
+                }
                 return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
             } catch (Exception e) {
                 log.error(e.toString());
