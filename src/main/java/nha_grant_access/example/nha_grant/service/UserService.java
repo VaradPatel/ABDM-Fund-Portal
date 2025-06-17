@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -29,6 +30,8 @@ public class UserService implements IUserService {
     IstatesRepository istatesRepository;
 @Autowired
     IUserStateRoleRepo iUserStateRoleRepo;
+
+
 @Autowired
 PasswordEncoder bCryptPasswordEncoder;
 @Autowired
@@ -39,8 +42,15 @@ PasswordEncoder bCryptPasswordEncoder;
         if (userRepo.findByEmail(signup.getEmail()).isPresent() || userRepo.findByMobileNumber(signup.getMobile()).isPresent()) {
             throw new GrantUserAlreadyExistsException("Email or mobile already registered!");
         }
+        List<UserStateRole> userStateRoles1;
+if(signup.getRoles().getId()>1) {
+    userStateRoles1 = iUserStateRoleRepo.getUserByStateAndRole(signup.getRoles().getId(), signup.getStateId());
+    if(userStateRoles1.size()>0)
+    {
+        throw new GrantUserAlreadyExistsException("There is a User corresponding to the state and role ");
 
-
+    }
+}
 
         try
         {
