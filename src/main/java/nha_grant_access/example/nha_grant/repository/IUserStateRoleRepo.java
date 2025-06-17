@@ -10,7 +10,7 @@ import java.util.List;
 public interface IUserStateRoleRepo extends JpaRepository<UserStateRole, Integer> {
     @Query("SELECT usr FROM UserStateRole usr WHERE usr.user.id = :userId")
     List<UserStateRole> getUserStateRoleByUserid(Integer userId);
-    @Query(value = "SELECT * FROM user_state_role WHERE role_id = :roleId AND state_id IN (:stateIds)", nativeQuery = true)
+    @Query(value = "SELECT * FROM user_state_role WHERE role_id = :roleId AND state_id IN (:stateId)", nativeQuery = true)
 
     List<UserStateRole>getUserByStateAndRole(Integer roleId, List<Integer>stateId );
 
