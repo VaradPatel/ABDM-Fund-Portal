@@ -129,7 +129,8 @@ public String ApplicationSendTOCEO(String requestId, Integer proposalType, Integ
     ProposalType proposal= grantRequestService.getProposalType(proposalType);
     ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
 Optional<States> states=istatesRepository.findById(State);
-User user=userRepo.findUserByStateAndRole(2,State);
+List<User> users=userRepo.findUserByStateAndRole(2,State);
+User user=users.get(0);
    // System.out.println("user is " + user.toString() );
     String message = String.format(
             "Dear User ,  \n" +
@@ -215,7 +216,8 @@ SendEmail(message,user.get().getEmail());
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
-        User user=userRepo.findUserByStateAndRole(2,State);
+        List<User> users=userRepo.findUserByStateAndRole(2,State);
+        User user=users.get(0);
         // System.out.println("user is " + user.toString() );
         String message = String.format(
                 "Dear User , \n"+
@@ -257,7 +259,8 @@ SendEmail(message, user.getEmail());
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
-        User user=userRepo.findUserByStateAndRole(3,State);
+        List<User>users=userRepo.findUserByStateAndRole(3,State);
+        User user=users.get(0);
         // System.out.println("user is " + user.toString() );
         String message = String.format(
                 "Dear User , \n" +
@@ -338,7 +341,8 @@ SendEmail(message,user.getEmail());
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
-        User user=userRepo.findUserByStateAndRole(3,State);
+        List<User> users=userRepo.findUserByStateAndRole(3,State);
+        User user=users.get(0);
         Optional<User> user1=userRepo.findById(userId);
         // System.out.println("user is " + user.toString() );
         String message = String.format(
@@ -426,7 +430,8 @@ SendEmail(message,user1.get().getEmail());
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
-        User user=userRepo.findUserByStateAndRole(2,State);
+        List<User>users=userRepo.findUserByStateAndRole(2,State);
+        User user=users.get(0);
 
         // System.out.println("user is " + user.toString() );
 

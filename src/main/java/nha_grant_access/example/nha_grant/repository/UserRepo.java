@@ -82,7 +82,7 @@ public interface UserRepo extends JpaRepository<User, Integer> {
     WHERE usr.state_id = :stateId
       AND usr.role_id = :roleId
     """, nativeQuery = true)
-    User findUserByStateAndRole(Integer roleId, Integer stateId);
+    List<User>findUserByStateAndRole(Integer roleId, Integer stateId);
 
 
 
