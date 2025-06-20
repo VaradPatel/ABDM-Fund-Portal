@@ -4,6 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import nha_grant_access.example.nha_grant.redis.hash.BlacklistToken;
+import nha_grant_access.example.nha_grant.redis.repository.IBlacklistTokenRepository;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +25,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    private IBlacklistTokenRepository iBlacklistTokenRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -40,7 +44,19 @@ public class JwtFilter extends OncePerRequestFilter {
             username = jwtUtil.extractUsername(jwt);
             roles = jwtUtil.extractRoleId(jwt);
             mobile = jwtUtil.extractMobile(jwt);
+
+            BlacklistToken blacklistToken=null;
+            blacklistToken = iBlacklistTokenRepository.findById(jwt).orElse(null);
+            if(blacklistToken!=null)
+            {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Token is blacklisted or expired\"}");
+                return;
+            }
+
         }
+
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);

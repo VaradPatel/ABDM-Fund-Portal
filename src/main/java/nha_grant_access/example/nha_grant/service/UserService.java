@@ -8,6 +8,8 @@ import nha_grant_access.example.nha_grant.dto.UserApprovalRequest;
 import nha_grant_access.example.nha_grant.entity.States;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.entity.UserStateRole;
+import nha_grant_access.example.nha_grant.redis.hash.BlacklistToken;
+import nha_grant_access.example.nha_grant.redis.repository.IBlacklistTokenRepository;
 import nha_grant_access.example.nha_grant.repository.IUserStateRoleRepo;
 import nha_grant_access.example.nha_grant.repository.IstatesRepository;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
@@ -30,7 +32,8 @@ public class UserService implements IUserService {
     IstatesRepository istatesRepository;
 @Autowired
     IUserStateRoleRepo iUserStateRoleRepo;
-
+@Autowired
+    IBlacklistTokenRepository blacklistTokenRepository;
 
 @Autowired
 PasswordEncoder bCryptPasswordEncoder;
@@ -117,6 +120,19 @@ if(signup.getRoles().getId()>1) {
         String hashedPassword=bCryptPasswordEncoder.encode(decryptedPassword);
        // System.out.println("password is "+ changePassword.getPassword() + " " + hashedPassword);
         return userRepo.updateUserVerificationStatusByMobile(changePassword.getMobile(),true,hashedPassword );
+    }
+
+    @Override
+    public String logOut(String token) {
+        String token1 = token.substring(7);
+        BlacklistToken blacklistToken =new BlacklistToken();
+        blacklistToken.setToken(token1);
+        blacklistToken.setExpired(true);
+        blacklistToken.setTimeToLive(30);
+        blacklistTokenRepository.save(blacklistToken);
+        return "logout Successfully";
+
+
     }
 
 }

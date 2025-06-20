@@ -17,15 +17,13 @@ import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import nha_grant_access.example.nha_grant.utils.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -186,12 +184,24 @@ public class LoginController {
  }
        catch (Exception e) {
         log.error(e.toString());
-        return ResponseEntity.internalServerError().body(new Error("Error occured while activate/deactivate user", "Error occured while chnaging password"));
+        return ResponseEntity.internalServerError().body(new Error("Error occured while activate/deactivate user", "Error occured while  activate/deactivate user"));
     }
 
     }
 
+    @PostMapping(path = "/user/logout", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+       try {
+           String msg = iUserService.logOut(token);
+           return ResponseEntity.ok().body(new SuccessResponse(msg));
+       }
+       catch (Exception e)
+       {
+           log.error(e.toString());
+           return ResponseEntity.internalServerError().body(new Error("Error occured while logging out user", "Error occured while logging out user"));
 
+       }
+    }
 
 
 }

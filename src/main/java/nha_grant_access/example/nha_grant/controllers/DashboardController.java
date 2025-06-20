@@ -30,6 +30,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.*;
@@ -386,6 +387,7 @@ public class DashboardController {
 
     @PostMapping("/stateceo-approve")
     @PreAuthorize("hasAuthority('State CEO') ")
+    @Transactional
     public ResponseEntity<?> StateCeoApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
@@ -419,6 +421,7 @@ public class DashboardController {
     }
     @PostMapping("/statecord-approve")
     @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
+    @Transactional
     public ResponseEntity<?> StateCordApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
@@ -443,6 +446,7 @@ public class DashboardController {
     }
     @PostMapping("/nhareviewer-approve")
     @PreAuthorize("hasAuthority('NHA reviewer') ")
+    @Transactional
     public ResponseEntity<?> nhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
         {
 

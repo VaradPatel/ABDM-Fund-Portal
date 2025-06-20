@@ -11,5 +11,6 @@ public interface IUserService {
 
     public Integer approveUser(UserApprovalRequest request);
     public Integer changePassword(ChangePassword changePassword) throws Exception;
+    public String logOut(String token);
 
 }
