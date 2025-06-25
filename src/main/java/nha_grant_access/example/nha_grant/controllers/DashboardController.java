@@ -65,6 +65,7 @@ public class DashboardController {
     GrantRequestService grantRequestService;
 
 
+
     @Autowired
     OtpService otpService;
 
@@ -387,7 +388,7 @@ public class DashboardController {
 
     @PostMapping("/stateceo-approve")
     @PreAuthorize("hasAuthority('State CEO') ")
-    @Transactional
+
     public ResponseEntity<?> StateCeoApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
@@ -396,11 +397,12 @@ public class DashboardController {
                 {
                     return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
                 }
+                iGrantRequests.stateCeoApprove(requestId);
 
-                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 2);
-                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
-                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
-               // Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
+//                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 2);
+//                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+//                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+//               // Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(requestId.getRequestId());
                 try {
                     otpService.ApplicationApprovedMsgToCEO(requestId.getRequestId(), requestId.getProposalTypeId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));
                     otpService.ApplicationApprovedMsgToStateCordAndSha(requestId.getRequestId(), requestId.getProposalTypeId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()));

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.AllGrantRequest;
 import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
+import nha_grant_access.example.nha_grant.dto.RequestId;
 import nha_grant_access.example.nha_grant.entity.*;
 import nha_grant_access.example.nha_grant.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,11 @@ public class GrantRequestService implements IGrantRequests {
     private IProposalTypesRepo iProposalTypesRepo;
     @Autowired
     private IStatusDescription iStatusDescription;
+    @Autowired
+    private IWorkFlowConfRepo iWorkFlowConfRepo;
+    @Autowired
+    private GrantRequestService grantRequestService;
+
 
     @Override
     @Transactional
@@ -135,6 +141,21 @@ public class GrantRequestService implements IGrantRequests {
                         .build())
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    @Transactional
+    public String stateCeoApprove(RequestId requestId) {
+        try {
+            WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 2);
+            iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+            grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+        }
+        catch (Exception e)
+        {
+            log.error(e.toString());
+        }
+        return null;
     }
 
     private GrantRequests mapToEntity(GrantRequestInputDto dto) {
