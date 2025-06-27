@@ -322,7 +322,7 @@ public class DashboardController {
 
 
     @GetMapping("/statecord-review/{stateId}")
-    //@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
+    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> stateCordReview(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -357,7 +357,7 @@ public class DashboardController {
     }
 
     @GetMapping("/statecord-all/{stateId}")
-   // @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
+    @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> stateCordAllProposal(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
         try {
 
@@ -423,7 +423,7 @@ public class DashboardController {
     }
     @PostMapping("/statecord-approve")
     @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
-    @Transactional
+
     public ResponseEntity<?> StateCordApproval(@Valid @RequestBody RequestId requestId) {
         {
             try {
@@ -432,10 +432,10 @@ public class DashboardController {
                 {
                     return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
                 }
-
-                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 3);
-                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
-                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+                iGrantRequests.stateCordApprove(requestId);
+//                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 3);
+//                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+//                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
                 return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
             } catch (Exception e) {
                 log.error(e.toString());
@@ -448,7 +448,7 @@ public class DashboardController {
     }
     @PostMapping("/nhareviewer-approve")
     @PreAuthorize("hasAuthority('NHA reviewer') ")
-    @Transactional
+
     public ResponseEntity<?> nhaReviewerApproval(@Valid @RequestBody RequestId requestId) {
         {
 
@@ -459,9 +459,10 @@ public class DashboardController {
                 {
                     return ResponseEntity.badRequest().body(new Error("Cant perform this action as application is not at this stage",""));
                 }
-                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
-                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
-                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+                iGrantRequests.nhaReviewerApprove(requestId);
+//                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
+//                iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+//                grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
                 return ResponseEntity.ok().body(new SuccessResponse("Request approved Successfully"));
             } catch (Exception e) {
                 log.error(e.toString());

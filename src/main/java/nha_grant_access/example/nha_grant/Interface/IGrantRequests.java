@@ -11,5 +11,8 @@ public interface IGrantRequests {
     List<AllGrantRequest> getAllGrantRequestByState(List<Integer>stateId, Integer userId );
     List<AllGrantRequest> getAllGrantRequest();
     String stateCeoApprove(RequestId requestId);
+    String stateCordApprove(RequestId requestId);
+    String nhaReviewerApprove(RequestId requestId);
+
 
 }

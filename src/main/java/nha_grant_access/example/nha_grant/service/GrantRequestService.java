@@ -158,6 +158,36 @@ public class GrantRequestService implements IGrantRequests {
         return null;
     }
 
+    @Override
+    @Transactional
+    public String stateCordApprove(RequestId requestId) {
+        try {
+            WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 3);
+            iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+            grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+        }
+        catch (Exception e)
+        {
+            log.error(e.toString());
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public String nhaReviewerApprove(RequestId requestId) {
+        try {
+            WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(3, 4);
+            iGrantRequestsRepo.updateStatusDescription(requestId.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+            grantRequestService.saveToWorkFlow(requestId.getRequestId(), requestId.getUserId(), 3, requestId.getProposalTypeId(), "");
+        }
+        catch (Exception e)
+        {
+            log.error(e.toString());
+        }
+        return null;
+    }
+
     private GrantRequests mapToEntity(GrantRequestInputDto dto) {
         return GrantRequests.builder()
                 .requestId(generateUniqueRequestId())

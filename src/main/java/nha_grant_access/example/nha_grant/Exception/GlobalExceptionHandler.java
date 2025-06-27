@@ -1,6 +1,7 @@
 package nha_grant_access.example.nha_grant.Exception;
 
 import nha_grant_access.example.nha_grant.dto.Error;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -39,6 +40,15 @@ public class GlobalExceptionHandler {
         Error errorResponse = new Error("Access denied", "You do not have permission to perform this action");
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
-
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<Error> dataBaseException(DataAccessException ex) {
+        Error errorResponse = new Error("Access denied", "You do not have permission to perform this action");
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<Error> handleGenericException(Exception ex) {
+//        Error errorResponse = new Error("Internal Server Error", ex.getMessage());
+//        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
 }
