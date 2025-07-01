@@ -31,9 +31,9 @@ public class QueryService implements IQuery {
     IWorkFlowConfRepo iWorkFlowConfRepo;
 
     @Override
-    public List<GetActiveQuery> getActiveQueryByUserId(Integer userID) {
+    public List<GetActiveQuery> getActiveQueryByUserId(Integer stateId) {
 
-        List<Object[]> results = iGrantRequestsRepo.findActiveQueryFromUserID(userID);
+        List<Object[]> results = iGrantRequestsRepo.findActiveQueryFromUserID(stateId);
        return  results.stream()
                 .map(obj -> GetActiveQuery.builder()
                         .queryId((Integer) obj[0])

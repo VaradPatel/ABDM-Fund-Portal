@@ -53,10 +53,10 @@ public class QueryController {
     @Autowired
     OtpService otpService;
 
-    @GetMapping("/get-active-query/{userId}")
-    public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer userId) {
+    @GetMapping("/get-active-query/{stateId}")
+    public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer stateId) {
         try {
-            List<GetActiveQuery> getActiveQuery = iQuery.getActiveQueryByUserId(userId);
+            List<GetActiveQuery> getActiveQuery = iQuery.getActiveQueryByUserId(stateId);
             return ResponseEntity.ok().body(getActiveQuery);
         }
         catch(Exception e)

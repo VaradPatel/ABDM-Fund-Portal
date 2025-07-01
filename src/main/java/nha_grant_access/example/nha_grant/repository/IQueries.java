@@ -31,7 +31,7 @@ public interface IQueries extends JpaRepository<Queries, Integer> {
            "JOIN roles r ON r.id = usr.role_id " +
            "WHERE wf.request_id = :requestId " +
            "AND wf.action_id IN (2, 7) " +
-           "ORDER BY wf.created_at",
+           "ORDER BY wf.created_at desc ",
            nativeQuery = true)
    List<Object[]> getWorkflowRemarksByRequestId( String requestId);
 

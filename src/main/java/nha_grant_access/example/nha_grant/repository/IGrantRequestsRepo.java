@@ -60,8 +60,8 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
-            "WHERE gr.user_id = :userId AND gr.flow_status = 1 and q.active = true and u.role_id = 2 ", nativeQuery = true)
-    List<Object[]> findActiveQueryFromUserID(Integer userId);
+            "WHERE gr.state_id = :stateId AND gr.flow_status = 1 and q.active = true and u.role_id = 2 ", nativeQuery = true)
+    List<Object[]> findActiveQueryFromUserID(Integer stateId);
     @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name, s.id AS state_id, s.name AS state_name , gr.proposal_type_id " +
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
