@@ -54,7 +54,7 @@ public class GrantRequestInputDto {
 
     private BigDecimal premium;
 
-    @NotNull(message = "nhaShare is mandatory")
+//    @NotNull(message = "nhaShare is mandatory")
     private BigDecimal nhaShare;
 
     @NotNull(message = "maxEligibleGrant is mandatory")
