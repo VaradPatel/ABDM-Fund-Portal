@@ -330,7 +330,7 @@ public class GrantRequestController {
         BigDecimal totalAmount = uploadSanction.getAmountSC()
                 .add(uploadSanction.getAmountGC())
                 .add(uploadSanction.getAmountST());
-        if(totalAmount.compareTo(state.get().getMaxEligibleGrant())>0)
+        if(totalAmount.compareTo(grantRequests.get().getMaxEligibleGrant())>0)
         {
             return ResponseEntity.badRequest().body(new Error("Total amount cannot be more than the Max Eligible Grants ","Total amount cannot be more than the Max Eligible Grants"));
 
