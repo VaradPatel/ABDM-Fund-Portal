@@ -15,7 +15,7 @@ public interface IstatesRepository extends JpaRepository<States, Integer> {
             WHEN :proposalTypeId = 2 THEN administrative_max_eligible_grant
             WHEN :proposalTypeId = 0 THEN implementation_max_eligible_grant + administrative_max_eligible_grant
         END AS maxEligibleGrant
-    FROM grant_requests
+    FROM states
     WHERE id = :stateId
     """, nativeQuery = true)
     BigDecimal getMaxEligibleGrant(
