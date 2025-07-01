@@ -253,13 +253,14 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
             @RequestParam Integer stateId,
             @RequestParam Integer userId,
             @RequestParam String policyStartDate,
-            @RequestParam String policyEndDate
+            @RequestParam String policyEndDate,
+            @RequestParam Integer proposalType
             ) {
         try {
 
 
-            List<Object[]> results = iGrantRequestsRepo.getStateCeoDashboard(stateId, userId,policyStartDate, policyEndDate);
-
+            List<Object[]> results = iGrantRequestsRepo.getStateCeoDashboard(stateId, userId,policyStartDate, policyEndDate,proposalType);
+            BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,stateId);
             if (results.isEmpty()) {
                 return ResponseEntity.ok().body(new StateCeoDashboatd());
             }
@@ -275,6 +276,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                     .shaPending((Long) row[5])
                     .resolvedQuery((Long) row[6])
                     .build();
+            result.setMaxEligibleGrant(maxEligibleGrant);
             return ResponseEntity.ok().body(result);
 
         } catch (Exception e) {

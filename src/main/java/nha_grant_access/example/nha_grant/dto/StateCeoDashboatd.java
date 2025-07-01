@@ -19,4 +19,5 @@ public class StateCeoDashboatd {
     private Long pendingQuery;
     private Long shaPending;
     private Long resolvedQuery;
+    private BigDecimal maxEligibleGrant;
 }

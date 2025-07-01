@@ -139,11 +139,12 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                     ) AS resolved_query
                 FROM grant_requests gr
                 WHERE gr.state_id = :stateId  
+                 AND (:proposalType = 0 OR proposal_type_id = :proposalType)
                 AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
                                  AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
                 
             """, nativeQuery = true)
-    List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId, String policyStartDate, String policyEndDate);
+    List<Object[]>getStateCeoDashboard(Integer stateId,  Integer userId, String policyStartDate, String policyEndDate, Integer proposalType);
 
     @Query(value = """
                 SELECT 
