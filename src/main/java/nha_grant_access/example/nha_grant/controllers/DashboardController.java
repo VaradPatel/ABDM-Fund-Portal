@@ -14,6 +14,7 @@ import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.entity.User;
+import nha_grant_access.example.nha_grant.entity.UserStateRole;
 import nha_grant_access.example.nha_grant.entity.WorkFlowConfiguration;
 import nha_grant_access.example.nha_grant.repository.*;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
@@ -63,8 +64,11 @@ public class DashboardController {
     IWorkFlowConfRepo iWorkFlowConfRepo;
     @Autowired
     GrantRequestService grantRequestService;
+    @Autowired
+    IUserStateRoleRepo userStateRoleRepo;
 
-
+@Autowired
+IstatesRepository istatesRepository;
 
     @Autowired
     OtpService otpService;
@@ -77,6 +81,9 @@ public class DashboardController {
 
 
             List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId,policyStartDate, policyEndDate, proposalType);
+            List<UserStateRole> userStateRole=userStateRoleRepo.getUserStateRoleByUserid(userId);
+
+BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,userStateRole.get(0).getState().getId());
             Object[] result = results.get(0);
             DashboardShaFin dashboardShaFin = DashboardShaFin.builder()
                     .totalAmountRequested(result[0] != null ? (BigDecimal) result[0] : BigDecimal.ZERO)
@@ -87,6 +94,7 @@ public class DashboardController {
                     .pendingQueries(result[4] != null ? ((Number) result[4]).intValue() : 0)
                     .respondedQueries(result[5] != null ? ((Number) result[5]).intValue() : 0)
                     .build();
+            dashboardShaFin.setMaximumEligibleGrant(maxEligibleGrant);
             return ResponseEntity.ok().body(dashboardShaFin);
 
         } catch (Exception e) {
