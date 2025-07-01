@@ -106,6 +106,8 @@ public class GrantRequestService implements IGrantRequests {
                         .states(gr.getState())
                         .statusId(gr.getStatusDescription().getId())
                         .sanction_letter(gr.getSanction_letter())
+                        .amountGc(gr.getAmountGc()).amountSt(gr.getAmountSt()).amountSc(gr.getAmountSc())
+
 
 
 

@@ -39,4 +39,7 @@ public class AllGrantRequest {
     @JsonIgnore
     private Integer statusId;
     private byte[] sanction_letter;
+    private BigDecimal amountSc;
+    private BigDecimal amountSt;
+    private BigDecimal amountGc;
 }
