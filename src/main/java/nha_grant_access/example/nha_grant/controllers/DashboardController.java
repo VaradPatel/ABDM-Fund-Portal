@@ -72,11 +72,11 @@ public class DashboardController {
     @GetMapping("/sha-finance/{userId}")
     @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> getShaFinancedashboard(@PathVariable("userId") Integer userId,  @RequestParam String policyStartDate,
-                                                    @RequestParam String policyEndDate) {
+                                                    @RequestParam String policyEndDate , @RequestParam Integer proposalType) {
         try {
 
 
-            List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId,policyStartDate, policyEndDate);
+            List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId,policyStartDate, policyEndDate, proposalType);
             Object[] result = results.get(0);
             DashboardShaFin dashboardShaFin = DashboardShaFin.builder()
                     .totalAmountRequested(result[0] != null ? (BigDecimal) result[0] : BigDecimal.ZERO)

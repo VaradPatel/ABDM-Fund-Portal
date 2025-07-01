@@ -95,19 +95,21 @@ GrantRequests findGrantRequestByRequestId(String requestId);
 
 
     @Query(value = """
-                SELECT 
-                    COALESCE(SUM(requested_amount), 0) AS totalRequestedAmount,
-                    COALESCE(SUM(released_amount), 0) AS totalReleasedAmount,
-                    COUNT(*) FILTER (WHERE flow_status = 9) AS completedProposals,
-                    COUNT(*) FILTER (WHERE flow_status != 9) AS pendingProposals,
-                    COUNT(*) FILTER (WHERE flow_status = 1) AS pendingQuery,
-                    (SELECT COUNT(*) FROM work_flow WHERE user_id = :userId AND action_id = 7) AS respondedQuery
-                FROM grant_requests gr
-                WHERE user_id = :userId
-               AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
-                                                         AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
-            """, nativeQuery = true)
-    List<Object[]> shaFinanceDashboardDetails(Integer userId, String policyStartDate , String policyEndDate);
+    SELECT 
+        COALESCE(SUM(requested_amount), 0) AS totalRequestedAmount,
+        COALESCE(SUM(released_amount), 0) AS totalReleasedAmount,
+        COUNT(*) FILTER (WHERE flow_status = 9) AS completedProposals,
+        COUNT(*) FILTER (WHERE flow_status != 9) AS pendingProposals,
+        COUNT(*) FILTER (WHERE flow_status = 1) AS pendingQuery,
+        (SELECT COUNT(*) FROM work_flow WHERE user_id = :userId AND action_id = 7) AS respondedQuery
+    FROM grant_requests gr
+    WHERE user_id = :userId
+      AND (:proposalType = 0 OR proposal_type_id = :proposalType)
+      AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
+      AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
+""", nativeQuery = true)
+
+    List<Object[]> shaFinanceDashboardDetails(Integer userId, String policyStartDate , String policyEndDate, Integer proposalType);
 
 
 
