@@ -304,7 +304,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
             if (stateId != 0) {
                 System.out.println("states " + stateId);
                 results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId), policyStartDate, policyEndDate, proposalType );
-                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
+               maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
 
             } else {
                 System.out.println("states" + StateIds.toString());
@@ -324,7 +324,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                             .pendingQuery(((Number) row[6]).intValue())
                             .queryRaised(((Number) row[7]).intValue())
                             .resolvedQuery(((Number) row[8]).intValue())
-                            .maxEligibleGrants((BigDecimal) row[9] )
+
                             .build()
                     ).toList();
  responseList.get(0).setMaxEligibleGrants(maxEligibleGrant);
@@ -748,7 +748,7 @@ try
                             .pendingQuery(((Number) row[4]).intValue())
                             .queryRaised(((Number) row[5]).intValue())
                             .resolvedQuery(((Number) row[6]).intValue())
-                            .totalMaxEligibleGrants((BigDecimal) row [7])
+
                             .build()
                     ).toList();
 

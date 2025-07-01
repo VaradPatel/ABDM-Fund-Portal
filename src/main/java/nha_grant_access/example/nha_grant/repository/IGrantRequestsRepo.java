@@ -160,12 +160,8 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                         SELECT COUNT(*) 
                         FROM work_flow wf 
                         WHERE wf.user_id = :userId AND wf.action_id = 7
-                    ) AS resolved_query,
-                    (
-                        SELECT COALESCE(SUM(s.max_eligible_grant), 0)
-                        FROM states s
-                        WHERE s.id IN (:stateId)
-                    ) AS max_eligible_grant
+                    ) AS resolved_query 
+                 
                 FROM grant_requests gr
                 WHERE gr.state_id IN (:stateId) 
                  AND (:proposalType = 0 OR proposal_type_id = :proposalType)
@@ -188,12 +184,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                         SELECT COUNT(*) 
                         FROM work_flow wf 
                         WHERE wf.user_id = :userId AND wf.action_id = 7
-                    ) AS resolved_query  , 
-                     (
-                                            SELECT SUM(s.max_eligible_grant )
-                                            FROM states s  
-                                            WHERE (:stateId = 0 OR s.id = :stateId)
-                                        ) AS total_max_eligible_grants
+                    ) AS resolved_query  
                 FROM grant_requests gr
                 WHERE (:stateId = 0 OR gr.state_id = :stateId ) 
                  AND (:proposalType = 0 OR proposal_type_id = :proposalType)
