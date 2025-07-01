@@ -168,12 +168,13 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                     ) AS max_eligible_grant
                 FROM grant_requests gr
                 WHERE gr.state_id IN (:stateId) 
+                 AND (:proposalType = 0 OR proposal_type_id = :proposalType)
                AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
                                 AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
                 
             """, nativeQuery = true)
 
-    List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId , String policyStartDate , String policyEndDate);
+    List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId , String policyStartDate , String policyEndDate, Integer proposalType);
 
     @Query(value = """
                 SELECT 
@@ -195,11 +196,12 @@ GrantRequests findGrantRequestByRequestId(String requestId);
                                         ) AS total_max_eligible_grants
                 FROM grant_requests gr
                 WHERE (:stateId = 0 OR gr.state_id = :stateId ) 
+                 AND (:proposalType = 0 OR proposal_type_id = :proposalType)
                  AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
                       AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
                                                                     
             """, nativeQuery = true)
-    List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId, String policyStartDate, String policyEndDate);
+    List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId, String policyStartDate, String policyEndDate,Integer proposalType);
 
     @Query(value = """
     SELECT 

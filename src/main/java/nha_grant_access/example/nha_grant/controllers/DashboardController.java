@@ -83,7 +83,7 @@ IstatesRepository istatesRepository;
             List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId,policyStartDate, policyEndDate, proposalType);
             List<UserStateRole> userStateRole=userStateRoleRepo.getUserStateRoleByUserid(userId);
 
-BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,userStateRole.get(0).getState().getId());
+BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(userStateRole.get(0).getState().getId()),false);
             Object[] result = results.get(0);
             DashboardShaFin dashboardShaFin = DashboardShaFin.builder()
                     .totalAmountRequested(result[0] != null ? (BigDecimal) result[0] : BigDecimal.ZERO)
@@ -260,7 +260,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
 
 
             List<Object[]> results = iGrantRequestsRepo.getStateCeoDashboard(stateId, userId,policyStartDate, policyEndDate,proposalType);
-            BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,stateId);
+            BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
             if (results.isEmpty()) {
                 return ResponseEntity.ok().body(new StateCeoDashboatd());
             }
@@ -288,24 +288,31 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
     @GetMapping("/statecord/{stateId}")
     @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> getStateCordDashboard(@PathVariable("stateId") Integer stateId , @RequestParam String policyStartDate,
-                                                   @RequestParam String policyEndDate) {
+                                                   @RequestParam String policyEndDate, @RequestParam Integer proposalType) {
         try {
 
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
             User user = userRepo.findByEmail(name).get();
+            //BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
 
 
             List<Integer> StateIds = userRepo.findStateIdByRole(3, user.getId());
+            BigDecimal maxEligibleGrant;
             List<Object[]> results = null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId), policyStartDate, policyEndDate );
+                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId), policyStartDate, policyEndDate, proposalType );
+                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
+
             } else {
                 System.out.println("states" + StateIds.toString());
-                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), StateIds , policyStartDate, policyEndDate);
+                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,StateIds,false);
+
+                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), StateIds , policyStartDate, policyEndDate,proposalType);
             }
+
             List<StateCordDashboardResponse> responseList = results.stream()
                     .map(row -> StateCordDashboardResponse.builder()
                             .totalRequestedAmount((BigDecimal) row[0])
@@ -320,7 +327,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                             .maxEligibleGrants((BigDecimal) row[9] )
                             .build()
                     ).toList();
-
+ responseList.get(0).setMaxEligibleGrants(maxEligibleGrant);
             return ResponseEntity.ok().body(responseList);
 
         } catch (Exception e) {
@@ -707,7 +714,7 @@ try
     @GetMapping("/nhareviewer/{stateId}")
     @PreAuthorize("hasAuthority('NHA reviewer') ")
     public ResponseEntity<?> getNhaReviewerDashboard(@PathVariable("stateId") Integer stateId ,     @RequestParam String policyStartDate,
-                                                     @RequestParam String policyEndDate) {
+                                                     @RequestParam String policyEndDate, @RequestParam Integer proposalType) {
         try {
 
 
@@ -718,13 +725,18 @@ try
 
 
             List<Object[]> results = null;
+            BigDecimal maxEligibleGrant;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId, policyStartDate, policyEndDate);
-            } else {
+                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
 
-                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0, policyStartDate, policyEndDate);
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), stateId, policyStartDate, policyEndDate,proposalType);
+            } else {
+                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),true);
+
+                results = iGrantRequestsRepo.getNhaReviewerDashboard(user.getId(), 0, policyStartDate, policyEndDate,proposalType);
             }
+
             List<NhaReviewerDashboard> responseList = results.stream()
                     .map(row -> NhaReviewerDashboard.builder()
                             .totalRequestedAmount((BigDecimal) row[0])

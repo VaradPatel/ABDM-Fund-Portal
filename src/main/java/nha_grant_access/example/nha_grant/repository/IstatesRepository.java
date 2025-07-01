@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface IstatesRepository extends JpaRepository<States, Integer> {
 
@@ -16,11 +17,13 @@ public interface IstatesRepository extends JpaRepository<States, Integer> {
             WHEN :proposalTypeId = 0 THEN implementation_max_eligible_grant + administrative_max_eligible_grant
         END AS maxEligibleGrant
     FROM states
-    WHERE id = :stateId
+    WHERE (:includeAllStates = true OR id IN (:stateId))
     """, nativeQuery = true)
     BigDecimal getMaxEligibleGrant(
             Integer proposalTypeId,
-           Integer stateId
+          List<Integer> stateId,
+            Boolean includeAllStates
+
     );
 
 }
