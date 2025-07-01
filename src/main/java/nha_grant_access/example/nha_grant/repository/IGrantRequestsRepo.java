@@ -248,9 +248,10 @@ GrantRequests findGrantRequestByRequestId(String requestId);
         SUM(released_amount) AS totalAmountReleaseTillDate
     FROM grant_requests
     WHERE state_id IN (:stateIds)
+      AND (:proposalType = 0 OR proposal_type_id = :proposalType)
     GROUP BY policy_start_date, policy_end_date
     """, nativeQuery = true)
-    List<Object[]> findDistinctPolicyPeriodsByStateId(List<Integer> stateIds);
+    List<Object[]> findDistinctPolicyPeriodsByStateId(List<Integer> stateIds, Integer proposalType);
 
     @Query(value = """
     SELECT 
