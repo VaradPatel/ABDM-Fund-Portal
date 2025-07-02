@@ -137,7 +137,7 @@ public class GrantRequestService implements IGrantRequests {
                         .sanctionDate(gr.getSanctionDate())
                         .states(gr.getState())
                         .sanction_letter(gr.getSanction_letter())
-
+                        .amountGc(gr.getAmountGc()).amountSc(gr.getAmountSc()).amountSt(gr.getAmountSt())
 
 
                         .build())
