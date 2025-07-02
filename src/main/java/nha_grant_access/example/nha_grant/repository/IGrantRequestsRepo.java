@@ -218,13 +218,9 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             SELECT COUNT(*)
             FROM users u
             WHERE u.is_verified = false AND u.role_id > 1
-        ) AS pending_users,
+        ) AS pending_users 
 
-        (
-            SELECT SUM(s.max_eligible_grant)
-            FROM states s  
-            WHERE (:stateId = 0 OR s.id = :stateId)
-        ) AS total_max_eligible_grants
+      
 
     FROM grant_requests gr
     WHERE (:stateId = 0 OR gr.state_id = :stateId)

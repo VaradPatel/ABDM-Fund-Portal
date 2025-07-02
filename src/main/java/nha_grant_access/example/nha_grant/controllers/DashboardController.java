@@ -751,7 +751,7 @@ try
 
                             .build()
                     ).toList();
-
+responseList.get(0).setTotalMaxEligibleGrants(maxEligibleGrant);
             return ResponseEntity.ok().body(responseList);
 
         } catch (Exception e) {
@@ -762,20 +762,25 @@ try
     }
     @GetMapping("/nhaAdmin/{stateId}")
     @PreAuthorize("hasAuthority('NHA Admin') ")
-    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId) {
+    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId , @RequestParam Integer proposalType) {
         try {
 
 
 
-
+BigDecimal maxEligibleGrant;
 
             List<Object[]> results = null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
                 results = iGrantRequestsRepo.getNhaAdminDashboard(stateId);
+                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
+
             } else {
 
                 results = iGrantRequestsRepo.getNhaAdminDashboard( 0);
+                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),true);
+
+
             }
             Object[] row=results.get(0);
             NhaAdminDashboard responseList =
@@ -788,10 +793,11 @@ try
                             .deactivatedUsers(((Number) row[5]).intValue())
                             .verifiedUsers(((Number) row[6]).intValue())
                             .pendingUsers(((Number) row[7]).intValue())
-                            .totalMaxEligibleGrants((BigDecimal) row[8])
+
                             .build();
 
-
+responseList.setTotalMaxEligibleGrants(maxEligibleGrant);
+//ok
 
             return ResponseEntity.ok().body(responseList);
 
