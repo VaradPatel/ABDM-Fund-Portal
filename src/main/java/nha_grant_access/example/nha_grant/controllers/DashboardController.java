@@ -793,7 +793,9 @@ BigDecimal maxEligibleGrant;
                             .deactivatedUsers(((Number) row[5]).intValue())
                             .verifiedUsers(((Number) row[6]).intValue())
                             .pendingUsers(((Number) row[7]).intValue())
-
+                             .totalReleaseAmountGc((BigDecimal) row[8])
+                             .totalReleaseAmountSc((BigDecimal) row[9])
+                             .totalReleaseAmountSt((BigDecimal) row[10])
                             .build();
 
 responseList.setTotalMaxEligibleGrants(maxEligibleGrant);

@@ -218,7 +218,10 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             SELECT COUNT(*)
             FROM users u
             WHERE u.is_verified = false AND u.role_id > 1
-        ) AS pending_users 
+        ) AS pending_users ,
+        COALESCE(SUM(gr.gc_amount), 0) AS total_released_amount_gc,
+        COALESCE(SUM(gr.sc_amount), 0) AS total_released_amount_sc,
+        COALESCE(SUM(gr.st_amount), 0) AS total_released_amount_st
 
       
 

@@ -23,6 +23,10 @@ public class NhaAdminDashboard {
         private Integer verifiedUsers;
         private Integer pendingUsers;
         private BigDecimal totalMaxEligibleGrants;
+        private BigDecimal totalReleaseAmountGc;
+        private BigDecimal totalReleaseAmountSc;
+        private BigDecimal totalReleaseAmountSt;
+
     }
 
 
