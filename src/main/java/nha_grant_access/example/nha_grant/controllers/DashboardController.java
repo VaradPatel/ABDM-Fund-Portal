@@ -762,7 +762,7 @@ responseList.get(0).setTotalMaxEligibleGrants(maxEligibleGrant);
     }
     @GetMapping("/nhaAdmin/{stateId}")
     @PreAuthorize("hasAuthority('NHA Admin') ")
-    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId , @RequestParam Integer proposalType) {
+    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId , @RequestParam Integer proposalType, @RequestParam String financialYear) {
         try {
 
 
@@ -772,12 +772,12 @@ BigDecimal maxEligibleGrant;
             List<Object[]> results = null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getNhaAdminDashboard(stateId);
+                results = iGrantRequestsRepo.getNhaAdminDashboard(stateId,financialYear);
                 maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
 
             } else {
 
-                results = iGrantRequestsRepo.getNhaAdminDashboard( 0);
+                results = iGrantRequestsRepo.getNhaAdminDashboard( 0,financialYear);
                 maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),true);
 
 

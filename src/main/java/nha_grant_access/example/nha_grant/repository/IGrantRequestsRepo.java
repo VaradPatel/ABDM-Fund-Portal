@@ -200,7 +200,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
         COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
         COUNT(*) FILTER (WHERE gr.flow_status = 9) AS approved,
         COUNT(*) FILTER (WHERE gr.flow_status = 8) AS accepted,
-        COUNT(*) FILTER (WHERE gr.flow_status NOT IN (8,9)) AS review,
+        COUNT(*) FILTER (WHERE gr.flow_status NOT IN (8, 9)) AS review,
 
         (
             SELECT COUNT(*)
@@ -218,18 +218,19 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             SELECT COUNT(*)
             FROM users u
             WHERE u.is_verified = false AND u.role_id > 1
-        ) AS pending_users ,
+        ) AS pending_users,
+
         COALESCE(SUM(gr.gc_amount), 0) AS total_released_amount_gc,
         COALESCE(SUM(gr.sc_amount), 0) AS total_released_amount_sc,
         COALESCE(SUM(gr.st_amount), 0) AS total_released_amount_st
 
-      
-
     FROM grant_requests gr
     WHERE (:stateId = 0 OR gr.state_id = :stateId)
+      AND (:financialYear = 'ALL' OR financial_year = :financialYear)
 """, nativeQuery = true)
 
-    List<Object[]>getNhaAdminDashboard(Integer stateId);
+
+    List<Object[]>getNhaAdminDashboard(Integer stateId, String financialYear);
 
 
 
