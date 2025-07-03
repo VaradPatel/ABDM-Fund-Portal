@@ -15,12 +15,17 @@ import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
 import org.antlr.v4.runtime.atn.PrecedencePredicateTransition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -111,5 +116,60 @@ catch (Exception e)
     return ResponseEntity.internalServerError().body(new Error("Error occured while verifying otp",e.toString()));
 }
     }
+    @GetMapping("/download/pmjay-implementation")
+    public ResponseEntity<Resource> getPmjayImplementationPdf() throws IOException
+    {
+        Resource resource = new ClassPathResource("pdf/PMJAY-Implementation.pdf");
+
+
+        // Check if the resource exists
+        // Set the appropriate content type for the response
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "PMJAY-Implementation.pdf");
+
+        // Return the PDF file as ResponseEntity
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+    }
+    @GetMapping("/download/pmjay-administrative")
+    public ResponseEntity<Resource> getPmjayAdministrativePdf() throws IOException
+    {
+        Resource resource = new ClassPathResource("pdf/PMJAY-Administrative.pdf");
+
+
+        // Check if the resource exists
+        // Set the appropriate content type for the response
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "PMJAY-Administrative.pdf");
+
+        // Return the PDF file as ResponseEntity
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+    }
+
+    @GetMapping("/download/frs")
+    public ResponseEntity<Resource> getPmjayFRS() throws IOException
+    {
+        Resource resource = new ClassPathResource("pdf/FRS.docx");
+
+
+        // Check if the resource exists
+        // Set the appropriate content type for the response
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ));
+        headers.setContentDispositionFormData("attachment", "frs.docx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+    }
+
+
 
 }
