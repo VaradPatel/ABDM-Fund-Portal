@@ -226,11 +226,13 @@ GrantRequests findGrantRequestByRequestId(String requestId);
 
     FROM grant_requests gr
     WHERE (:stateId = 0 OR gr.state_id = :stateId)
+     AND (:proposalType = 0 OR proposal_type_id = :proposalType)
       AND (:financialYear = 'ALL' OR financial_year = :financialYear)
+      
 """, nativeQuery = true)
 
 
-    List<Object[]>getNhaAdminDashboard(Integer stateId, String financialYear);
+    List<Object[]>getNhaAdminDashboard(Integer stateId, String financialYear, Integer proposalType);
 
 
 

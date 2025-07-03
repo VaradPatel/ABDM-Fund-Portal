@@ -772,12 +772,12 @@ BigDecimal maxEligibleGrant;
             List<Object[]> results = null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getNhaAdminDashboard(stateId,financialYear);
+                results = iGrantRequestsRepo.getNhaAdminDashboard(stateId,financialYear,proposalType);
                 maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
 
             } else {
 
-                results = iGrantRequestsRepo.getNhaAdminDashboard( 0,financialYear);
+                results = iGrantRequestsRepo.getNhaAdminDashboard( 0,financialYear,proposalType);
                 maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),true);
 
 
