@@ -183,7 +183,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
 
                if(request.getIsApproved()) {
                    Optional<User> user=userRepo.findById(request.getUserId());
-                   otpService.LoginCredentials(user.get().getName(), "Nha@123", user.get().getMobileNumber());
+                   otpService.LoginCredentials(user.get().getEmail(), "Nha@123", user.get().getMobileNumber());
                }
                 return ResponseEntity.ok().body(new SuccessResponse("User Approval Updated Succesully"));
             } else {
