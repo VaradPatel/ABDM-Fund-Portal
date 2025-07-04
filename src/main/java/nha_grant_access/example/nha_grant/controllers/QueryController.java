@@ -54,7 +54,7 @@ public class QueryController {
     OtpService otpService;
 
     @GetMapping("/get-active-query/{stateId}")
-    public ResponseEntity<?> getActiveQueryRaised(@PathVariable("userId") Integer stateId) {
+    public ResponseEntity<?> getActiveQueryRaised(@PathVariable("stateId") Integer  stateId) {
         try {
             List<GetActiveQuery> getActiveQuery = iQuery.getActiveQueryByUserId(stateId);
             return ResponseEntity.ok().body(getActiveQuery);
