@@ -20,4 +20,5 @@ public class DashboardShaFin {
     private Integer pendingProposals;
     private Integer pendingQueries;
     private Integer respondedQueries;
+    private Integer totalPendingQueryState;
 }

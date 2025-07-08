@@ -79,10 +79,21 @@ IstatesRepository istatesRepository;
                                                     @RequestParam String policyEndDate , @RequestParam Integer proposalType) {
         try {
 
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
 
-            List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId,policyStartDate, policyEndDate, proposalType);
+            Integer stateId = user.getUserStateRoles()
+                    .stream()
+                    .findFirst()
+                    .map(userStateRole -> userStateRole.getState().getId())
+                    .orElse(null);
+
+
+            List<Object[]> results = iGrantRequestsRepo.shaFinanceDashboardDetails(userId,policyStartDate, policyEndDate, proposalType,stateId);
+
             List<UserStateRole> userStateRole=userStateRoleRepo.getUserStateRoleByUserid(userId);
-
+Integer queryPendingState=iGrantRequestsRepo.totalShaPendingQueriesByState(stateId);
 BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(userStateRole.get(0).getState().getId()),false);
             Object[] result = results.get(0);
             DashboardShaFin dashboardShaFin = DashboardShaFin.builder()
@@ -93,8 +104,10 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                     .pendingProposals(result[3] != null ? ((Number) result[3]).intValue() : 0)
                     .pendingQueries(result[4] != null ? ((Number) result[4]).intValue() : 0)
                     .respondedQueries(result[5] != null ? ((Number) result[5]).intValue() : 0)
+                    .totalPendingQueryState(0)
                     .build();
             dashboardShaFin.setMaximumEligibleGrant(maxEligibleGrant);
+            dashboardShaFin.setTotalPendingQueryState(queryPendingState);
             return ResponseEntity.ok().body(dashboardShaFin);
 
         } catch (Exception e) {
