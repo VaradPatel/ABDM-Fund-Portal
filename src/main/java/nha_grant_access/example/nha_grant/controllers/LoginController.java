@@ -10,6 +10,8 @@ import nha_grant_access.example.nha_grant.entity.Roles;
 import nha_grant_access.example.nha_grant.entity.States;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.entity.UserStateRole;
+import nha_grant_access.example.nha_grant.redis.hash.Otp;
+import nha_grant_access.example.nha_grant.redis.repository.IOtpRepository;
 import nha_grant_access.example.nha_grant.repository.IRolesRepository;
 import nha_grant_access.example.nha_grant.repository.IUserStateRoleRepo;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
@@ -55,6 +57,8 @@ public class LoginController {
     PasswordEncoder PasswordEncoder;
     @Autowired
     IRolesRepository iRolesRepository;
+    @Autowired
+    IOtpRepository iOtpRepository;
 
 
 
@@ -157,8 +161,18 @@ public class LoginController {
                 }
                 log.info("change password is zero");
             }
+            else {
+                Optional<Otp> otpDetails = iOtpRepository.findById(changePassword.getTransactionId());
+                if(  (otpDetails.isEmpty() || otpDetails.get().isExpired()) || !otpDetails.get().isVerified() || !(otpDetails.get().getContact().equals(changePassword.getMobile()))) {
+                    return ResponseEntity.badRequest().body(new Error("Invalid Request", "Invalid Request"));
+                }
+                if (iUserService.changePassword(changePassword) > 0) {
+                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
+                }
+                log.info("change password is zero");
+            }
 
-            return ResponseEntity.internalServerError().body("");
+            return ResponseEntity.internalServerError().body(new Error("change password failed ","change password failed"));
         } catch (Exception e) {
             log.error(e.toString());
             return ResponseEntity.internalServerError().body(new Error("Error occured while changing password", "Error occured while chnaging password"));
