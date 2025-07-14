@@ -51,9 +51,22 @@ GrantRequestService grantRequestService;
 
     @Override
     public OtpResponseTo generateOtp(OtpGenerateRequest otpGenerateRequestTo) {
+
+        List<Otp> previousOtps = iOtpRepository.findAllBycontact(otpGenerateRequestTo.getMobile());
+        System.out.println("size " + previousOtps.size());
+        if (previousOtps.size() >=5) {
+            throw new RuntimeException("Too many Request");
+        }
+        for (Otp previousOtp : previousOtps) {
+            previousOtp.setExpired(true);
+            iOtpRepository.save(previousOtp);
+            if (previousOtp.getAttempts() >= 5) {
+                throw new RuntimeException("Too many Request");
+            }
+        }
         String otp = String.valueOf(new SecureRandom().nextInt(899999) + 100000);
         String contact = otpGenerateRequestTo.getMobile();
-        Otp otpEntity = new Otp(UUID.randomUUID().toString(), otp, 0, contact, false, 10, false);
+        Otp otpEntity = new Otp(UUID.randomUUID().toString(), otp, 0, contact, false, 1, false);
         iOtpRepository.save(otpEntity);
         sendOtp(otpGenerateRequestTo.getMobile(), otpEntity.getOtp());
         return new OtpResponseTo(otpEntity.getId(), "OTP sent sucessfully", otpEntity.getContact());

@@ -118,7 +118,7 @@ if(signup.getRoles().getId()>1) {
     public Integer changePassword(ChangePassword changePassword) throws Exception {
         String decryptedPassword = rsaUtil.decrypt(changePassword.getPassword());
         String hashedPassword=bCryptPasswordEncoder.encode(decryptedPassword);
-       // System.out.println("password is "+ changePassword.getPassword() + " " + hashedPassword);
+      // System.out.println("password is "+ decryptedPassword + " " + hashedPassword);
         return userRepo.updateUserVerificationStatusByMobile(changePassword.getMobile(),true,hashedPassword );
     }
 

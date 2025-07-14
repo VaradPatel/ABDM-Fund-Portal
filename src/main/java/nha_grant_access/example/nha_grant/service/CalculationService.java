@@ -1,0 +1,94 @@
+package nha_grant_access.example.nha_grant.service;
+
+import nha_grant_access.example.nha_grant.dto.ImplementationNhaPayementDetails;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+@Service
+public class CalculationService {
+
+    public ImplementationNhaPayementDetails implementationCalc(ImplementationNhaPayementDetails details)
+    {
+
+//             implementationNhaPayementDetails.setPercentageEligibleSeccPopulation(implementationNhaPayementDetails.getEligibleSeccPopulation()/implementationNhaPayementDetails.getTotalPopulationCoveredAsPerMou());
+//             implementationNhaPayementDetails.setMaxGiaImplementationPerFamily(1052*(implementationNhaPayementDetails.getNhaShareInGia()));
+//             implementationNhaPayementDetails.setMaxGiaAdminPerFamily(50*(implementationNhaPayementDetails.getNhaShareInGia()));
+//             implementationNhaPayementDetails.setMaxGiaImplementationByNha(implementationNhaPayementDetails.getEligibleSeccPopulation()*implementationNhaPayementDetails.getMaxGiaImplementationPerFamily());
+//             implementationNhaPayementDetails.setMaxGiaAdminByNha(implementationNhaPayementDetails.getEligibleSeccPopulation()*implementationNhaPayementDetails.getMaxGiaAdminPerFamily());
+//
+//
+//             implementationNhaPayementDetails.setTreatmentCostForPmjayBeneficiaries(implementationNhaPayementDetails.getTotalTreatmentCostPaidBySha()*implementationNhaPayementDetails.getPercentageEligibleSeccPopulation());
+//             implementationNhaPayementDetails.setNhaShareInPmjayTreatmentCost(implementationNhaPayementDetails.getTreatmentCostForPmjayBeneficiaries()*implementationNhaPayementDetails.getNhaShareInGia());
+//             implementationNhaPayementDetails.setNhaShareCorrespondingToShaRelease(implementationNhaPayementDetails.getUpfrontReleaseByShaForPmjay()*(implementationNhaPayementDetails.getNhaShareInGia()/(1-implementationNhaPayementDetails.getNhaShareInGia())));
+//             implementationNhaPayementDetails.setTotalAmountPayableTillThisTranche(implementationNhaPayementDetails.getMaxGiaImplementationByNha()*implementationNhaPayementDetails.getPaymentTrancheNo());
+//
+//        double minValue = Math.min(
+//                Math.min(implementationNhaPayementDetails.getMaxGiaImplementationByNha(),implementationNhaPayementDetails.getTreatmentCostForPmjayBeneficiaries() ),
+//                Math.min(implementationNhaPayementDetails.getNhaShareCorrespondingToShaRelease(),implementationNhaPayementDetails.getTotalAmountPayableTillThisTranche())
+//        );
+//        implementationNhaPayementDetails.setAmountProposedToBeReleased(minValue-implementationNhaPayementDetails.getEarlierAmountReleasedByNha()-implementationNhaPayementDetails.getUnspentAmountAsPerUc());
+//        return implementationNhaPayementDetails;
+        if (details.getTotalPopulationCoveredAsPerMou() != null && details.getTotalPopulationCoveredAsPerMou().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal percentage = details.getEligibleSeccPopulation()
+                    .divide(details.getTotalPopulationCoveredAsPerMou(), 10, RoundingMode.HALF_UP);
+            details.setPercentageEligibleSeccPopulation(percentage);
+        }
+
+        // max GIA implementation/admin per family
+        BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
+        BigDecimal maxAdminPerFamily = new BigDecimal("50").multiply(details.getNhaShareInGia());
+
+        details.setMaxGiaImplementationPerFamily(maxImplPerFamily);
+        details.setMaxGiaAdminPerFamily(maxAdminPerFamily);
+
+        // max GIA by NHA
+        BigDecimal maxImplByNha = details.getEligibleSeccPopulation().multiply(maxImplPerFamily);
+        BigDecimal maxAdminByNha = details.getEligibleSeccPopulation().multiply(maxAdminPerFamily);
+
+        details.setMaxGiaImplementationByNha(maxImplByNha);
+        details.setMaxGiaAdminByNha(maxAdminByNha);
+
+        // treatment cost for PM-JAY
+        BigDecimal treatmentCostForPmjay = details.getTotalTreatmentCostPaidBySha()
+                .multiply(details.getPercentageEligibleSeccPopulation());
+
+        details.setTreatmentCostForPmjayBeneficiaries(treatmentCostForPmjay);
+
+        // NHA's share in PM-JAY treatment
+        BigDecimal nhaShareInPmjay = treatmentCostForPmjay.multiply(details.getNhaShareInGia());
+        details.setNhaShareInPmjayTreatmentCost(nhaShareInPmjay);
+
+        // NHA share corresponding to SHA release
+        BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
+        BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
+
+        // total amount payable till this tranche
+        BigDecimal totalTillTranche = maxImplByNha.multiply(details.getPaymentTrancheNo());
+        details.setTotalAmountPayableTillThisTranche(totalTillTranche);
+
+        // Find minimum of 4 BigDecimal values
+        BigDecimal min = minOfFour(
+                maxImplByNha,
+                treatmentCostForPmjay,
+                nhaShareCorresponding,
+                totalTillTranche
+        );
+
+        // final amount to be released
+        BigDecimal finalAmount = min
+                .subtract(details.getEarlierAmountReleasedByNha())
+                .subtract(details.getUnspentAmountAsPerUc());
+
+        details.setAmountProposedToBeReleased(finalAmount);
+
+        return details;
+    }
+
+    private BigDecimal minOfFour(BigDecimal a, BigDecimal b, BigDecimal c, BigDecimal d) {
+        return a.min(b).min(c).min(d);
+    }
+}

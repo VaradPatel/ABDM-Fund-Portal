@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.controllers;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Exception.GrantUserAlreadyExistsException;
@@ -23,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -142,11 +145,51 @@ public class LoginController {
 
     @PostMapping("/decrypt")
     public ResponseEntity<?> decrypt(@RequestBody Test test) throws Exception {
-        return ResponseEntity.ok().body(rsaUtil.encrypt(test.getEncrypt()));
+        return ResponseEntity.ok().body(rsaUtil.decrypt(test.getEncrypt()));
     }
 
     @PostMapping("/change-password")
+
     public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePassword changePassword) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
+
+            if (!userRepo.findByMobileNumber(changePassword.getMobile()).isPresent() || !(user.getMobileNumber().equals(changePassword.getMobile()))) {
+                return ResponseEntity.badRequest().body(new Error("No User found", "No user found"));
+            }
+            if (changePassword.getTransactionId() == null && !changePassword.getIsNew()) {
+                return ResponseEntity.badRequest().body(new Error("Transaction Id is missing", "Transaction Id is missing"));
+            }
+            if (changePassword.getIsNew()) {
+
+                if (iUserService.changePassword(changePassword) > 0) {
+                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
+                }
+                log.info("change password is zero");
+            }
+            else {
+                Optional<Otp> otpDetails = iOtpRepository.findById(changePassword.getTransactionId());
+                if(  (otpDetails.isEmpty() || otpDetails.get().isExpired()) || !otpDetails.get().isVerified() || !(otpDetails.get().getContact().equals(changePassword.getMobile()))) {
+                    return ResponseEntity.badRequest().body(new Error("Invalid Request", "Invalid Request"));
+                }
+                if (iUserService.changePassword(changePassword) > 0) {
+                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
+                }
+                log.info("change password is zero");
+            }
+
+            return ResponseEntity.internalServerError().body(new Error("change password failed ","change password failed"));
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while changing password", "Error occured while chnaging password"));
+        }
+
+    }
+    @PostMapping("/forgot-password")
+
+    public ResponseEntity<?> fortPassword(@RequestBody @Valid ChangePassword changePassword) {
         try {
             if (!userRepo.findByMobileNumber(changePassword.getMobile()).isPresent()) {
                 return ResponseEntity.badRequest().body(new Error("No User found", "No user found"));

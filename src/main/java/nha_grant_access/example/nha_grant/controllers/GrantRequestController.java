@@ -140,6 +140,13 @@ public class GrantRequestController {
 //            }
 //            List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequest(stateId);
 //            return ResponseEntity.ok(allGrantRequests);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
+            if(!(user.getId().equals(userId)))
+            {
+                ResponseEntity.badRequest().body(new Error("You are not Authorized for this Endpoint","You are not Authorized for this Endpoint"));
+            }
             List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId), userId);
             for (AllGrantRequest request : allGrantRequests) {
                 if (request.getStatusId() >= 4 && request.getStatusId() <= 8) {
@@ -310,7 +317,7 @@ public class GrantRequestController {
     }
 
 @PostMapping("upload-sanction")
-//@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
+@PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
         public ResponseEntity<?>UploadSanction(@Valid @RequestBody UploadSanction uploadSanction)
 {
 
