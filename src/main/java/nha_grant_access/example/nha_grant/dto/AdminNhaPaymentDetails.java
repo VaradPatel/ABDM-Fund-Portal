@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ImplementationNhaPayementDetails {
+public class AdminNhaPaymentDetails {
     private String stateName;
     private String modeOfImplementation;
     private String dateOfImplementation;
@@ -27,8 +27,8 @@ public class ImplementationNhaPayementDetails {
 
     // Section 2 - Financial Details
     private BigDecimal totalTreatmentCostPaidBySha;
-    private BigDecimal treatmentCostForPmjayBeneficiaries;
-    private BigDecimal nhaShareInPmjayTreatmentCost;
+    private BigDecimal costOfAdministrativeExpenseSha;
+    private BigDecimal costOfAdministrativeExpenseNha;
     private BigDecimal upfrontReleaseByShaForPmjay;
     private BigDecimal nhaShareCorrespondingToShaRelease;
     private BigDecimal paymentTrancheNo;

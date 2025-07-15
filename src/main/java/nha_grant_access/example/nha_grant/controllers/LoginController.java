@@ -162,14 +162,15 @@ public class LoginController {
             if (changePassword.getTransactionId() == null && !changePassword.getIsNew()) {
                 return ResponseEntity.badRequest().body(new Error("Transaction Id is missing", "Transaction Id is missing"));
             }
-            if (changePassword.getIsNew()) {
-
-                if (iUserService.changePassword(changePassword) > 0) {
-                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
-                }
-                log.info("change password is zero");
-            }
-            else {
+//            if (changePassword.getIsNew()) {
+//
+//                if (iUserService.changePassword(changePassword) > 0) {
+//                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
+//                }
+//                log.info("change password is zero");
+//            }
+//            else
+            {
                 Optional<Otp> otpDetails = iOtpRepository.findById(changePassword.getTransactionId());
                 if(  (otpDetails.isEmpty() || otpDetails.get().isExpired()) || !otpDetails.get().isVerified() || !(otpDetails.get().getContact().equals(changePassword.getMobile()))) {
                     return ResponseEntity.badRequest().body(new Error("Invalid Request", "Invalid Request"));
@@ -197,14 +198,15 @@ public class LoginController {
             if (changePassword.getTransactionId() == null && !changePassword.getIsNew()) {
                 return ResponseEntity.badRequest().body(new Error("Transaction Id is missing", "Transaction Id is missing"));
             }
-            if (changePassword.getIsNew()) {
-
-                if (iUserService.changePassword(changePassword) > 0) {
-                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
-                }
-                log.info("change password is zero");
-            }
-            else {
+//            if (changePassword.getIsNew()) {
+//
+//                if (iUserService.changePassword(changePassword) > 0) {
+//                    return ResponseEntity.ok().body(new SuccessResponse("Password changed Successfully"));
+//                }
+//                log.info("change password is zero");
+//            }
+//            else
+            {
                 Optional<Otp> otpDetails = iOtpRepository.findById(changePassword.getTransactionId());
                 if(  (otpDetails.isEmpty() || otpDetails.get().isExpired()) || !otpDetails.get().isVerified() || !(otpDetails.get().getContact().equals(changePassword.getMobile()))) {
                     return ResponseEntity.badRequest().body(new Error("Invalid Request", "Invalid Request"));
