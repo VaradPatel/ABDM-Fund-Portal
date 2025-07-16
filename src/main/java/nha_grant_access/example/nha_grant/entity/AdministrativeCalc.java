@@ -1,20 +1,23 @@
 package nha_grant_access.example.nha_grant.entity;
 
+
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.math.BigDecimal;
+
 @Entity
-@Table(name = "implement_trust_calc")
+@Table(name = "administrative_calc")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ImplementTrustCalc {
+public class AdministrativeCalc {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -23,11 +26,10 @@ public class ImplementTrustCalc {
     @Column(name = "request_id")
     private String requestId;
 
-    @Column(name="role_id")
+    @Column(name = "role_id")
     private Integer roleId;
 
-    @Column(name="user_id")
-
+    @Column(name = "user_id")
     private Integer userId;
 
     @Column(name = "state_name")
@@ -72,16 +74,16 @@ public class ImplementTrustCalc {
     @Column(name = "policy_period")
     private String policyPeriod;
 
-// Section 2 - Financial Details
+    // Section 2 - Financial Details
 
     @Column(name = "total_treatment_cost_paid_by_sha")
     private BigDecimal totalTreatmentCostPaidBySha;
 
-    @Column(name = "treatment_cost_for_pmjay_beneficiaries")
-    private BigDecimal treatmentCostForPmjayBeneficiaries;
+    @Column(name = "cost_of_administrative_expense_sha")
+    private BigDecimal costOfAdministrativeExpenseSha;
 
-    @Column(name = "nha_share_in_pmjay_treatment_cost")
-    private BigDecimal nhaShareInPmjayTreatmentCost;
+    @Column(name = "cost_of_administrative_expense_nha")
+    private BigDecimal costOfAdministrativeExpenseNha;
 
     @Column(name = "upfront_release_by_sha_for_pmjay")
     private BigDecimal upfrontReleaseByShaForPmjay;
@@ -106,4 +108,6 @@ public class ImplementTrustCalc {
 
     @Column(name = "amount_proposed_to_be_released")
     private BigDecimal amountProposedToBeReleased;
+
 }
+

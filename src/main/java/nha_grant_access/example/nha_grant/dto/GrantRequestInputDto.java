@@ -16,6 +16,8 @@ import java.util.List;
 public class GrantRequestInputDto {
 
 
+    private ImplementationTrustNhaPayementDetails implementationTrustNhaPayementDetails;
+    private AdminNhaPaymentDetails adminNhaPaymentDetails;
 
     @NotNull(message = "stateId is mandatory")
     private Integer stateId;

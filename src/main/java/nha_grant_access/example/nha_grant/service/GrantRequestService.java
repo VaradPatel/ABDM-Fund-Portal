@@ -3,10 +3,9 @@ package nha_grant_access.example.nha_grant.service;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
-import nha_grant_access.example.nha_grant.dto.AllGrantRequest;
-import nha_grant_access.example.nha_grant.dto.GrantRequestInputDto;
-import nha_grant_access.example.nha_grant.dto.RequestId;
+import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.entity.*;
+import nha_grant_access.example.nha_grant.entity.Roles;
 import nha_grant_access.example.nha_grant.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.hibernate.boot.model.process.spi.MetadataBuildingProcess.build;
 
 @Service
 @Slf4j
@@ -46,38 +47,116 @@ public class GrantRequestService implements IGrantRequests {
     private IWorkFlowConfRepo iWorkFlowConfRepo;
     @Autowired
     private GrantRequestService grantRequestService;
+    @Autowired
+    private ImplementTrustCalcRepo implementationTypesRepo;
+    @Autowired
+    private IAdminCalcRepo iAdminCalcRepo;
 
 
     @Override
     @Transactional
-    public GrantRequestInputDto saveGrantRequest(GrantRequestInputDto dto, Boolean isQueryResponse) {
+    public GrantRequestInputDto saveGrantRequest(GrantRequestInputDto dto1, Boolean isQueryResponse) {
         try {
-            if (dto.getRequestId() != null) {
+            if (dto1.getRequestId() != null) {
                 // Update Existing Request
-                GrantRequests existingRequest = iGrantRequestsRepo.findGrantRequestByRequestId(dto.getRequestId());
+                GrantRequests existingRequest = iGrantRequestsRepo.findGrantRequestByRequestId(dto1.getRequestId());
                 if (existingRequest == null) {
                     throw new RuntimeException("Invalid RequestID");
                 }
-               existingRequest=updateExistingGrantRequest(existingRequest, dto);
+               existingRequest=updateExistingGrantRequest(existingRequest, dto1);
                 iGrantRequestsRepo.save(existingRequest);
                 if(isQueryResponse)
                 {
-                    saveToWorkFlow(existingRequest.getRequestId(),existingRequest.getUser().getId(),7,existingRequest.getProposalType().getId(),dto.getQueryResponse());
+                    saveToWorkFlow(existingRequest.getRequestId(),existingRequest.getUser().getId(),7,existingRequest.getProposalType().getId(),dto1.getQueryResponse());
 
                 }
+
+
                 log.info("edited the grant_requests " + existingRequest.toString());
 
             } else {
                 // Create New Request
-                GrantRequests newRequest = mapToEntity(dto);
+                GrantRequests newRequest = mapToEntity(dto1);
                 GrantRequests savedRequest = iGrantRequestsRepo.save(newRequest);
                 saveToDashboard(savedRequest.getRequestId(),savedRequest.getState().getId(),savedRequest.getProposalType().getId(),1,2,4,null,null,2);
-                dto.setRequestId(savedRequest.getRequestId());
+                dto1.setRequestId(savedRequest.getRequestId());
                 log.info("saved the grant_requests " + savedRequest.toString());
                 //save to user dump
                 saveToWorkFlow(savedRequest.getRequestId(),savedRequest.getUser().getId(),1,savedRequest.getProposalType().getId(),"");
+                if(dto1.getImplementationTrustNhaPayementDetails()!=null)
+                {
+                    ImplementationTrustNhaPayementDetails dto =dto1.getImplementationTrustNhaPayementDetails();
+                    ImplementTrustCalc implementTrustCalc= ImplementTrustCalc.builder().
+                            stateName(dto.getStateName())
+                            .modeOfImplementation(dto.getModeOfImplementation())
+                            .dateOfImplementation(dto.getDateOfImplementation())
+                            .benefitCover(dto.getBenefitCover())
+                            .nhaShareInGia(dto.getNhaShareInGia())
+                            .schemeName(dto.getSchemeName())
+                            .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
+                            .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
+                            .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
+                            .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
+                            .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
+                            .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                            .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                            .policyPeriod(dto.getPolicyPeriod())
+                            .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
+                            .treatmentCostForPmjayBeneficiaries(dto.getTreatmentCostForPmjayBeneficiaries())
+                            .nhaShareInPmjayTreatmentCost(dto.getNhaShareInPmjayTreatmentCost())
+                            .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                            .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                            .paymentTrancheNo(dto.getPaymentTrancheNo())
+                            .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                            .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                            .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                            .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                            .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                            .requestId(savedRequest.getRequestId())
+                            .roleId(1)
+                            .userId(savedRequest.getUser().getId()).build();
+                    implementationTypesRepo.save(implementTrustCalc);
+
+                }
+                else if(dto1.getAdminNhaPaymentDetails()!=null)
+                {
+                   AdminNhaPaymentDetails dto =dto1.getAdminNhaPaymentDetails();
+                    AdministrativeCalc administrativeCalc= AdministrativeCalc.builder().
+                            stateName(dto.getStateName())
+                            .modeOfImplementation(dto.getModeOfImplementation())
+                            .dateOfImplementation(dto.getDateOfImplementation())
+                            .benefitCover(dto.getBenefitCover())
+                            .nhaShareInGia(dto.getNhaShareInGia())
+                            .schemeName(dto.getSchemeName())
+                            .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
+                            .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
+                            .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
+                            .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
+                            .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
+                            .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                            .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                            .policyPeriod(dto.getPolicyPeriod())
+                            .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
+                            .costOfAdministrativeExpenseNha(dto.getCostOfAdministrativeExpenseNha())
+                            .costOfAdministrativeExpenseSha(dto.getCostOfAdministrativeExpenseSha())
+
+                            .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                            .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                            .paymentTrancheNo(dto.getPaymentTrancheNo())
+                            .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                            .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                            .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                            .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                            .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                            .requestId(savedRequest.getRequestId())
+                            .roleId(1)
+                            .userId(savedRequest.getUser().getId()).build();
+                    iAdminCalcRepo.save(administrativeCalc);
+
+
+                }
             }
-            return dto;
+            return dto1;
         } catch (Exception e) {
             throw new RuntimeException("Not able to process your request", e);
         }

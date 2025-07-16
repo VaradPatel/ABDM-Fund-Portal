@@ -91,7 +91,7 @@ public class GrantRequestController {
     OtpService otpService;
 
     @PostMapping("/add")
-    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+    //@PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
         try {
 //
@@ -106,7 +106,7 @@ public class GrantRequestController {
 //            User user = userRepo.findByEmail(email)
 //                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 //
-            System.out.println("positive balance is" + grantRequestInputDTO.getPositiveBalance());
+
 
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO, false);
             //sendnotification
