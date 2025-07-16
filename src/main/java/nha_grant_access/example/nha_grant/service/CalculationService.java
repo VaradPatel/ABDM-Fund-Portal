@@ -79,6 +79,7 @@ public class CalculationService {
                 nhaShareCorresponding,
                 totalTillTranche
         );
+details.setTotalAmountPayableByNhaAsOnDate(min);
 
         // final amount to be released
         BigDecimal finalAmount = min
@@ -138,7 +139,7 @@ public class CalculationService {
                 nhaShareCorresponding,
                 totalTillTranche
         );
-
+        details.setTotalAmountPayableByNhaAsOnDate(min);
         // final amount to be released
         BigDecimal finalAmount = min
                 .subtract(details.getEarlierAmountReleasedByNha())
