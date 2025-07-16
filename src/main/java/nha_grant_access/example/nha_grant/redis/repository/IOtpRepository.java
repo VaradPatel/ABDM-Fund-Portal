@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface IOtpRepository extends KeyValueRepository<Otp, String> {
 
-    List<Otp> findAllBycontact(String contact);
+    List<Otp> findAllByContact(String contact);
 }
 

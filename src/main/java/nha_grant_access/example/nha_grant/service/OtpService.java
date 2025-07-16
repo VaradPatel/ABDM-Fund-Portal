@@ -52,10 +52,10 @@ GrantRequestService grantRequestService;
     @Override
     public OtpResponseTo generateOtp(OtpGenerateRequest otpGenerateRequestTo) {
 
-        List<Otp> previousOtps = iOtpRepository.findAllBycontact(otpGenerateRequestTo.getMobile());
+        List<Otp> previousOtps = iOtpRepository.findAllByContact(otpGenerateRequestTo.getMobile());
         System.out.println("size " + previousOtps.size());
         if (previousOtps.size() >=5) {
-            throw new RuntimeException("Too many Request");
+            throw new RuntimeException("Too many Request for send otp");
         }
         for (Otp previousOtp : previousOtps) {
             previousOtp.setExpired(true);
