@@ -57,11 +57,7 @@ GrantRequestService grantRequestService;
         if (previousOtps.size() >=5) {
             throw new RuntimeException("Too many Request for send otp");
         }
-        for (Otp previousOtp : previousOtps) {
-            previousOtp.setExpired(true);
-            iOtpRepository.save(previousOtp);
 
-        }
         String otp = String.valueOf(new SecureRandom().nextInt(899999) + 100000);
         String contact = otpGenerateRequestTo.getMobile();
         Otp otpEntity = new Otp(UUID.randomUUID().toString(), otp, 0, contact, false, 1, false);
@@ -95,10 +91,13 @@ GrantRequestService grantRequestService;
 
         if (!decryptedOtp.equals(otpDetails.get().getOtp())) {
             otpDetails.get().setAttempts(otpDetails.get().getAttempts() + 1);
+            otpDetails.get().setTimeToLive(1);
             iOtpRepository.save(otpDetails.get());
             return false;
         }
         otpDetails.get().setVerified(true);
+        otpDetails.get().setTimeToLive(1);
+
         iOtpRepository.save(otpDetails.get());
         return true;
 
