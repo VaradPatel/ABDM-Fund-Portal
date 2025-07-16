@@ -6,13 +6,15 @@ import nha_grant_access.example.nha_grant.dto.AdminNhaPaymentDetails;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
 import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
+import nha_grant_access.example.nha_grant.entity.User;
+import nha_grant_access.example.nha_grant.repository.IAdminCalcRepo;
+import nha_grant_access.example.nha_grant.repository.ImplementTrustCalcRepo;
 import nha_grant_access.example.nha_grant.service.CalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/calc")
@@ -20,6 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class CalculationController {
     @Autowired
     CalculationService calculationService;
+    @Autowired
+    IAdminCalcRepo iAdminCalcRepo;
+    @Autowired
+    ImplementTrustCalcRepo implementTrustCalcRepo;
     @PostMapping("/implementation/trust")
     public ResponseEntity<?>ImplementationTrust(@Valid @RequestBody ImplementationTrustNhaPayementDetails implementationNhaPayementDetails)
     {
@@ -49,5 +55,39 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             log.error(e.toString());
             return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
+    }
+    @GetMapping("/getAdministrative/{requestId}")
+            public ResponseEntity<?>getAdministrativeCalcByRequestId(@PathVariable("requestId") String requestId)
+    {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            return ResponseEntity.ok().body(iAdminCalcRepo.findByRequestId(requestId));
+        }
+        catch (Exception e)
+        {
+            {
+                log.error(e.toString());
+                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+            }
+        }
+
+    }
+    @GetMapping("/getImplementTrust/{requestId}")
+    public ResponseEntity<?>getImplementTrustCalcByRequestId(@PathVariable("requestId") String requestId)
+    {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            return ResponseEntity.ok().body(implementTrustCalcRepo.findByRequestId(requestId));
+        }
+        catch (Exception e)
+        {
+            {
+                log.error(e.toString());
+                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+            }
+        }
+
     }
 }

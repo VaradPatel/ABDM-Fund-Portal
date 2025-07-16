@@ -60,9 +60,7 @@ GrantRequestService grantRequestService;
         for (Otp previousOtp : previousOtps) {
             previousOtp.setExpired(true);
             iOtpRepository.save(previousOtp);
-            if (previousOtp.getAttempts() >= 5) {
-                throw new RuntimeException("Too many Request");
-            }
+
         }
         String otp = String.valueOf(new SecureRandom().nextInt(899999) + 100000);
         String contact = otpGenerateRequestTo.getMobile();
