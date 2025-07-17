@@ -112,12 +112,20 @@ details.setTotalAmountPayableByNhaAsOnDate(min);
 
         details.setMaxGiaImplementationByNha(maxImplByNha);
         details.setMaxGiaAdminByNha(maxAdminByNha);
-        BigDecimal baseAmount = new BigDecimal("1052");
-        BigDecimal result = baseAmount
-                .multiply(details.getNhaShareInGia())
-                .multiply(details.getEligibleSeccPopulation());
 
-        details.setNhaShareOfPremiumPayable(result);
+        BigDecimal baseAmount = new BigDecimal("1052");
+if(details.getAnnualInsurancePremiumFamily().compareTo(BigDecimal.valueOf(1052)) > 0) {
+    BigDecimal result = baseAmount
+            .multiply(details.getNhaShareInGia())
+            .multiply(details.getEligibleSeccPopulation());
+
+    details.setNhaShareOfPremiumPayable(result);
+}
+else {
+    BigDecimal result=details.getAnnualInsurancePremiumFamily().multiply(details.getEligibleSeccPopulation()).multiply(details.getNhaShareInGia());
+details.setNhaShareOfPremiumPayable(result);
+
+}
         BigDecimal shaShare = BigDecimal.ZERO;
 
         if (details.getAnnualInsurancePremiumFamily().compareTo(BigDecimal.valueOf(1052)) > 0) {
