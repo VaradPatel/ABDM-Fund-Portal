@@ -2,9 +2,8 @@ package nha_grant_access.example.nha_grant.controllers;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import nha_grant_access.example.nha_grant.dto.AdminNhaPaymentDetails;
+import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
-import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
 import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.repository.IAdminCalcRepo;
@@ -39,6 +38,21 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         {
             log.error(e.toString());
           return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
+        }
+    }
+    @PostMapping("/implementation/insurance")
+    public ResponseEntity<?>ImplementationInsuranceHybrid(@Valid @RequestBody ImplementationInsurancePayementDetails implementationInsurancePayementDetails)
+    {
+        try
+        {
+            ImplementationInsurancePayementDetails implementationNhaPayementDetails1=calculationService.implementInsuCalc(implementationInsurancePayementDetails);
+            return ResponseEntity.ok().body(implementationNhaPayementDetails1);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
     @PostMapping("/administrative")

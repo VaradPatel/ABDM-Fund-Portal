@@ -18,6 +18,7 @@ public class GrantRequestInputDto {
 
     private ImplementationTrustNhaPayementDetails implementationTrustNhaPayementDetails;
     private AdminNhaPaymentDetails adminNhaPaymentDetails;
+    private ImplementationInsurancePayementDetails implementationInsurancePayementDetails;
 
     @NotNull(message = "stateId is mandatory")
     private Integer stateId;

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "administrative_calc")
@@ -108,6 +109,22 @@ public class AdministrativeCalc {
 
     @Column(name = "amount_proposed_to_be_released")
     private BigDecimal amountProposedToBeReleased;
+    @Column(name = "updated_at", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
+    @Column(name = "created_at", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now(); // Set only once
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+
+    }
 
 }
 

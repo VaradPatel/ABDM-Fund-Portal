@@ -6,31 +6,30 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "implement_trust_calc")
+@Table(name = "implement_insurance_hybrid_calc")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ImplementTrustCalc {
+public class ImplementInsuCalc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
+
     @Column(name = "request_id")
     private String requestId;
 
-    @Column(name="role_id")
-    private Integer roleId;
-
-    @Column(name="user_id")
-
+    @Column(name = "user_id")
     private Integer userId;
+
+    @Column(name = "role_id")
+    private Integer roleId;
 
     @Column(name = "state_name")
     private String stateName;
@@ -74,16 +73,17 @@ public class ImplementTrustCalc {
     @Column(name = "policy_period")
     private String policyPeriod;
 
-// Section 2 - Financial Details
+    @Column(name = "name_of_insurance_company")
+    private String nameOfInsuranceCompany;
 
-    @Column(name = "total_treatment_cost_paid_by_sha")
-    private BigDecimal totalTreatmentCostPaidBySha;
+    @Column(name = "annual_insurance_premium_family")
+    private BigDecimal annualInsurancePremiumFamily;
 
-    @Column(name = "treatment_cost_for_pmjay_beneficiaries")
-    private BigDecimal treatmentCostForPmjayBeneficiaries;
+    @Column(name = "nha_share_of_premium_payable")
+    private BigDecimal nhaShareOfPremiumPayable;
 
-    @Column(name = "nha_share_in_pmjay_treatment_cost")
-    private BigDecimal nhaShareInPmjayTreatmentCost;
+    @Column(name = "sha_share_of_premium_payable")
+    private BigDecimal shaShareOfPremiumPayable;
 
     @Column(name = "upfront_release_by_sha_for_pmjay")
     private BigDecimal upfrontReleaseByShaForPmjay;

@@ -1,6 +1,7 @@
 package nha_grant_access.example.nha_grant.service;
 
 import nha_grant_access.example.nha_grant.dto.AdminNhaPaymentDetails;
+import nha_grant_access.example.nha_grant.dto.ImplementationInsurancePayementDetails;
 import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
 import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
 import org.springframework.stereotype.Service;
@@ -89,6 +90,73 @@ details.setTotalAmountPayableByNhaAsOnDate(min);
         details.setAmountProposedToBeReleased(finalAmount);
 
         return details;
+    }
+    public ImplementationInsurancePayementDetails implementInsuCalc(ImplementationInsurancePayementDetails details)
+    {
+        if (details.getTotalPopulationCoveredAsPerMou() != null && details.getTotalPopulationCoveredAsPerMou().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal percentage = details.getEligibleSeccPopulation()
+                    .divide(details.getTotalPopulationCoveredAsPerMou(), 10, RoundingMode.HALF_UP);
+            details.setPercentageEligibleSeccPopulation(percentage);
+        }
+
+        // max GIA implementation/admin per family
+        BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
+        BigDecimal maxAdminPerFamily = new BigDecimal("50").multiply(details.getNhaShareInGia());
+
+        details.setMaxGiaImplementationPerFamily(maxImplPerFamily);
+        details.setMaxGiaAdminPerFamily(maxAdminPerFamily);
+
+        // max GIA by NHA
+        BigDecimal maxImplByNha = details.getEligibleSeccPopulation().multiply(maxImplPerFamily);
+        BigDecimal maxAdminByNha = details.getEligibleSeccPopulation().multiply(maxAdminPerFamily);
+
+        details.setMaxGiaImplementationByNha(maxImplByNha);
+        details.setMaxGiaAdminByNha(maxAdminByNha);
+        BigDecimal baseAmount = new BigDecimal("1052");
+        BigDecimal result = baseAmount
+                .multiply(details.getNhaShareInGia())
+                .multiply(details.getEligibleSeccPopulation());
+
+        details.setNhaShareOfPremiumPayable(result);
+        BigDecimal shaShare = BigDecimal.ZERO;
+
+        if (details.getAnnualInsurancePremiumFamily().compareTo(BigDecimal.valueOf(1052)) > 0) {
+            shaShare = details.getAnnualInsurancePremiumFamily()
+                    .subtract(details.getMaxGiaImplementationPerFamily())
+                    .multiply(details.getEligibleSeccPopulation());
+        } else {
+            BigDecimal nhaShareInGia = details.getNhaShareInGia();
+            BigDecimal oneMinusNhaShare = BigDecimal.ONE.subtract(nhaShareInGia);
+
+            shaShare = details.getAnnualInsurancePremiumFamily()
+                    .multiply(oneMinusNhaShare)
+                    .multiply(details.getEligibleSeccPopulation());
+        }
+
+        details.setShaShareOfPremiumPayable(shaShare);
+        if (details.getShaShareOfPremiumPayable() != null &&
+                details.getShaShareOfPremiumPayable().compareTo(BigDecimal.ZERO) != 0) {
+
+            BigDecimal re = details.getUpfrontReleaseByShaForPmjay()
+                    .multiply(details.getNhaShareOfPremiumPayable())
+                    .divide(details.getShaShareOfPremiumPayable(), 3, RoundingMode.HALF_UP);
+
+            details.setNhaShareCorrespondingToShaRelease(re);
+        }
+        details.setTotalAmountPayableTillThisTranche(details.getNhaShareOfPremiumPayable().multiply(details.getPaymentTrancheNo()));
+        BigDecimal min = minOfThree(
+               details.getNhaShareOfPremiumPayable(),
+                details.getNhaShareCorrespondingToShaRelease(),
+                details.getTotalAmountPayableTillThisTranche()
+        );
+        details.setTotalAmountPayableByNhaAsOnDate(min);
+        // final amount to be released
+        BigDecimal finalAmount = min
+                .subtract(details.getEarlierAmountReleasedByNha())
+                .subtract(details.getUnspentAmountAsPerUc());
+
+        details.setAmountProposedToBeReleased(finalAmount);
+       return details;
     }
     public AdminNhaPaymentDetails administrativeCalc(AdminNhaPaymentDetails details)
     {

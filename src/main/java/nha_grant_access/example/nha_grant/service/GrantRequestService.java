@@ -46,6 +46,8 @@ public class GrantRequestService implements IGrantRequests {
     @Autowired
     private IWorkFlowConfRepo iWorkFlowConfRepo;
     @Autowired
+    private ImplementInsuCalcRepo implementInsuCalcRepo;
+    @Autowired
     private GrantRequestService grantRequestService;
     @Autowired
     private ImplementTrustCalcRepo implementationTypesRepo;
@@ -152,6 +154,45 @@ public class GrantRequestService implements IGrantRequests {
                             .roleId(1)
                             .userId(savedRequest.getUser().getId()).build();
                     iAdminCalcRepo.save(administrativeCalc);
+
+
+                }
+                else if(dto1.getImplementationInsurancePayementDetails()!=null)
+                {
+                    ImplementationInsurancePayementDetails dto =dto1.getImplementationInsurancePayementDetails();
+                    ImplementInsuCalc implementInsuCalc= ImplementInsuCalc.builder().
+                            stateName(dto.getStateName())
+                            .modeOfImplementation(dto.getModeOfImplementation())
+                            .dateOfImplementation(dto.getDateOfImplementation())
+                            .benefitCover(dto.getBenefitCover())
+                            .nhaShareInGia(dto.getNhaShareInGia())
+                            .schemeName(dto.getSchemeName())
+                            .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
+                            .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
+                            .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
+                            .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
+                            .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
+                            .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                            .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                            .policyPeriod(dto.getPolicyPeriod())
+
+                            .nameOfInsuranceCompany(dto.getNameOfInsuranceCompany())
+                            .annualInsurancePremiumFamily(dto.getAnnualInsurancePremiumFamily())
+                            .shaShareOfPremiumPayable(dto.getShaShareOfPremiumPayable())
+                            .nhaShareOfPremiumPayable(dto.getNhaShareOfPremiumPayable())
+
+                            .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                            .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                            .paymentTrancheNo(dto.getPaymentTrancheNo())
+                            .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                            .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                            .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                            .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                            .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                            .requestId(savedRequest.getRequestId())
+                            .roleId(1)
+                            .userId(savedRequest.getUser().getId()).build();
+                    implementInsuCalcRepo.save(implementInsuCalc);
 
 
                 }
