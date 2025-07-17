@@ -107,7 +107,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
         }
 
     }
-    @GetMapping("/getImplementInsur/{requestId}")
+    @GetMapping("/getImplementInsurance/{requestId}")
     public ResponseEntity<?>getImplementInsuranceCalcByRequestId(@PathVariable("requestId") String requestId)
     {
         try {
