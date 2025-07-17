@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/calc")
 @Slf4j
@@ -34,6 +36,10 @@ public class CalculationController {
         try
         {
 ImplementationTrustNhaPayementDetails implementationNhaPayementDetails1=calculationService.implementationTruestCalc(implementationNhaPayementDetails);
+if(implementationNhaPayementDetails1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+{
+    ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+}
 return ResponseEntity.ok().body(implementationNhaPayementDetails1);
 
         }
@@ -49,6 +55,10 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         try
         {
             ImplementationInsurancePayementDetails implementationNhaPayementDetails1=calculationService.implementInsuCalc(implementationInsurancePayementDetails);
+            if(implementationNhaPayementDetails1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
             return ResponseEntity.ok().body(implementationNhaPayementDetails1);
 
         }
@@ -64,6 +74,10 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         try
         {
 AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrativeCalc(adminNhaPaymentDetails);
+            if(adminNhaPaymentDetails1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
             return ResponseEntity.ok().body(adminNhaPaymentDetails1);
 
         }
