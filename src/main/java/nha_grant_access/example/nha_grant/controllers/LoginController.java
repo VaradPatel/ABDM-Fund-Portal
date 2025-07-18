@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -260,6 +261,24 @@ public class LoginController {
            return ResponseEntity.internalServerError().body(new Error("Error occured while logging out user", "Error occured while logging out user"));
 
        }
+    }
+    @GetMapping(path="/validate-token")
+            public ResponseEntity<?>validateToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7); // Remove "Bearer " prefix
+
+
+            // Extract email from token
+            String email = jwtUtil.extractUsername(token);
+            String role= jwtUtil.extractRoleId(token);
+
+            User user = userRepo.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+            return ResponseEntity.ok(new SuccessResponse("Token is sucessfully validated"));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid token");
+
     }
 
 
