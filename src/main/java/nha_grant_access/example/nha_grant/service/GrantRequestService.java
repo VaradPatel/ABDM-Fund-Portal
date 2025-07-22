@@ -76,7 +76,8 @@ public class GrantRequestService implements IGrantRequests {
 
                 log.info("edited the grant_requests " + existingRequest.toString());
 
-            } else {
+            }
+            else {
                 // Create New Request
                 GrantRequests newRequest = mapToEntity(dto1);
                 GrantRequests savedRequest = iGrantRequestsRepo.save(newRequest);

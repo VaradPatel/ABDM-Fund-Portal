@@ -9,7 +9,9 @@ import nha_grant_access.example.nha_grant.entity.States;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.entity.UserStateRole;
 import nha_grant_access.example.nha_grant.redis.hash.BlacklistToken;
+import nha_grant_access.example.nha_grant.redis.hash.Otp;
 import nha_grant_access.example.nha_grant.redis.repository.IBlacklistTokenRepository;
+import nha_grant_access.example.nha_grant.redis.repository.IOtpRepository;
 import nha_grant_access.example.nha_grant.repository.IUserStateRoleRepo;
 import nha_grant_access.example.nha_grant.repository.IstatesRepository;
 import nha_grant_access.example.nha_grant.repository.UserRepo;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -38,12 +41,24 @@ public class UserService implements IUserService {
 @Autowired
 PasswordEncoder bCryptPasswordEncoder;
 @Autowired
+    IOtpRepository iOtpRepository;
+@Autowired
     RSAUtil rsaUtil;
     @Override
     @Transactional
     public void signup(Signup signup) throws RuntimeException, GrantUserAlreadyExistsException {
         if (userRepo.findByEmail(signup.getEmail()).isPresent() || userRepo.findByMobileNumber(signup.getMobile()).isPresent()) {
             throw new GrantUserAlreadyExistsException("Email or mobile already registered!");
+        }
+        if(signup.getTranscationId()==null)
+        {
+            throw new GrantUserAlreadyExistsException("Transcation Id is missing");
+
+        }
+        Optional<Otp> otp=iOtpRepository.findById(signup.getTranscationId());
+        if(otp.isEmpty() || !(otp.get().getContact().equals(signup.getMobile())) || !otp.get().isVerified())
+        {
+            throw new GrantUserAlreadyExistsException("Otp is not verified ");
         }
         List<UserStateRole> userStateRoles1;
 if(signup.getRoles().getId()>1) {

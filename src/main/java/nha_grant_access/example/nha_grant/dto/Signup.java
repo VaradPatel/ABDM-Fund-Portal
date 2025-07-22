@@ -43,4 +43,7 @@ public class Signup {
     @NotNull(message = "dob is mandatory")
     private LocalDate dob;
 
+    @NotBlank(message = "transcation Id cannot be null")
+    private String transcationId;
+
 }

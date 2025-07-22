@@ -180,6 +180,9 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
     public ResponseEntity<?>forwardQuery(@Valid @RequestBody RaiseQueryRequest request , @PathVariable("actionId") Integer actionId) {
         try
         {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
             Queries query = Queries.builder()
                     .requestId(request.getRequestId())
                     .active(true)
@@ -214,6 +217,10 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
             }
             else if(actionId==2)
             {
+                if(!user.getRoleId().equals(4))
+                {
+                    return ResponseEntity.badRequest().body(new Error("Not authorize for this endpoint","not authorize for this endpoint"));
+                }
                 iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 4);
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
               query.setActive(false);

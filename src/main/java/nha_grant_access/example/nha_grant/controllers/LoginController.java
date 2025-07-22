@@ -127,6 +127,7 @@ public class LoginController {
     public ResponseEntity<?> signup(@Valid @RequestBody Signup request) throws GrantUserAlreadyExistsException {
         try {
             iUserService.signup(request);
+
             return ResponseEntity.ok().body(new SuccessResponse("Successfully Registered"));
         } catch (GrantUserAlreadyExistsException e) {
             log.error("User registration error: " + e.getMessage());

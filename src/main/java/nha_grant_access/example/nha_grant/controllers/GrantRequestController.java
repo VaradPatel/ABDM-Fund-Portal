@@ -286,6 +286,9 @@ public class GrantRequestController {
     @GetMapping("/get/{requestId}")
     public ResponseEntity<?> getGrantRequestByRequestId(@PathVariable("requestId") String requestId) {
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
 
             GrantRequests grantRequests=iGrantRequestsRepo.findGrantRequestByRequestId(requestId);
             List<Object[]> rawResults = iQueries.getWorkflowRemarksByRequestId(requestId);
