@@ -38,21 +38,43 @@ public class CalculationService {
                     .divide(details.getTotalPopulationCoveredAsPerMou(), 10, RoundingMode.HALF_UP);
             details.setPercentageEligibleSeccPopulation(percentage);
         }
+        BigDecimal baseAdmin = BigDecimal.valueOf(50);
+        BigDecimal population = details.getEligibleSeccPopulation();
 
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            baseAdmin = BigDecimal.valueOf(150);
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            baseAdmin = BigDecimal.valueOf(200);
+        }
         // max GIA implementation/admin per family
         BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
-        BigDecimal maxAdminPerFamily = new BigDecimal("50").multiply(details.getNhaShareInGia());
 
+        BigDecimal maxAdminPerFamily = baseAdmin.multiply(details.getNhaShareInGia());
         details.setMaxGiaImplementationPerFamily(maxImplPerFamily);
         details.setMaxGiaAdminPerFamily(maxAdminPerFamily);
 
         // max GIA by NHA
         BigDecimal maxImplByNha = details.getEligibleSeccPopulation().multiply(maxImplPerFamily);
         BigDecimal maxAdminByNha = details.getEligibleSeccPopulation().multiply(maxAdminPerFamily);
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("20000000"));
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("10000000"));
+        }
+        else {
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("150000000"));
+        }
 
         details.setMaxGiaImplementationByNha(maxImplByNha);
         details.setMaxGiaAdminByNha(maxAdminByNha);
-
         // treatment cost for PM-JAY
         BigDecimal treatmentCostForPmjay = details.getTotalTreatmentCostPaidBySha()
                 .multiply(details.getPercentageEligibleSeccPopulation());
@@ -99,16 +121,43 @@ details.setTotalAmountPayableByNhaAsOnDate(min);
             details.setPercentageEligibleSeccPopulation(percentage);
         }
 
+
+
+        // max GIA implementation/admin per family
+        BigDecimal baseAdmin = BigDecimal.valueOf(50);
+        BigDecimal population = details.getEligibleSeccPopulation();
+
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            baseAdmin = BigDecimal.valueOf(150);
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            baseAdmin = BigDecimal.valueOf(200);
+        }
         // max GIA implementation/admin per family
         BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
-        BigDecimal maxAdminPerFamily = new BigDecimal("50").multiply(details.getNhaShareInGia());
 
+        BigDecimal maxAdminPerFamily = baseAdmin.multiply(details.getNhaShareInGia());
         details.setMaxGiaImplementationPerFamily(maxImplPerFamily);
         details.setMaxGiaAdminPerFamily(maxAdminPerFamily);
 
         // max GIA by NHA
         BigDecimal maxImplByNha = details.getEligibleSeccPopulation().multiply(maxImplPerFamily);
         BigDecimal maxAdminByNha = details.getEligibleSeccPopulation().multiply(maxAdminPerFamily);
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("20000000"));
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("10000000"));
+        }
+        else {
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("150000000"));
+        }
 
         details.setMaxGiaImplementationByNha(maxImplByNha);
         details.setMaxGiaAdminByNha(maxAdminByNha);
@@ -175,15 +224,40 @@ details.setNhaShareOfPremiumPayable(result);
         }
 
         // max GIA implementation/admin per family
-        BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
-        BigDecimal maxAdminPerFamily = new BigDecimal("50").multiply(details.getNhaShareInGia());
+        BigDecimal baseAdmin = BigDecimal.valueOf(50);
+        BigDecimal population = details.getEligibleSeccPopulation();
 
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            baseAdmin = BigDecimal.valueOf(150);
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            baseAdmin = BigDecimal.valueOf(200);
+        }
+        // max GIA implementation/admin per family
+        BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
+
+        BigDecimal maxAdminPerFamily = baseAdmin.multiply(details.getNhaShareInGia());
         details.setMaxGiaImplementationPerFamily(maxImplPerFamily);
         details.setMaxGiaAdminPerFamily(maxAdminPerFamily);
 
         // max GIA by NHA
         BigDecimal maxImplByNha = details.getEligibleSeccPopulation().multiply(maxImplPerFamily);
         BigDecimal maxAdminByNha = details.getEligibleSeccPopulation().multiply(maxAdminPerFamily);
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("20000000"));
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("10000000"));
+        }
+        else {
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("150000000"));
+        }
 
         details.setMaxGiaImplementationByNha(maxImplByNha);
         details.setMaxGiaAdminByNha(maxAdminByNha);
