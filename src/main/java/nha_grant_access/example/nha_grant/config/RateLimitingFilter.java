@@ -23,6 +23,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private static final int MAX_REQUESTS = 10;
     private static final long TIME_WINDOW_MS = 1000;
 
+
     // IP -> List of request timestamps
     private final Cache<String, Deque<Long>> requestCache = Caffeine.newBuilder()
             .expireAfterAccess(10, TimeUnit.SECONDS) // Clean inactive IPs after 10 seconds
