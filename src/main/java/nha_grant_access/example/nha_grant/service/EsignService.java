@@ -18,8 +18,8 @@ import java.util.regex.Matcher;
 
 @Service
 public class EsignService {
-    @Value("${esignpdf.url}")
-    private String esignpdfurl;
+    @Value("${esignapi.url}")
+    private String esignapiurl;
 
     public RestTemplate getRestTemplateWithoutSSL() throws Exception {
         TrustManager[] trustAllCerts = new TrustManager[]{
@@ -41,7 +41,7 @@ public class EsignService {
 
     public EspResponse sendToDigiSignApi(DocumentRequest documentRequest) throws Exception {
         RestTemplate restTemplate=getRestTemplateWithoutSSL();
-        String apiUrl = esignpdfurl;
+        String apiUrl = esignapiurl;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
