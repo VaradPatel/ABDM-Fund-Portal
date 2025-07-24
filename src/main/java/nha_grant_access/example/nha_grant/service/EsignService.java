@@ -2,6 +2,8 @@ package nha_grant_access.example.nha_grant.service;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+
+import org.springframework.beans.factory.annotation.Value;
 import nha_grant_access.example.nha_grant.dto.Esign.Document;
 import nha_grant_access.example.nha_grant.dto.Esign.DocumentRequest;
 import nha_grant_access.example.nha_grant.dto.Esign.EspResponse;
@@ -16,6 +18,8 @@ import java.util.regex.Matcher;
 
 @Service
 public class EsignService {
+    @Value("${esignpdf.url}")
+    private String esignpdfurl;
 
     public RestTemplate getRestTemplateWithoutSSL() throws Exception {
         TrustManager[] trustAllCerts = new TrustManager[]{
@@ -37,7 +41,7 @@ public class EsignService {
 
     public EspResponse sendToDigiSignApi(DocumentRequest documentRequest) throws Exception {
         RestTemplate restTemplate=getRestTemplateWithoutSSL();
-        String apiUrl = "https://digisignbeta.abdm.gov.in/digiSign/genEspRequest";
+        String apiUrl = esignpdfurl;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");

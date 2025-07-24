@@ -5,13 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Document {
-    private String integratorName="NHAGRANTS";
+     @Value("${esign.name}")
+     private String integratorName;
     private String templateId="TEMPLATE_1";
     @JsonProperty("StateCEOName")
     private String stateCEOName;

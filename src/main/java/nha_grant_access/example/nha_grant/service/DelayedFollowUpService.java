@@ -2,6 +2,7 @@ package nha_grant_access.example.nha_grant.service;
 
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ public class DelayedFollowUpService {
     private final RestTemplate restTemplate = new RestTemplate();
     @Autowired
     IGrantRequestsRepo iGrantRequestsRepo;
+    @Value("${esignpdf.url}")
+    private String esignpdfurl;
 
     @Async
     public void fetchSignedPdfOnce(String txnId, String requestId) {
@@ -23,7 +26,7 @@ public class DelayedFollowUpService {
             // ⏳ Wait 3 minutes
             Thread.sleep(180_000);
 
-            String pdfUrl = "https://digisignbeta.abdm.gov.in/digiSign/pdf/" + txnId;
+            String pdfUrl = esignpdfurl + txnId;
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(List.of(MediaType.APPLICATION_PDF, MediaType.TEXT_HTML));
