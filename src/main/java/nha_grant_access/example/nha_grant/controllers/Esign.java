@@ -53,7 +53,7 @@ documentRequest.getDocument().setSigningPlace(documentRequest.getDocument().getS
 
             System.out.println("document is "+ documentRequest.toString());
             documentRequest.getDocument().setIntegratorName(esignname);
-            documentRequest.getDocument().getMatchAadharDetailsTO().setAppintName(esignname);
+            //documentRequest.getDocument().getMatchAadharDetailsTO().setAppintName(esignname);
 
             EspResponse response = esignService.sendToDigiSignApi(documentRequest);
 
