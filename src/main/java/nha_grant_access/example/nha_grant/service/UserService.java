@@ -50,12 +50,12 @@ PasswordEncoder bCryptPasswordEncoder;
         if (userRepo.findByEmail(signup.getEmail()).isPresent() || userRepo.findByMobileNumber(signup.getMobile()).isPresent()) {
             throw new GrantUserAlreadyExistsException("Email or mobile already registered!");
         }
-        if(signup.getTranscationId()==null)
+        if(signup.getTransactionId()==null)
         {
             throw new GrantUserAlreadyExistsException("Transcation Id is missing");
 
         }
-        Optional<Otp> otp=iOtpRepository.findById(signup.getTranscationId());
+        Optional<Otp> otp=iOtpRepository.findById(signup.getTransactionId());
         if(otp.isEmpty() || !(otp.get().getContact().equals(signup.getMobile())) || !otp.get().isVerified())
         {
             throw new GrantUserAlreadyExistsException("Otp is not verified ");
