@@ -10,6 +10,7 @@ import nha_grant_access.example.nha_grant.repository.UserRepo;
 import nha_grant_access.example.nha_grant.service.DelayedFollowUpService;
 import nha_grant_access.example.nha_grant.service.EsignService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +31,8 @@ public class Esign {
     DelayedFollowUpService delayedFollowUpService;
     @Autowired
     IGrantRequestsRepo iGrantRequestsRepo;
+    @Value("${esign.name}")
+    private String esignname;
     @PostMapping("/generate-request/{userId}/{requestId}")
     @PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?> generateESignRequest(@RequestBody DocumentRequest documentRequest, @PathVariable Integer userId ,@PathVariable String requestId){
@@ -49,6 +52,8 @@ documentRequest.getDocument().setMobileNumber(user.getMobileNumber());
 documentRequest.getDocument().setSigningPlace(documentRequest.getDocument().getState());
 
             System.out.println("document is "+ documentRequest.toString());
+            documentRequest.getDocument().setIntegratorName(esignname);
+            documentRequest.getDocument().getMatchAadharDetailsTO().setAppintName(esignname);
 
             EspResponse response = esignService.sendToDigiSignApi(documentRequest);
 

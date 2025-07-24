@@ -15,6 +15,6 @@ public class MatchAadharDetailsTO {
     private String adharsignername;
     private String gender;
 
-    @Value("${esign.name}")
+
     private String appintName;
 }

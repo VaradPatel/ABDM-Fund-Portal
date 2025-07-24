@@ -20,6 +20,8 @@ import java.util.regex.Matcher;
 public class EsignService {
     @Value("${esignapi.url}")
     private String esignapiurl;
+    @Value("${esign.name}")
+    private String esignname;
 
     public RestTemplate getRestTemplateWithoutSSL() throws Exception {
         TrustManager[] trustAllCerts = new TrustManager[]{
@@ -42,6 +44,7 @@ public class EsignService {
     public EspResponse sendToDigiSignApi(DocumentRequest documentRequest) throws Exception {
         RestTemplate restTemplate=getRestTemplateWithoutSSL();
         String apiUrl = esignapiurl;
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");

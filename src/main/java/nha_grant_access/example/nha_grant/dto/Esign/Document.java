@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 @NoArgsConstructor
 @Builder
 public class Document {
-     @Value("${esign.name}")
+
      private String integratorName;
     private String templateId="TEMPLATE_1";
     @JsonProperty("StateCEOName")
