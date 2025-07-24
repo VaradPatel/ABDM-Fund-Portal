@@ -169,6 +169,24 @@ catch (Exception e)
                 .headers(headers)
                 .body(resource);
     }
+    @GetMapping("/download/gia-calculation-steps")
+    public ResponseEntity<Resource> getGiaCalculationSteps() throws IOException
+    {
+        Resource resource = new ClassPathResource("pdf/GIA-Calculation-Steps.docx");
+
+
+        // Check if the resource exists
+        // Set the appropriate content type for the response
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ));
+        headers.setContentDispositionFormData("attachment", "gia-calculation-steps.docx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+    }
 
 
 
