@@ -293,6 +293,10 @@ public class GrantRequestController {
             User user = userRepo.findByEmail(name).get();
 
             GrantRequests grantRequests=iGrantRequestsRepo.findGrantRequestByRequestId(requestId);
+            if(user.getId().equals(grantRequests.getUser().getId()))
+            {
+                return ResponseEntity.badRequest().body(new Error("Not Authorized","Not Authorized"));
+            }
             List<Object[]> rawResults = iQueries.getWorkflowRemarksByRequestId(requestId);
 
             List<WorkFlowRemarkResponse> remarks = rawResults.stream().map(obj -> {

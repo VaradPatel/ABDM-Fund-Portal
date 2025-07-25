@@ -273,6 +273,13 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
     public ResponseEntity<?> getGrantRequestsWithQueries(@PathVariable("userId") Integer userId) {
         try
         {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            User user = userRepo.findByEmail(name).get();
+            if(!(user.getId().equals(userId)))
+            {
+                return ResponseEntity.badRequest().body(new Error("Not Authorized","Not Authorized"));
+            }
 
             List<Object[]> queries=iQueries.findWorkflowDetailsByUserId(userId);
             List<QueryHistory> queryHistoryList = queries.stream()
