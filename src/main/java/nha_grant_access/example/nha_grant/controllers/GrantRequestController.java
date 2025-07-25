@@ -144,10 +144,11 @@ public class GrantRequestController {
             String name = authentication.getName();
             User user = userRepo.findByEmail(name).get();
             System.out.println("userId" + user.getId());
-            if(!(user.getId().equals(userId)))
-            {
-                System.out.println("invalid");
-                return  ResponseEntity.badRequest().body(new Error("You are not Authorized for this Endpoint","You are not Authorized for this Endpoint"));
+            if(userId!=null) {
+                if (!(user.getId().equals(userId))) {
+                    System.out.println("invalid");
+                    return ResponseEntity.badRequest().body(new Error("You are not Authorized for this Endpoint", "You are not Authorized for this Endpoint"));
+                }
             }
             List<AllGrantRequest> allGrantRequests = iGrantRequests.getAllGrantRequestByState(Collections.singletonList(stateId), userId);
             for (AllGrantRequest request : allGrantRequests) {
