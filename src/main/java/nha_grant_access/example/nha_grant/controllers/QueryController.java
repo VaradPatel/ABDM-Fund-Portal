@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.Interface.IQuery;
+import nha_grant_access.example.nha_grant.Interface.IUserService;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
@@ -52,6 +53,8 @@ public class QueryController {
     GrantRequestService grantRequestService;
     @Autowired
     OtpService otpService;
+    @Autowired
+    IUserService iUserService;
 
     @GetMapping("/get-active-query/{stateId}")
     public ResponseEntity<?> getActiveQueryRaised(@PathVariable("stateId") Integer  stateId) {
@@ -96,7 +99,7 @@ public class QueryController {
 
 
     @PostMapping("/raise-query")
-            public ResponseEntity<?> raiseQuery(@Valid @RequestBody RaiseQueryRequest request)
+            public ResponseEntity<?> raiseQuery(@Valid @RequestBody RaiseQueryRequest request, @RequestHeader("Authorization") String token)
     {
         try {
             iQuery.raiseQuery(request);
@@ -105,10 +108,12 @@ public class QueryController {
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
                 try {
                     otpService.ApplicationQueryRaiseMsgToSha(request.getRequestId(), grantRequests.get().getProposalType().getId(), grantRequests.get().getState().getId(), Math.toIntExact(grantRequests.get().getImplementationMode().getId()), grantRequests.get().getUser().getId());
+                    //iUserService.logOut(token);
                 }
                 catch (Exception e)
                 {
-                    ;
+                    return ResponseEntity.internalServerError().body(new Error("Error occured while raising query",e.toString()));
+
                 }
                 }
             if(request.getRoleId()==4)

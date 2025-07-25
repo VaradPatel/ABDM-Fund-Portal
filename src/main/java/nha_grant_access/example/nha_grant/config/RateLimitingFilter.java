@@ -1,7 +1,5 @@
 package nha_grant_access.example.nha_grant.config;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,24 +8,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Deque;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private static final int MAX_REQUESTS = 10;
+    private static final int MAX_REQUESTS = 5;
     private static final long TIME_WINDOW_MS = 1000;
 
+    // Holds request timestamps for each IP
+    private final ConcurrentHashMap<String, Deque<Long>> requestLogMap = new ConcurrentHashMap<>();
 
-    // IP -> List of request timestamps
-    private final Cache<String, Deque<Long>> requestCache = Caffeine.newBuilder()
-            .expireAfterAccess(10, TimeUnit.SECONDS) // Clean inactive IPs after 10 seconds
-            .build();
+    // Holds locks for each IP to synchronize access
+    private final ConcurrentHashMap<String, Object> ipLocks = new ConcurrentHashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,23 +34,32 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String ip = request.getRemoteAddr();
         long now = Instant.now().toEpochMilli();
 
-        Deque<Long> timestamps = requestCache.get(ip, key -> new ConcurrentLinkedDeque<>());
+        // Ensure a lock object per IP (single instance)
+        Object ipLock = ipLocks.computeIfAbsent(ip, k -> new Object());
 
-        synchronized (timestamps) {
-            // Remove timestamps older than TIME_WINDOW_MS
-            while (!timestamps.isEmpty() && (now - timestamps.peekFirst()) > TIME_WINDOW_MS) {
-                timestamps.pollFirst();
+        boolean allowed;
+        synchronized (ipLock) {
+            // Get or create timestamp queue
+            Deque<Long> timestampsQueue = requestLogMap.computeIfAbsent(ip, k -> new ConcurrentLinkedDeque<>());
+
+            // Remove timestamps older than the window
+            while (!timestampsQueue.isEmpty() && now - timestampsQueue.peekFirst() > TIME_WINDOW_MS) {
+                timestampsQueue.pollFirst();
             }
 
-            if (timestamps.size() >= MAX_REQUESTS) {
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.getWriter().write("Too many requests - Rate limit exceeded.");
-                return;
+            if (timestampsQueue.size() < MAX_REQUESTS) {
+                timestampsQueue.addLast(now);
+                allowed = true;
+            } else {
+                allowed = false;
             }
-
-            timestamps.addLast(now);
         }
 
-        filterChain.doFilter(request, response);
+        if (allowed) {
+            filterChain.doFilter(request, response);
+        } else {
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            response.getWriter().write("Too many requests - limit is 5 per second.");
+        }
     }
 }
