@@ -21,6 +21,8 @@ public class CorsConfig {
     public static final String CHECKSUM_HEADER = "x-hash";
     public static final String CORRELATION_ID = "X-Correlation-ID";
     public static final String REFRESH_TOKEN = "refresh-token";
+    @Value("${cors.url}")
+    String corsurl;
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -35,12 +37,13 @@ public class CorsConfig {
 //            }
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+//                        .allowedOrigins("*")
 //                        .allowedOrigins(
 //                                "https://fundreleasesbx.nha.gov.in",
 //                                "http://fundreleasesbx.nha.gov.in",
 //                                "http://10.20.4.110:3000"
 //                        )
+                        .allowedOrigins(corsurl,"http://10.20.4.110:3000")
                         .allowedMethods("*")
                         //               .allowCredentials(true)
                         .exposedHeaders(ACCESS_TOKEN, REFRESH_TOKEN, CORRELATION_ID, CHECKSUM_HEADER);
