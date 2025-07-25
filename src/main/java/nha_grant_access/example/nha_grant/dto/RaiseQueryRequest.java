@@ -13,10 +13,10 @@ public class RaiseQueryRequest {
     @NotNull(message="userId cant be null")
     private Integer userId;
 
-    @NotNull(message ="Query cant be null")
+    @NotNull(message = "Query can't be null")
     @Pattern(
-            regexp = "^(?!.*<[^>]+>)[a-zA-Z0-9@?#,.!\\s]*$",
-            message = "Input must not contain HTML tags and may only include letters, numbers, spaces, and @ ? # , . !"
+            regexp = "^(?!.*<[^>]+>)[a-zA-Z0-9()\\-_,.?\\s]*$",
+            message = "Input must not contain HTML tags and may only include letters, numbers, spaces, parentheses, hyphen, underscore, period, comma, and question mark"
     )
     private String query;
 
