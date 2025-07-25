@@ -99,7 +99,7 @@ public class QueryController {
 
 
     @PostMapping("/raise-query")
-            public ResponseEntity<?> raiseQuery(@Valid @RequestBody RaiseQueryRequest request, @RequestHeader("Authorization") String token)
+            public ResponseEntity<?> raiseQuery(@Valid @RequestBody RaiseQueryRequest request)
     {
         try {
             iQuery.raiseQuery(request);
