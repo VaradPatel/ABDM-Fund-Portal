@@ -298,10 +298,11 @@ public class GrantRequestController {
 
 
             GrantRequests grantRequests=iGrantRequestsRepo.findGrantRequestByRequestId(requestId);
-            if(!(userState.get().getState().getId().equals(grantRequests.getState().getId())) && (user.getRoleId()==1) )
-            {
+            if(!userState.isEmpty()) {
+                if (!(userState.get().getState().getId().equals(grantRequests.getState().getId())) && (user.getRoleId() == 1)) {
 
-                return ResponseEntity.badRequest().body(new Error("Not Authorized","Not Authorized"));
+                    return ResponseEntity.badRequest().body(new Error("Not Authorized", "Not Authorized"));
+                }
             }
             List<Object[]> rawResults = iQueries.getWorkflowRemarksByRequestId(requestId);
 
