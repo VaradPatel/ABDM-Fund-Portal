@@ -11,6 +11,7 @@ import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.entity.States;
 import nha_grant_access.example.nha_grant.entity.User;
+import nha_grant_access.example.nha_grant.entity.UserStateRole;
 import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
 import nha_grant_access.example.nha_grant.repository.IQueries;
 import nha_grant_access.example.nha_grant.repository.IstatesRepository;
@@ -44,7 +45,7 @@ import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 
 import java.io.*;
@@ -53,9 +54,8 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 
@@ -292,9 +292,13 @@ public class GrantRequestController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
             User user = userRepo.findByEmail(name).get();
+            Optional<UserStateRole> userState=user.getUserStateRoles().stream().findFirst();
+
+
+
 
             GrantRequests grantRequests=iGrantRequestsRepo.findGrantRequestByRequestId(requestId);
-            if(!(user.getId().equals(grantRequests.getState().getId())) && (user.getRoleId()==1) )
+            if(!(userState.get().getState().getId().equals(grantRequests.getState().getId())) && (user.getRoleId()==1) )
             {
 
                 return ResponseEntity.badRequest().body(new Error("Not Authorized","Not Authorized"));
