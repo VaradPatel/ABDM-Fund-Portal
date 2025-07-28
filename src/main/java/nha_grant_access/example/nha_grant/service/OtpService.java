@@ -48,6 +48,8 @@ public class OtpService implements IOtp {
 GrantRequestService grantRequestService;
     @Value("${sms.url}")
     private String url;
+    @Value(("${email.url}"))
+    private String emailUrl;
 
     @Override
     public OtpResponseTo generateOtp(OtpGenerateRequest otpGenerateRequestTo) {
@@ -485,7 +487,7 @@ SendEmail(message,user1.get().getEmail());
         RestTemplate restTemplate = new RestTemplate();
 
         // URL
-        String url = "http://global2sbx.abdm.gov.internal/internal/v3/notification/message";
+        String url = emailUrl;
 
         // Headers
         HttpHeaders headers = new HttpHeaders();
