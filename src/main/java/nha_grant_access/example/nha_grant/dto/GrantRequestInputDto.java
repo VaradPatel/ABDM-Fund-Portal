@@ -2,6 +2,7 @@ package nha_grant_access.example.nha_grant.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -80,7 +81,12 @@ private BigDecimal totalStateShare;
 
     private Boolean eSignStatusStateCeo=false;
     private String remarks;
-private String queryResponse;
+
+    @Pattern(
+            regexp = "^(?!.*<[^>]+>)[a-zA-Z0-9()\\-_,.?\\s]*$",
+            message = "Input must not contain HTML tags and may only include letters, numbers, spaces, parentheses, hyphen, underscore, period, comma, and question mark"
+    )
+    private String queryResponse;
     private Boolean positiveBalance;
     private Integer queryId;
     @JsonProperty("requestId")
