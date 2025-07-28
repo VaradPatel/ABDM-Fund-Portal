@@ -158,8 +158,8 @@ User user=users.get(0);
 
     System.out.println("sms message " + message);
      MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-    body.add("userid", "abhaotp");
-    body.add("password", "f9F3r]{S");
+    body.add("userid", "giaotp");
+    body.add("password", "sqdAgBdQ");
     body.add("mobile", user.getMobileNumber());
     body.add("senderid", "NHASMS");
     body.add("dltEntityId", "1001548700000010184");
@@ -201,8 +201,8 @@ User user=users.get(0);
 
         System.out.println("sms message " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("userid", "abhaotp");
-        body.add("password", "f9F3r]{S");
+        body.add("userid", "giaotp");
+        body.add("password", "sqdAgBdQ");
         body.add("mobile", user.get().getMobileNumber());
         body.add("senderid", "NHASMS");
         body.add("dltEntityId", "1001548700000010184");
@@ -244,8 +244,8 @@ SendEmail(message,user.get().getEmail());
 
         System.out.println("sms message " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("userid", "abhaotp");
-        body.add("password", "f9F3r]{S");
+        body.add("userid", "giaotp");
+        body.add("password", "sqdAgBdQ");
         body.add("mobile", user.getMobileNumber());
         body.add("senderid", "NHASMS");
         body.add("dltEntityId", "1001548700000010184");
@@ -287,8 +287,8 @@ SendEmail(message, user.getEmail());
 
         System.out.println("sms message " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("userid", "abhaotp");
-        body.add("password", "f9F3r]{S");
+        body.add("userid", "giaotp");
+        body.add("password", "sqdAgBdQ");
         body.add("mobile", user.getMobileNumber());
         body.add("senderid", "NHASMS");
         body.add("dltEntityId", "1001548700000010184");
@@ -325,8 +325,8 @@ SendEmail(message,user.getEmail());
 
         System.out.println("sms message " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("userid", "abhaotp");
-        body.add("password", "f9F3r]{S");
+        body.add("userid", "giaotp");
+        body.add("password", "sqdAgBdQ");
         body.add("mobile", mobile);
         body.add("senderid", "NHASMS");
         body.add("dltEntityId", "1001548700000010184");
@@ -369,8 +369,8 @@ SendEmail(message,user.getEmail());
 
         System.out.println("sms message " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("userid", "abhaotp");
-        body.add("password", "f9F3r]{S");
+        body.add("userid", "giaotp");
+        body.add("password", "sqdAgBdQ");
         body.add("mobile", mobileNumbers);
         body.add("senderid", "NHASMS");
         body.add("dltEntityId", "1001548700000010184");
@@ -415,8 +415,8 @@ SendEmail(message,user1.get().getEmail());
 
         System.out.println("sms message " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("userid", "abhaotp");
-        body.add("password", "f9F3r]{S");
+        body.add("userid", "giaotp");
+        body.add("password", "sqdAgBdQ");
         body.add("mobile", user1.get().getMobileNumber());
         body.add("senderid", "NHASMS");
         body.add("dltEntityId", "1001548700000010184");
@@ -460,8 +460,8 @@ SendEmail(message,user1.get().getEmail());
 
         System.out.println("sms message " + message);
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("userid", "abhaotp");
-        body.add("password", "f9F3r]{S");
+        body.add("userid", "giaotp");
+        body.add("password", "sqdAgBdQ");
         body.add("mobile", user.getMobileNumber());
         body.add("senderid", "NHASMS");
         body.add("dltEntityId", "1001548700000010184");
