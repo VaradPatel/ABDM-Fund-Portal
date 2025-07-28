@@ -115,9 +115,10 @@ public class GrantRequestController {
 
                 otpService.ApplicationSendMsgToSha(savedGrantRequest.getRequestId(), savedGrantRequest.getProposalTypeId(), savedGrantRequest.getStateId(), savedGrantRequest.getImplementationModeId(), savedGrantRequest.getUserId());
             }
+
             catch (Exception e)
             {
-                ;
+
             }
             return ResponseEntity.ok(new GrantResponse(savedGrantRequest.getRequestId()));
         }
