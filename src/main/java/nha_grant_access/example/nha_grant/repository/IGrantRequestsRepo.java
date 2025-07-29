@@ -96,7 +96,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "WHERE (:stateId = 0 OR gr.state_id = :stateId) " +
             "AND gr.flow_status = 5 " +
             "And u.role_id = 3 " +
-            "AND q.active = true",
+            "AND q.active = true and q.query_to_role_id!=2",
             nativeQuery = true) List<Object[]> findNhaReviewerActiveQuery(Integer stateId);
 
 

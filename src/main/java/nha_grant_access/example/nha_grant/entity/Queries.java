@@ -25,8 +25,9 @@ public class Queries {
     @JoinColumn(name = "response_user_id")
     private User responseUser;
 
-    @Column(name = "query_field_name")
-    private String queryFieldName;
+
+    @Column(name = "query_to_role_id")
+    private Integer queryToRoleID;
 
     @Column(name = "query_comment", nullable = false)
     private String queryComment;

@@ -84,11 +84,13 @@ throw new RuntimeException(String.valueOf(new Error("error occured while respond
                     .build();
             if(request.getRoleId()==3 && request.getIsStateCeo()==1) //state cord to state ceo
             {
+                query.setQueryToRoleID(2);
                 iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 11);
             }
             else {
                 WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(2, request.getRoleId());
                 if (request.getIsStateCeo() != null && request.getIsStateCeo() == 1) {
+                    query.setQueryToRoleID(2);
                     iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 10);
 
                 } else {
