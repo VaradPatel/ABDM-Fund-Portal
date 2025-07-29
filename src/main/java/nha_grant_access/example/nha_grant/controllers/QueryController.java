@@ -112,7 +112,7 @@ public class QueryController {
                 }
                 catch (Exception e)
                 {
-                    return ResponseEntity.internalServerError().body(new Error("Error occured while raising query",e.toString()));
+                   // return ResponseEntity.internalServerError().body(new Error("Error occured while raising query",e.toString()));
 
                 }
                 }
