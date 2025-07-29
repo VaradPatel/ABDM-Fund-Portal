@@ -449,10 +449,11 @@ SendEmail(message,user1.get().getEmail());
 
         String message = String.format(
                 "Dear User , \n" +
-                        "A query has been raised regarding GIA Request No. %s under the %s scheme (Proposal Type: %s) by NHA. \n" +
+                        "A query has been raised on GIA Request No. %s for the %s scheme (Proposal Type: %s) by NHA. \n" +
                         "National Health Authority",
                  requestId, implementationTypes.getName() , proposal.getName()
         );
+
 
 
 
