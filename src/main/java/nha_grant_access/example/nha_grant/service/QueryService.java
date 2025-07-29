@@ -82,14 +82,18 @@ throw new RuntimeException(String.valueOf(new Error("error occured while respond
 
 
                     .build();
-            WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(2, request.getRoleId());
-            if(request.getIsStateCeo()!=null && request.getIsStateCeo()==1)
+            if(request.getRoleId()==3 && request.getIsStateCeo()==1) //state cord to state ceo
             {
-                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 10);
-
+                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 11);
             }
             else {
-                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+                WorkFlowConfiguration workFlowConfiguration = iWorkFlowConfRepo.findByActionPerformedIdAndActionPerformedById(2, request.getRoleId());
+                if (request.getIsStateCeo() != null && request.getIsStateCeo() == 1) {
+                    iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 10);
+
+                } else {
+                    iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+                }
             }
             grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId(),request.getQuery());
 

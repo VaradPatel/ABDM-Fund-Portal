@@ -450,8 +450,8 @@ SendEmail(message,user1.get().getEmail());
         String message = String.format(
                 "Dear User , \n" +
                         "A query has been raised regarding GIA Request No. %s under the %s scheme (Proposal Type: %s) by the National Health Authority (NHA). \n" +
-                        "You are requested to review and respond to the query at the earliest. \n" +
-                        "Best regards, \n" +
+
+
                         "National Health Authority",
                  requestId, implementationTypes.getName() , proposal.getName()
         );

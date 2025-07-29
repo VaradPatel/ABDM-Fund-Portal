@@ -62,13 +62,20 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "JOIN users u ON q.query_user_id = u.id " +
             "WHERE gr.state_id = :stateId AND gr.flow_status = 1 and q.active = true and u.role_id = 2 ", nativeQuery = true)
     List<Object[]> findActiveQueryFromUserID(Integer stateId);
-    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name, s.id AS state_id, s.name AS state_name , gr.proposal_type_id " +
+    @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, " +
+            "u.name, s.id AS state_id, s.name AS state_name, gr.proposal_type_id " +
             "FROM grant_requests gr " +
             "JOIN queries q ON q.request_id = gr.request_id " +
             "JOIN users u ON q.query_user_id = u.id " +
             "JOIN states s ON s.id = gr.state_id " +
-            "WHERE gr.state_id = :stateId AND gr.flow_status = 10 AND q.active = true and u.role_id = 4 ",
+            "WHERE gr.state_id = :stateId " +
+            "AND q.active = true " +
+            "AND ( " +
+            "     (u.role_id = 3 AND gr.flow_status = 11) " +
+            "  OR (u.role_id = 4 AND gr.flow_status = 10) " +
+            ")",
             nativeQuery = true)
+
     List<Object[]> findStateActiveQueryFromStateID(Integer stateId);
 
     @Query(value = "SELECT q.id, gr.request_id, q.query_comment, q.query_doc, q.created_at, u.name, s.name AS state_name, gr.proposal_type_id , s.id as state_id " +
@@ -132,7 +139,7 @@ Integer totalShaPendingQueriesByState(Integer stateId);
                     COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
                     COUNT(*) FILTER (WHERE gr.flow_status = 4) AS nha_review,
                     COUNT(*) FILTER (WHERE gr.flow_status = 2) AS pending_proposals,
-                    COUNT(*) FILTER (WHERE gr.flow_status = 10) AS pending_query,
+                    COUNT(*) FILTER (WHERE gr.flow_status IN (10, 11)) AS pending_query,
                     COUNT(*) FILTER (WHERE gr.flow_status = 1) AS sha_pending,
                     (
                         SELECT COUNT(*) 

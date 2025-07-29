@@ -116,7 +116,7 @@ public class QueryController {
 
                 }
                 }
-            if(request.getRoleId()==4)
+            if(request.getRoleId()==4 || (request.getRoleId()==3 && request.getIsStateCeo()==1))
             {
                 Optional<GrantRequests> grantRequests=iGrantRequestsRepo.findByRequestId(request.getRequestId());
                 try {

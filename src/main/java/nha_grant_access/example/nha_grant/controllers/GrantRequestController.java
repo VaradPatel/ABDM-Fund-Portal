@@ -155,7 +155,7 @@ public class GrantRequestController {
             for (AllGrantRequest request : allGrantRequests) {
                 if (request.getStatusId() >= 4 && request.getStatusId() <= 8) {
                     request.setRequestStatus("NHA Review");
-                } else if (request.getStatusId() == 10) {
+                } else if (request.getStatusId() >= 10) {
                     request.setRequestStatus("Query by NHA");
                 }
             }
