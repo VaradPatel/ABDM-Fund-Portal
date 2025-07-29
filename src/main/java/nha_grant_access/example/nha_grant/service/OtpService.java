@@ -25,9 +25,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -64,7 +69,9 @@ GrantRequestService grantRequestService;
         String contact = otpGenerateRequestTo.getMobile();
         Otp otpEntity = new Otp(UUID.randomUUID().toString(), otp, 0, contact, false, 1, false);
         iOtpRepository.save(otpEntity);
+
         sendOtp(otpGenerateRequestTo.getMobile(), otpEntity.getOtp());
+
         return new OtpResponseTo(otpEntity.getId(), "OTP sent sucessfully", otpEntity.getContact());
 
     }
@@ -106,7 +113,7 @@ GrantRequestService grantRequestService;
 
     }
 
-    public String sendOtp(String mobileNumber, String otp) {
+    public String sendOtp(String mobileNumber, String otp)  {
         String lastFourDigits = mobileNumber.length() > 4
                 ? mobileNumber.substring(mobileNumber.length() - 4)
                 : mobileNumber;
@@ -134,10 +141,10 @@ GrantRequestService grantRequestService;
 
         ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
         System.out.println("response is " + response.getBody());
+
         return response.getBody();
     }
-public String ApplicationSendTOCEO(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId)
-{
+public String ApplicationSendTOCEO(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId) throws Exception {
     ProposalType proposal= grantRequestService.getProposalType(proposalType);
     ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
 Optional<States> states=istatesRepository.findById(State);
@@ -181,8 +188,7 @@ User user=users.get(0);
 
     return "";
 }
-    public String ApplicationSendMsgToSha(String requestId, Integer proposalType, Integer State, Integer ImplemetationType , Integer userId)
-    {
+    public String ApplicationSendMsgToSha(String requestId, Integer proposalType, Integer State, Integer ImplemetationType , Integer userId) throws Exception {
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
@@ -223,8 +229,7 @@ User user=users.get(0);
 SendEmail(message,user.get().getEmail());
         return "";
     }
-    public String ApplicationApprovedMsgToCEO(String requestId, Integer proposalType, Integer State, Integer ImplemetationType)
-    {
+    public String ApplicationApprovedMsgToCEO(String requestId, Integer proposalType, Integer State, Integer ImplemetationType) throws Exception {
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
@@ -266,8 +271,7 @@ SendEmail(message,user.get().getEmail());
 SendEmail(message, user.getEmail());
         return "";
     }
-    public String ApplicationApprovedMsgToStateCordAndSha(String requestId, Integer proposalType, Integer State, Integer ImplemetationType)
-    {
+    public String ApplicationApprovedMsgToStateCordAndSha(String requestId, Integer proposalType, Integer State, Integer ImplemetationType) throws Exception {
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
@@ -348,8 +352,7 @@ SendEmail(message,user.getEmail());
 
         return "";
     }
-    public String ApplicationFinalApprovalToShaAndCeo(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId)
-    {
+    public String ApplicationFinalApprovalToShaAndCeo(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId) throws Exception {
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
@@ -392,8 +395,7 @@ SendEmail(message,user.getEmail());
 SendEmail(message,user1.get().getEmail());
         return "";
     }
-    public String ApplicationQueryRaiseMsgToSha(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId)
-    {
+    public String ApplicationQueryRaiseMsgToSha(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId) throws Exception {
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
@@ -437,8 +439,7 @@ SendEmail(message,user1.get().getEmail());
       SendEmail(message,user1.get().getEmail());
         return "";
     }
-    public String ApplicationQueryRaiseMsgToCeo(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId)
-    {
+    public String ApplicationQueryRaiseMsgToCeo(String requestId, Integer proposalType, Integer State, Integer ImplemetationType, Integer userId) throws Exception {
         ProposalType proposal= grantRequestService.getProposalType(proposalType);
         ImplementationTypes implementationTypes=grantRequestService.getImplementationType(ImplemetationType);
         Optional<States> states=istatesRepository.findById(State);
@@ -481,9 +482,26 @@ SendEmail(message,user1.get().getEmail());
         SendEmail(message,user.getEmail());
         return "";
     }
-    public String SendEmail(String message, String email)
-    {
-        RestTemplate restTemplate = new RestTemplate();
+    public RestTemplate getRestTemplateWithoutSSL() throws Exception {
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                }
+        };
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+
+        return new RestTemplate();
+    }
+    public String SendEmail(String message, String email) throws Exception {
+        RestTemplate restTemplate = getRestTemplateWithoutSSL();
+
 
         // URL
         String url = emailUrl;
