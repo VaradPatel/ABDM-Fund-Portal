@@ -95,6 +95,7 @@ throw new RuntimeException(String.valueOf(new Error("error occured while respond
 
                 } else {
                     iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), workFlowConfiguration.getStatusDescription().getId());
+
                 }
             }
             grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(),2,request.getProposalTypeId(),request.getQuery());
