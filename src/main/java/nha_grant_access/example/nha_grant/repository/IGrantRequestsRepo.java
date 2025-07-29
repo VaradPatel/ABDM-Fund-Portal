@@ -71,7 +71,7 @@ GrantRequests findGrantRequestByRequestId(String requestId);
             "WHERE gr.state_id = :stateId " +
             "AND q.active = true " +
             "AND ( " +
-            "     (u.role_id = 3 AND gr.flow_status = 11 and gr.query_to_role_id=2) " +
+            "     (u.role_id = 3 AND gr.flow_status = 11 and q.query_to_role_id=2) " +
             "  OR (u.role_id = 4 AND gr.flow_status = 10) " +
             ")",
             nativeQuery = true)
