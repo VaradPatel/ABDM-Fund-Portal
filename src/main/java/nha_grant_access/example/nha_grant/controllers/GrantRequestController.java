@@ -91,7 +91,7 @@ public class GrantRequestController {
     OtpService otpService;
 
     @PostMapping("/add")
-    @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
+   // @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
     public ResponseEntity<?> createGrantRequest(@RequestBody @Valid GrantRequestInputDto grantRequestInputDTO) {
         try {
 //

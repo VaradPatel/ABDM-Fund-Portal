@@ -149,6 +149,13 @@ private BigDecimal amountSc;
     @Column (name="esign_txn_id")
     private String esignTxnId;
 
+    @Column(name="scheme_id")
+    private Integer schemeId;
+
+    @Column(name="scheme_name")
+    private String schemeName;
+
+
 
 
 

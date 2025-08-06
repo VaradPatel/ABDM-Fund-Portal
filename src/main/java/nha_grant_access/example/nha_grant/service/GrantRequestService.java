@@ -53,6 +53,10 @@ public class GrantRequestService implements IGrantRequests {
     private ImplementTrustCalcRepo implementationTypesRepo;
     @Autowired
     private IAdminCalcRepo iAdminCalcRepo;
+    @Autowired
+    private IvvsImpleNew ivvsImpleNew;
+    @Autowired
+    private IashaImplTrust iashaImplTrust;
 
 
     @Override
@@ -72,6 +76,7 @@ public class GrantRequestService implements IGrantRequests {
                     saveToWorkFlow(existingRequest.getRequestId(),existingRequest.getUser().getId(),7,existingRequest.getProposalType().getId(),dto1.getQueryResponse());
 
                 }
+                saveToCalcFlow(dto1,existingRequest);
 
 
                 log.info("edited the grant_requests " + existingRequest.toString());
@@ -86,117 +91,8 @@ public class GrantRequestService implements IGrantRequests {
                 log.info("saved the grant_requests " + savedRequest.toString());
                 //save to user dump
                 saveToWorkFlow(savedRequest.getRequestId(),savedRequest.getUser().getId(),1,savedRequest.getProposalType().getId(),"");
-                if(dto1.getImplementationTrustNhaPayementDetails()!=null)
-                {
-                    ImplementationTrustNhaPayementDetails dto =dto1.getImplementationTrustNhaPayementDetails();
-                    ImplementTrustCalc implementTrustCalc= ImplementTrustCalc.builder().
-                            stateName(dto.getStateName())
-                            .modeOfImplementation(dto.getModeOfImplementation())
-                            .dateOfImplementation(dto.getDateOfImplementation())
-                            .benefitCover(dto.getBenefitCover())
-                            .nhaShareInGia(dto.getNhaShareInGia())
-                            .schemeName(dto.getSchemeName())
-                            .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
-                            .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
-                            .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
-                            .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
-                            .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
-                            .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
-                            .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
-                            .policyPeriod(dto.getPolicyPeriod())
-                            .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
-                            .treatmentCostForPmjayBeneficiaries(dto.getTreatmentCostForPmjayBeneficiaries())
-                            .nhaShareInPmjayTreatmentCost(dto.getNhaShareInPmjayTreatmentCost())
-                            .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
-                            .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
-                            .paymentTrancheNo(dto.getPaymentTrancheNo())
-                            .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
-                            .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
-                            .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
-                            .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
-                            .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
-                            .requestId(savedRequest.getRequestId())
-                            .roleId(1)
-                            .userId(savedRequest.getUser().getId()).build();
-                    implementationTypesRepo.save(implementTrustCalc);
+                saveToCalcFlow(dto1,savedRequest);
 
-                }
-                else if(dto1.getAdminNhaPaymentDetails()!=null)
-                {
-                   AdminNhaPaymentDetails dto =dto1.getAdminNhaPaymentDetails();
-                    AdministrativeCalc administrativeCalc= AdministrativeCalc.builder().
-                            stateName(dto.getStateName())
-                            .modeOfImplementation(dto.getModeOfImplementation())
-                            .dateOfImplementation(dto.getDateOfImplementation())
-                            .benefitCover(dto.getBenefitCover())
-                            .nhaShareInGia(dto.getNhaShareInGia())
-                            .schemeName(dto.getSchemeName())
-                            .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
-                            .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
-                            .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
-                            .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
-                            .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
-                            .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
-                            .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
-                            .policyPeriod(dto.getPolicyPeriod())
-                            .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
-                            .costOfAdministrativeExpenseNha(dto.getCostOfAdministrativeExpenseNha())
-                            .costOfAdministrativeExpenseSha(dto.getCostOfAdministrativeExpenseSha())
-
-                            .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
-                            .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
-                            .paymentTrancheNo(dto.getPaymentTrancheNo())
-                            .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
-                            .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
-                            .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
-                            .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
-                            .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
-                            .requestId(savedRequest.getRequestId())
-                            .roleId(1)
-                            .userId(savedRequest.getUser().getId()).build();
-                    iAdminCalcRepo.save(administrativeCalc);
-
-
-                }
-                else if(dto1.getImplementationInsurancePayementDetails()!=null)
-                {
-                    ImplementationInsurancePayementDetails dto =dto1.getImplementationInsurancePayementDetails();
-                    ImplementInsuCalc implementInsuCalc= ImplementInsuCalc.builder().
-                            stateName(dto.getStateName())
-                            .modeOfImplementation(dto.getModeOfImplementation())
-                            .dateOfImplementation(dto.getDateOfImplementation())
-                            .benefitCover(dto.getBenefitCover())
-                            .nhaShareInGia(dto.getNhaShareInGia())
-                            .schemeName(dto.getSchemeName())
-                            .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
-                            .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
-                            .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
-                            .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
-                            .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
-                            .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
-                            .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
-                            .policyPeriod(dto.getPolicyPeriod())
-
-                            .nameOfInsuranceCompany(dto.getNameOfInsuranceCompany())
-                            .annualInsurancePremiumFamily(dto.getAnnualInsurancePremiumFamily())
-                            .shaShareOfPremiumPayable(dto.getShaShareOfPremiumPayable())
-                            .nhaShareOfPremiumPayable(dto.getNhaShareOfPremiumPayable())
-
-                            .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
-                            .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
-                            .paymentTrancheNo(dto.getPaymentTrancheNo())
-                            .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
-                            .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
-                            .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
-                            .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
-                            .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
-                            .requestId(savedRequest.getRequestId())
-                            .roleId(1)
-                            .userId(savedRequest.getUser().getId()).build();
-                    implementInsuCalcRepo.save(implementInsuCalc);
-
-
-                }
             }
             return dto1;
         } catch (Exception e) {
@@ -337,6 +233,8 @@ public class GrantRequestService implements IGrantRequests {
                 .bankMappedWithPfms(Optional.ofNullable(dto.getBankMappedWithPfms()).orElse(false))
                 .positiveBalance(Optional.ofNullable(dto.getPositiveBalance()).orElse(false))
                 .totalStateShare(dto.getTotalStateShare())
+                .schemeName(dto.getSchemeName())
+                .schemeId(dto.getSchemeId())
                 .build();
     }
 
@@ -359,6 +257,8 @@ public class GrantRequestService implements IGrantRequests {
         existingRequest.setReleaseTillDate(dto.getReleaseTillDate());
         existingRequest.setRequestedAmount(dto.getRequestedAmount());
         existingRequest.setReleaseTillDate(dto.getReleaseTillDate());
+        existingRequest.setSchemeId(dto.getSchemeId());
+        existingRequest.setSchemeName(dto.getSchemeName());
 
         existingRequest.setStateShare(dto.getStateShare());
         existingRequest.setESignStatusStateCeo(dto.getESignStatusStateCeo());
@@ -504,7 +404,186 @@ public void saveToDashboard(
 
         return requestId;
     }
+public void saveToCalcFlow(GrantRequestInputDto dto1,GrantRequests savedRequest)
+{
+    if(dto1.getImplementationTrustNhaPayementDetails()!=null)
+    {
+        ImplementationTrustNhaPayementDetails dto =dto1.getImplementationTrustNhaPayementDetails();
+        ImplementTrustCalc implementTrustCalc= ImplementTrustCalc.builder().
+                stateName(dto.getStateName())
+                .modeOfImplementation(dto.getModeOfImplementation())
+                .dateOfImplementation(dto.getDateOfImplementation())
+                .benefitCover(dto.getBenefitCover())
+                .nhaShareInGia(dto.getNhaShareInGia())
+                .schemeName(dto.getSchemeName())
+                .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
+                .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
+                .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
+                .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
+                .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
+                .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                .policyPeriod(dto.getPolicyPeriod())
+                .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
+                .treatmentCostForPmjayBeneficiaries(dto.getTreatmentCostForPmjayBeneficiaries())
+                .nhaShareInPmjayTreatmentCost(dto.getNhaShareInPmjayTreatmentCost())
+                .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(dto.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                .requestId(savedRequest.getRequestId())
+                .roleId(1)
+                .userId(savedRequest.getUser().getId()).build();
+        implementationTypesRepo.save(implementTrustCalc);
+
+    }
+    else if(dto1.getAdminNhaPaymentDetails()!=null)
+    {
+        AdminNhaPaymentDetails dto =dto1.getAdminNhaPaymentDetails();
+        AdministrativeCalc administrativeCalc= AdministrativeCalc.builder().
+                stateName(dto.getStateName())
+                .modeOfImplementation(dto.getModeOfImplementation())
+                .dateOfImplementation(dto.getDateOfImplementation())
+                .benefitCover(dto.getBenefitCover())
+                .nhaShareInGia(dto.getNhaShareInGia())
+                .schemeName(dto.getSchemeName())
+                .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
+                .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
+                .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
+                .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
+                .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
+                .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                .policyPeriod(dto.getPolicyPeriod())
+                .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
+                .costOfAdministrativeExpenseNha(dto.getCostOfAdministrativeExpenseNha())
+                .costOfAdministrativeExpenseSha(dto.getCostOfAdministrativeExpenseSha())
+
+                .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(dto.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                .requestId(savedRequest.getRequestId())
+                .roleId(1)
+                .userId(savedRequest.getUser().getId()).build();
+        iAdminCalcRepo.save(administrativeCalc);
 
 
+    }
+    else if(dto1.getImplementationInsurancePayementDetails()!=null)
+    {
+        ImplementationInsurancePayementDetails dto =dto1.getImplementationInsurancePayementDetails();
+        ImplementInsuCalc implementInsuCalc= ImplementInsuCalc.builder().
+                stateName(dto.getStateName())
+                .modeOfImplementation(dto.getModeOfImplementation())
+                .dateOfImplementation(dto.getDateOfImplementation())
+                .benefitCover(dto.getBenefitCover())
+                .nhaShareInGia(dto.getNhaShareInGia())
+                .schemeName(dto.getSchemeName())
+                .totalPopulationCoveredAsPerMou(dto.getTotalPopulationCoveredAsPerMou())
+                .eligibleSeccPopulation(dto.getEligibleSeccPopulation())
+                .percentageEligibleSeccPopulation(dto.getPercentageEligibleSeccPopulation())
+                .maxGiaImplementationPerFamily(dto.getMaxGiaImplementationPerFamily())
+                .maxGiaAdminPerFamily(dto.getMaxGiaAdminPerFamily())
+                .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                .policyPeriod(dto.getPolicyPeriod())
 
+                .nameOfInsuranceCompany(dto.getNameOfInsuranceCompany())
+                .annualInsurancePremiumFamily(dto.getAnnualInsurancePremiumFamily())
+                .shaShareOfPremiumPayable(dto.getShaShareOfPremiumPayable())
+                .nhaShareOfPremiumPayable(dto.getNhaShareOfPremiumPayable())
+
+                .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(dto.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                .requestId(savedRequest.getRequestId())
+                .roleId(1)
+                .userId(savedRequest.getUser().getId()).build();
+        implementInsuCalcRepo.save(implementInsuCalc);
+
+
+    }
+    else if(dto1.getVvsImplementationNewBenef()!=null)
+    {
+        VVSImplementationNewBenef vvsImplementationNewBenef=dto1.getVvsImplementationNewBenef();
+        VVSImplementNew vvsImplementNew = VVSImplementNew.builder()
+                .requestId(savedRequest.getRequestId())
+
+
+                .stateName(vvsImplementationNewBenef.getStateName())
+                .modeOfImplementation(vvsImplementationNewBenef.getModeOfImplementation())
+                .dateOfImplementation(vvsImplementationNewBenef.getDateOfImplementation())
+                .benefitCover(vvsImplementationNewBenef.getBenefitCover())
+                .nhaShareInGia(vvsImplementationNewBenef.getNhaShareInGia())
+                .schemeName(vvsImplementationNewBenef.getSchemeName())
+                .newBeneficiaryInstate(vvsImplementationNewBenef.getNewBeneficiaryInstate())
+                .maxGiaImplementationPerFamily(vvsImplementationNewBenef.getMaxGiaImplementationPerFamily())
+                .maxGiaImplementationByNha(vvsImplementationNewBenef.getMaxGiaImplementationByNha())
+                .policyPeriod(vvsImplementationNewBenef.getPolicyPeriod())
+                .totalTreatmentCostPaidBySha(vvsImplementationNewBenef.getTotalTreatmentCostPaidBySha())
+                .nhaShareInPmjayTreatmentCost(vvsImplementationNewBenef.getNhaShareInPmjayTreatmentCost())
+                .upfrontReleaseByShaForPmjay(vvsImplementationNewBenef.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(vvsImplementationNewBenef.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(vvsImplementationNewBenef.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(vvsImplementationNewBenef.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(vvsImplementationNewBenef.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(vvsImplementationNewBenef.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(vvsImplementationNewBenef.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(vvsImplementationNewBenef.getAmountProposedToBeReleased())
+                .roleId(1)
+                .build();
+        ivvsImpleNew.save(vvsImplementNew);
+
+    }
+    if(dto1.getAashaImplementationTrust()!=null)
+    {
+        AashaImplementationTrust details=dto1.getAashaImplementationTrust();
+        AashaImplTrust entity = AashaImplTrust.builder()
+                .stateName(details.getStateName())
+                .modeOfImplementation(details.getModeOfImplementation())
+                .dateOfImplementation(details.getDateOfImplementation())
+                .benefitCover(details.getBenefitCover())
+                .nhaShareInGia(details.getNhaShareInGia())
+                .schemeName(details.getSchemeName())
+                .totalFamiliesCoveredInStateAsPerMou(details.getTotalFamiliesCoveredInStateAsPerMou())
+                .totalEligibleAshaAwwAwhFamilies(details.getTotalEligibleAshaAwwAwhFamilies())
+                .maxGiaImplementationByNhaPerFamily(details.getMaxGiaImplementationByNhaPerFamily())
+                .maxGiaImplementationByNha(details.getMaxGiaImplementationByNha())
+                .policyPeriod(details.getPolicyPeriod())
+
+                .totalTreatmentCostPaidBySha(details.getTotalTreatmentCostPaidBySha())
+                .nhaShareInCostForAshaAwsAww(details.getNhaShareInCostForAshaAwsAww())
+                .upfrontReleaseByShaForPmjay(details.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(details.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(details.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(details.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(details.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(details.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(details.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(details.getAmountProposedToBeReleased())
+
+                .roleId(1)
+                .requestId(savedRequest.getRequestId())
+                .build();
+
+        iashaImplTrust.save(entity);
+    }
 }
+}
+
+
+

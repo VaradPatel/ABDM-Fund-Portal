@@ -138,4 +138,42 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
         }
 
     }
+    @PostMapping("/vvs/implementation-trust")
+    public ResponseEntity<?>vvsImplementationNew(@Valid @RequestBody VVSImplementationNewBenef vvsImplementationNewBenef)
+    {
+        try
+        {
+            VVSImplementationNewBenef vvsImplementationNewBenef1=calculationService.vvsimplementationNewBenef(vvsImplementationNewBenef);
+            if(vvsImplementationNewBenef1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
+            return ResponseEntity.ok().body(vvsImplementationNewBenef1);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
+        }
+    }
+    @PostMapping("/aasha/implementation-trust")
+    public ResponseEntity<?>aashaImplementationNew(@Valid @RequestBody AashaImplementationTrust aashaImplementationTrust)
+    {
+        try
+        {
+             AashaImplementationTrust aashaImplementationTrust1=calculationService.aashaImplementationTrust(aashaImplementationTrust);
+            if(aashaImplementationTrust.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
+            return ResponseEntity.ok().body(aashaImplementationTrust1);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
+        }
+    }
 }

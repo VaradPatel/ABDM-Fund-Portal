@@ -1,8 +1,6 @@
 package nha_grant_access.example.nha_grant.service;
 
-import nha_grant_access.example.nha_grant.dto.AdminNhaPaymentDetails;
-import nha_grant_access.example.nha_grant.dto.ImplementationInsurancePayementDetails;
-import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
+import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
 import org.springframework.stereotype.Service;
 
@@ -299,7 +297,84 @@ details.setNhaShareOfPremiumPayable(result);
 
         return details;
     }
+public VVSImplementationNewBenef vvsimplementationNewBenef(VVSImplementationNewBenef details)
+{
+    BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
 
+    BigDecimal maxPerFamily = maxImplPerFamily.multiply(details.getNewBeneficiaryInstate());
+    details.setMaxGiaImplementationPerFamily(maxImplPerFamily);
+    details.setMaxGiaImplementationByNha(maxPerFamily);
+
+    BigDecimal nhaShareInPmjay = details.getTotalTreatmentCostPaidBySha().multiply(details.getNhaShareInGia());
+    details.setNhaShareInPmjayTreatmentCost(nhaShareInPmjay);
+
+    BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
+    BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+            .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+    details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
+
+
+    BigDecimal totalTillTranche = details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo());
+    details.setTotalAmountPayableTillThisTranche(totalTillTranche);
+
+    BigDecimal min = minOfFour(
+           details.getMaxGiaImplementationByNha(),
+           details.getNhaShareInPmjayTreatmentCost(),
+            nhaShareCorresponding,
+            totalTillTranche
+    );
+    details.setTotalAmountPayableByNhaAsOnDate(min);
+
+    BigDecimal finalAmount = min
+            .subtract(details.getEarlierAmountReleasedByNha())
+            .subtract(details.getUnspentAmountAsPerUc());
+
+    details.setAmountProposedToBeReleased(finalAmount);
+
+    return details;
+}
+public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrust details) {
+    BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
+
+     details.setMaxGiaImplementationByNhaPerFamily(maxImplPerFamily);
+
+
+    details.setMaxGiaImplementationByNha(details.getMaxGiaImplementationByNhaPerFamily().multiply(details.getTotalEligibleAshaAwwAwhFamilies()));
+
+
+    // NHA's share in PM-JAY treatment
+    BigDecimal nhaShareInPmjay = details.getTotalTreatmentCostPaidBySha().multiply(details.getNhaShareInGia());
+    details.setNhaShareInCostForAshaAwsAww(nhaShareInPmjay);
+
+    // NHA share corresponding to SHA release
+    BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
+    BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+            .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+    details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
+
+    // total amount payable till this tranche
+    BigDecimal totalTillTranche = details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo());
+    details.setTotalAmountPayableTillThisTranche(totalTillTranche);
+
+    // Find minimum of 4 BigDecimal values
+    BigDecimal min = minOfFour(
+            details.getMaxGiaImplementationByNha(),
+            details.getNhaShareInCostForAshaAwsAww(),
+            nhaShareCorresponding,
+            totalTillTranche
+    );
+    details.setTotalAmountPayableByNhaAsOnDate(min);
+
+    // final amount to be released
+    BigDecimal finalAmount = min
+            .subtract(details.getEarlierAmountReleasedByNha())
+            .subtract(details.getUnspentAmountAsPerUc());
+
+    details.setAmountProposedToBeReleased(finalAmount);
+
+    return details;
+
+}
     private BigDecimal minOfFour(BigDecimal a, BigDecimal b, BigDecimal c, BigDecimal d) {
         return a.min(b).min(c).min(d);
     }

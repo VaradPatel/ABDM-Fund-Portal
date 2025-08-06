@@ -20,6 +20,8 @@ public class GrantRequestInputDto {
     private ImplementationTrustNhaPayementDetails implementationTrustNhaPayementDetails;
     private AdminNhaPaymentDetails adminNhaPaymentDetails;
     private ImplementationInsurancePayementDetails implementationInsurancePayementDetails;
+    private  VVSImplementationNewBenef vvsImplementationNewBenef;
+    private AashaImplementationTrust aashaImplementationTrust;
 
     @NotNull(message = "stateId is mandatory")
     private Integer stateId;
@@ -76,6 +78,9 @@ public class GrantRequestInputDto {
 private List<StateShare> stateShare;
 @NotNull(message="totalStateShare cannot be null")
 private BigDecimal totalStateShare;
+
+private Integer schemeId;
+private String schemeName;
 
     private Boolean bankMappedWithPfms=false;
 
