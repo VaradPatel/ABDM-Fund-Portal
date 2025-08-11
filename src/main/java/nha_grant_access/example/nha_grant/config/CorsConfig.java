@@ -37,13 +37,13 @@ public class CorsConfig {
 //            }
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-//                        .allowedOrigins("*")
+                      .allowedOrigins("*")
 //                        .allowedOrigins(
 //                                "https://fundreleasesbx.nha.gov.in",
 //                                "http://fundreleasesbx.nha.gov.in",
 //                                "http://10.20.4.110:3000"
 //                        )
-                        .allowedOrigins(corsurl,"http://10.20.4.110:3000","http://loclahost:3000")
+                      //  .allowedOrigins(corsurl,"http://10.20.4.110:3000","http://loclahost:3000")
                         .allowedMethods("*")
                         //               .allowCredentials(true)
                         .exposedHeaders(ACCESS_TOKEN, REFRESH_TOKEN, CORRELATION_ID, CHECKSUM_HEADER);
