@@ -179,7 +179,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             return ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
-    @GetMapping("/getAshaTrust/{requestId}")
+    @GetMapping("/getAshaImpTrust/{requestId}")
     public ResponseEntity<?>getAshaTrustByRequestId(@PathVariable("requestId") String requestId)
     {
         try {
