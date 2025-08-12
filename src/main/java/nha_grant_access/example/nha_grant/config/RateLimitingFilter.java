@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private static final int MAX_REQUESTS = 5;
+    private static final int MAX_REQUESTS = 25;
     private static final long TIME_WINDOW_MS = 1000;
 
     // Holds request timestamps for each IP
