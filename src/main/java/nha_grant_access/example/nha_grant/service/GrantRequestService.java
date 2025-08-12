@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -224,6 +225,7 @@ public class GrantRequestService implements IGrantRequests {
                 .maxEligibleGrant(dto.getMaxEligibleGrant())
                 .nhaShare(dto.getNhaShare())
                 .tranche(dto.getTranche())
+
                 .totalBeneficiaryCount(dto.getTotalBeneficiaryCount())
                 .releaseTillDate(dto.getReleaseTillDate())
                 .eSignStatusStateCeo(dto.getESignStatusStateCeo())
@@ -235,6 +237,8 @@ public class GrantRequestService implements IGrantRequests {
                 .totalStateShare(dto.getTotalStateShare())
                 .schemeName(dto.getSchemeName())
                 .schemeId(dto.getSchemeId())
+                .totalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou())
+                .totalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies())
                 .build();
     }
 
@@ -273,6 +277,9 @@ public class GrantRequestService implements IGrantRequests {
         }
         existingRequest.setTotalStateShare(dto.getTotalStateShare());
         existingRequest.setStatusDescription(getDefaultStatus(2));
+
+        existingRequest.setTotalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou());
+        existingRequest.setTotalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies());
         return existingRequest;
     }
 

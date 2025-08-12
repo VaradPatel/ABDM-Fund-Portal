@@ -155,6 +155,8 @@ private BigDecimal amountSc;
     @Column(name="scheme_name")
     private String schemeName;
 
+    private BigDecimal totalFamiliesCoveredInStateAsPerMou;
+    private BigDecimal totalEligibleAshaAwwAwhFamilies;
 
 
 

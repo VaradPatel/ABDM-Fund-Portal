@@ -51,11 +51,11 @@ public class  GrantRequestInputDto {
     @NotNull(message = "tranche is mandatory")
     private List<Integer> tranche;
 
-    @NotNull(message = "pmjayBeneficiaryCount is mandatory")
-    private Long pmjayBeneficiaryCount;
 
-    @NotNull(message = "totalBeneficiaryCount is mandatory")
-    private Long totalBeneficiaryCount;
+    private Long pmjayBeneficiaryCount= 0L;
+
+
+    private Long totalBeneficiaryCount= 0L;
 
 
     private BigDecimal premium;
@@ -96,6 +96,9 @@ private String schemeName;
     private Integer queryId;
     @JsonProperty("requestId")
     private String requestId;
+
+    private BigDecimal totalFamiliesCoveredInStateAsPerMou;
+    private BigDecimal totalEligibleAshaAwwAwhFamilies;
 
 
 }
