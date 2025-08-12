@@ -254,9 +254,11 @@ Integer totalShaPendingQueriesByState(Integer stateId);
     FROM grant_requests
     WHERE state_id IN (:stateIds)
       AND (:proposalType = 0 OR proposal_type_id = :proposalType)
+      and scheme_id= :schemaId
     GROUP BY policy_start_date, policy_end_date
     """, nativeQuery = true)
-    List<Object[]> findDistinctPolicyPeriodsByStateId(List<Integer> stateIds, Integer proposalType);
+    List<Object[]> findDistinctPolicyPeriodsByStateId(List<Integer> stateIds, Integer proposalType, Integer schemaId
+    );
 
     @Query(value = """
     SELECT 
@@ -266,7 +268,7 @@ Integer totalShaPendingQueriesByState(Integer stateId);
     FROM grant_requests
     GROUP BY policy_start_date, policy_end_date
     """, nativeQuery = true)
-    List<Object[]> findAllDistinctPolicyPeriods();
+    List<Object[]> findAllDistinctPolicyPeriods(Integer schemaId );
 
 
     @Query(value = "SELECT gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +

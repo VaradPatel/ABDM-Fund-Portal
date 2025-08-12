@@ -69,7 +69,7 @@ public class stateController {
 
     }
     @GetMapping(path="/policy-period", produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?>getPolicyPeriodByStateId(@RequestParam Integer stateId, @RequestParam Integer proposalType)
+    public ResponseEntity<?>getPolicyPeriodByStateId(@RequestParam Integer stateId, @RequestParam Integer proposalType, @RequestParam Integer schemaType)
     {
         try {
             List<Integer>stateIds;
@@ -82,15 +82,15 @@ public class stateController {
 
                 if(user.getRoleId()>3)
                 {
-                    results=iGrantRequestsRepo.findAllDistinctPolicyPeriods();
+                    results=iGrantRequestsRepo.findAllDistinctPolicyPeriods(schemaType);
                 }
                 else {
                     stateIds = userRepo.findStateIdByRole(user.getRoleId(), user.getId());
-                    results=iGrantRequestsRepo.findDistinctPolicyPeriodsByStateId(stateIds,proposalType);
+                    results=iGrantRequestsRepo.findDistinctPolicyPeriodsByStateId(stateIds,proposalType,schemaType);
                 }
             }
             else {
-                results = iGrantRequestsRepo.findDistinctPolicyPeriodsByStateId(Collections.singletonList(stateId),proposalType);
+                results = iGrantRequestsRepo.findDistinctPolicyPeriodsByStateId(Collections.singletonList(stateId),proposalType,schemaType);
             }
             List<PolicyPeriodDto> result = results.stream()
                     .map(obj -> new PolicyPeriodDto((Timestamp) obj[0], (Timestamp) obj[1],(BigDecimal) obj[2]))
