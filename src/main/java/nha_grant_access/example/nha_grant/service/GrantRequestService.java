@@ -125,7 +125,8 @@ public class GrantRequestService implements IGrantRequests {
                         .statusId(gr.getStatusDescription().getId())
                         .sanction_letter(gr.getSanction_letter())
                         .amountGc(gr.getAmountGc()).amountSt(gr.getAmountSt()).amountSc(gr.getAmountSc())
-
+                        .schemeId(gr.getSchemeId())
+                        .schemeName(gr.getSchemeName())
 
 
 
@@ -156,7 +157,8 @@ public class GrantRequestService implements IGrantRequests {
                         .states(gr.getState())
                         .sanction_letter(gr.getSanction_letter())
                         .amountGc(gr.getAmountGc()).amountSc(gr.getAmountSc()).amountSt(gr.getAmountSt())
-
+                        .schemeId(gr.getSchemeId())
+                        .schemeName(gr.getSchemeName())
 
                         .build())
                 .collect(Collectors.toList());

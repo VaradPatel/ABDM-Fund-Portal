@@ -42,4 +42,6 @@ public class AllGrantRequest {
     private BigDecimal amountSc;
     private BigDecimal amountSt;
     private BigDecimal amountGc;
+    private Integer schemeId;
+    private String schemeName;
 }
