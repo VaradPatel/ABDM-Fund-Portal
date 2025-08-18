@@ -302,8 +302,13 @@ public VVSImplementationNewBenef vvsimplementationNewBenef(VVSImplementationNewB
     BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
 
     BigDecimal maxPerFamily = maxImplPerFamily.multiply(details.getNewBeneficiaryInstate());
-    details.setMaxGiaImplementationPerFamily(maxImplPerFamily);
-    details.setMaxGiaImplementationByNha(maxPerFamily);
+    BigDecimal maxPerFamilyOld=BigDecimal.valueOf(75.70).multiply(details.getNhaShareInGia());
+    BigDecimal maxImpPerFamilyOld=maxPerFamilyOld.multiply(details.getOldBeneficiaryInState());
+
+details.setMaxGiaImplementationPerFamilyOld(maxPerFamilyOld);
+
+    details.setMaxGiaImplementationPerFamilyNew(maxImplPerFamily);
+    details.setMaxGiaImplementationByNha(maxPerFamily.add(maxImpPerFamilyOld ));
 
     BigDecimal nhaShareInPmjay = details.getTotalTreatmentCostPaidBySha().multiply(details.getNhaShareInGia());
     details.setNhaShareInPmjayTreatmentCost(nhaShareInPmjay);

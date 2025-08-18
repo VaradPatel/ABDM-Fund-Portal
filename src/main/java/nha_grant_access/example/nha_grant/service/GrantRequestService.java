@@ -211,7 +211,7 @@ public class GrantRequestService implements IGrantRequests {
     }
 
     private GrantRequests mapToEntity(GrantRequestInputDto dto) {
-        return GrantRequests.builder()
+        GrantRequests grantRequests=GrantRequests.builder()
                 .requestId(generateUniqueRequestId())
                 .state(getState(dto.getStateId()))
                 .user(getUser(dto.getUserId()))
@@ -221,14 +221,14 @@ public class GrantRequestService implements IGrantRequests {
                 .policyStartDate(dto.getPolicyStartDate())
                 .policyEndDate(dto.getPolicyEndDate())
                 .financialYear(dto.getFinancialYear())
-                .pmjayBeneficiaryCount(dto.getPmjayBeneficiaryCount())
+
                 .premium(dto.getPremium())
                 .requestedAmount(dto.getRequestedAmount())
                 .maxEligibleGrant(dto.getMaxEligibleGrant())
                 .nhaShare(dto.getNhaShare())
                 .tranche(dto.getTranche())
 
-                .totalBeneficiaryCount(dto.getTotalBeneficiaryCount())
+
                 .releaseTillDate(dto.getReleaseTillDate())
                 .eSignStatusStateCeo(dto.getESignStatusStateCeo())
                 .stateShare(dto.getStateShare())
@@ -239,9 +239,27 @@ public class GrantRequestService implements IGrantRequests {
                 .totalStateShare(dto.getTotalStateShare())
                 .schemeName(dto.getSchemeName())
                 .schemeId(dto.getSchemeId())
-                .totalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou())
-                .totalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies())
+
+
                 .build();
+        if(dto.getNewBeneficiaryInstate()!=null)
+            grantRequests.setNewBeneficiaryInstate(dto.getNewBeneficiaryInstate());
+        if(dto.getOldBeneficiaryInstate()!=null)
+            grantRequests.setOldBeneficiaryInstate(dto.getOldBeneficiaryInstate());
+        if(dto.getTotalFamiliesCoveredInStateAsPerMou()!=null)
+            grantRequests.setTotalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou());
+        if(dto.getTotalEligibleAshaAwwAwhFamilies()!=null)
+        {
+            grantRequests.setTotalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies());
+        }
+        if(dto.getTotalBeneficiaryCount()!=null)
+            grantRequests.setTotalBeneficiaryCount(dto.getTotalBeneficiaryCount());
+        if(dto.getPmjayBeneficiaryCount()!=null)
+        {
+            grantRequests.setPmjayBeneficiaryCount(dto.getPmjayBeneficiaryCount());
+        }
+        return grantRequests;
+
     }
 
     private GrantRequests updateExistingGrantRequest(GrantRequests existingRequest, GrantRequestInputDto dto) {
@@ -282,6 +300,10 @@ public class GrantRequestService implements IGrantRequests {
 
         existingRequest.setTotalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou());
         existingRequest.setTotalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies());
+        if(dto.getNewBeneficiaryInstate()!=null)
+            existingRequest.setNewBeneficiaryInstate(dto.getNewBeneficiaryInstate());
+        if(dto.getOldBeneficiaryInstate()!=null)
+        existingRequest.setOldBeneficiaryInstate(dto.getOldBeneficiaryInstate());
         return existingRequest;
     }
 
@@ -540,7 +562,9 @@ public void saveToCalcFlow(GrantRequestInputDto dto1,GrantRequests savedRequest)
                 .nhaShareInGia(vvsImplementationNewBenef.getNhaShareInGia())
                 .schemeName(vvsImplementationNewBenef.getSchemeName())
                 .newBeneficiaryInstate(vvsImplementationNewBenef.getNewBeneficiaryInstate())
-                .maxGiaImplementationPerFamily(vvsImplementationNewBenef.getMaxGiaImplementationPerFamily())
+                .oldBeneficiaryInstate(vvsImplementationNewBenef.getOldBeneficiaryInState())
+                .maxGiaImplementationPerFamilyNew(vvsImplementationNewBenef.getMaxGiaImplementationPerFamilyNew())
+                .maxGiaImplementationPerFamilyOld(vvsImplementationNewBenef.getMaxGiaImplementationPerFamilyOld())
                 .maxGiaImplementationByNha(vvsImplementationNewBenef.getMaxGiaImplementationByNha())
                 .policyPeriod(vvsImplementationNewBenef.getPolicyPeriod())
                 .totalTreatmentCostPaidBySha(vvsImplementationNewBenef.getTotalTreatmentCostPaidBySha())
@@ -558,7 +582,7 @@ public void saveToCalcFlow(GrantRequestInputDto dto1,GrantRequests savedRequest)
         ivvsImpleNew.save(vvsImplementNew);
 
     }
-    if(dto1.getAashaImplementationTrust()!=null)
+    else if(dto1.getAashaImplementationTrust()!=null)
     {
         AashaImplementationTrust details=dto1.getAashaImplementationTrust();
         AashaImplTrust entity = AashaImplTrust.builder()

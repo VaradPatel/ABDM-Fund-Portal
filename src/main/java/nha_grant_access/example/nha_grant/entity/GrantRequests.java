@@ -158,6 +158,9 @@ private BigDecimal amountSc;
     private BigDecimal totalFamiliesCoveredInStateAsPerMou;
     private BigDecimal totalEligibleAshaAwwAwhFamilies;
 
+    private BigDecimal newBeneficiaryInstate;
+    private BigDecimal oldBeneficiaryInstate;
+
 
 
 

@@ -16,7 +16,9 @@ public class VVSImplementationNewBenef {
     private BigDecimal nhaShareInGia;
     private String schemeName;
    private BigDecimal newBeneficiaryInstate;
-    private BigDecimal maxGiaImplementationPerFamily;
+   private BigDecimal oldBeneficiaryInState;
+    private BigDecimal maxGiaImplementationPerFamilyNew;
+    private BigDecimal maxGiaImplementationPerFamilyOld;
 
     private BigDecimal maxGiaImplementationByNha;
 

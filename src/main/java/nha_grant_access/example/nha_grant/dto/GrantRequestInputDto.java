@@ -100,5 +100,8 @@ private String schemeName;
     private BigDecimal totalFamiliesCoveredInStateAsPerMou;
     private BigDecimal totalEligibleAshaAwwAwhFamilies;
 
+    private BigDecimal newBeneficiaryInstate;
+    private BigDecimal oldBeneficiaryInstate;
+
 
 }
