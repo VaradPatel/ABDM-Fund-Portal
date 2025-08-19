@@ -101,7 +101,7 @@ private String schemeName;
     private BigDecimal totalEligibleAshaAwwAwhFamilies;
 
     private BigDecimal newBeneficiaryInstate;
-    private BigDecimal oldBeneficiaryInstate;
+    private BigDecimal oldBeneficiaryInState;
 
 
 }

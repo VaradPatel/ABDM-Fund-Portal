@@ -6,10 +6,7 @@ import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.Error;
 import nha_grant_access.example.nha_grant.dto.ImplementationTrustNhaPayementDetails;
 import nha_grant_access.example.nha_grant.entity.User;
-import nha_grant_access.example.nha_grant.repository.IAdminCalcRepo;
-import nha_grant_access.example.nha_grant.repository.IashaImplTrust;
-import nha_grant_access.example.nha_grant.repository.ImplementInsuCalcRepo;
-import nha_grant_access.example.nha_grant.repository.ImplementTrustCalcRepo;
+import nha_grant_access.example.nha_grant.repository.*;
 import nha_grant_access.example.nha_grant.service.CalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +30,8 @@ public class CalculationController {
     ImplementInsuCalcRepo implementInsuCalcRepo;
     @Autowired
     IashaImplTrust iashaImplTrust;
+    @Autowired
+    IvvsImpleNew ivvsImpleNew;
     @PostMapping("/implementation/trust")
     public ResponseEntity<?>ImplementationTrust(@Valid @RequestBody ImplementationTrustNhaPayementDetails implementationNhaPayementDetails)
     {
@@ -186,6 +185,23 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
             return ResponseEntity.ok().body(iashaImplTrust.findByRequestId(requestId));
+        }
+        catch (Exception e)
+        {
+            {
+                log.error(e.toString());
+                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+            }
+        }
+
+    }
+    @GetMapping("/getVVSImpTrust/{requestId}")
+    public ResponseEntity<?>getVVSTrustByRequestId(@PathVariable("requestId") String requestId)
+    {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            return ResponseEntity.ok().body(ivvsImpleNew.findByRequestId(requestId));
         }
         catch (Exception e)
         {
