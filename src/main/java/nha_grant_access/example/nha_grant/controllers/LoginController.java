@@ -131,7 +131,7 @@ public class LoginController {
             return ResponseEntity.ok().body(new SuccessResponse("Successfully Registered"));
         } catch (GrantUserAlreadyExistsException e) {
             log.error("User registration error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Error("User already exists", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Error(e.getMessage(), e.getMessage()));
         } catch (Exception e) {
             log.error("error while registering " + e.toString());
             return ResponseEntity.internalServerError().body(new Error("Unable to process request  ", e.toString()));
