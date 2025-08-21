@@ -45,10 +45,15 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(getSigningKey()) // Use getSigningKey() here
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(getSigningKey())
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // Rethrow to be handled by GlobalExceptionHandler
+            throw e;
+        }
     }
 
     private Boolean isTokenExpired(String token) {
@@ -66,7 +71,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 30 mins expiry
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2)) // 30 mins expiry
                 .signWith(SignatureAlgorithm.HS256, getSigningKey()) // Use getSigningKey() here
                 .compact();
     }

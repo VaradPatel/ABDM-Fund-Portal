@@ -1,5 +1,6 @@
 package nha_grant_access.example.nha_grant.Exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import nha_grant_access.example.nha_grant.dto.Error;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -50,5 +51,10 @@ public class GlobalExceptionHandler {
 //        Error errorResponse = new Error("Internal Server Error", ex.getMessage());
 //        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 //    }
+@ExceptionHandler(ExpiredJwtException.class)
+public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("Token expired. Please log in again.");
+}
 
 }

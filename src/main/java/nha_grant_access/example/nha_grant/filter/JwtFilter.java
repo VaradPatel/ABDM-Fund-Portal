@@ -70,6 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 System.out.println("User: " + username + ", roles: " + roles + ", Mobile: " + mobile);
             }
         }
+
         chain.doFilter(request, response);
     }
 }
