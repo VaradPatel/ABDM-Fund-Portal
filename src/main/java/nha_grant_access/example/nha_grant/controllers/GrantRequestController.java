@@ -106,38 +106,28 @@ public class GrantRequestController {
 //            User user = userRepo.findByEmail(email)
 //                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 //
-            if(grantRequestInputDTO.getAashaImplementationTrust()!=null)
-            {
-                if(!grantRequestInputDTO.getTotalStateShare().equals(grantRequestInputDTO.getAashaImplementationTrust().getUpfrontReleaseByShaForPmjay()))
-                {
-                    ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state","state share breakdown is not equal to upfront release by state"));
+            BigDecimal totalStateShare = grantRequestInputDTO.getTotalStateShare();
 
-                }
+            if (!isEqual(totalStateShare, grantRequestInputDTO.getAashaImplementationTrust() != null ? grantRequestInputDTO.getAashaImplementationTrust().getUpfrontReleaseByShaForPmjay() : null)) {
+                return ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
             }
-            if(grantRequestInputDTO.getVvsImplementationNewBenef()!=null) {
-                if (!grantRequestInputDTO.getTotalStateShare().equals(grantRequestInputDTO.getVvsImplementationNewBenef().getUpfrontReleaseByShaForPmjay())) {
-                    ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
 
-                }
+            if (!isEqual(totalStateShare, grantRequestInputDTO.getVvsImplementationNewBenef() != null ? grantRequestInputDTO.getVvsImplementationNewBenef().getUpfrontReleaseByShaForPmjay() : null)) {
+                return ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
             }
-            if(grantRequestInputDTO.getImplementationInsurancePayementDetails()!=null) {
-                if (!grantRequestInputDTO.getTotalStateShare().equals(grantRequestInputDTO.getImplementationInsurancePayementDetails().getUpfrontReleaseByShaForPmjay())) {
-                    ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
 
-                }
+            if (!isEqual(totalStateShare, grantRequestInputDTO.getImplementationInsurancePayementDetails() != null ? grantRequestInputDTO.getImplementationInsurancePayementDetails().getUpfrontReleaseByShaForPmjay() : null)) {
+                return ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
             }
-            if(grantRequestInputDTO.getImplementationTrustNhaPayementDetails()!=null) {
-                if (!grantRequestInputDTO.getTotalStateShare().equals(grantRequestInputDTO.getImplementationTrustNhaPayementDetails().getUpfrontReleaseByShaForPmjay())) {
-                    ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
 
-                }
+            if (!isEqual(totalStateShare, grantRequestInputDTO.getImplementationTrustNhaPayementDetails() != null ? grantRequestInputDTO.getImplementationTrustNhaPayementDetails().getUpfrontReleaseByShaForPmjay() : null)) {
+                return ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
             }
-            if(grantRequestInputDTO.getAdminNhaPaymentDetails()!=null) {
-                if (!grantRequestInputDTO.getTotalStateShare().equals(grantRequestInputDTO.getAdminNhaPaymentDetails().getUpfrontReleaseByShaForPmjay())) {
-                    ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
 
-                }
+            if (!isEqual(totalStateShare, grantRequestInputDTO.getAdminNhaPaymentDetails() != null ? grantRequestInputDTO.getAdminNhaPaymentDetails().getUpfrontReleaseByShaForPmjay() : null)) {
+                return ResponseEntity.badRequest().body(new Error("state share breakdown is not equal to upfront release by state", "state share breakdown is not equal to upfront release by state"));
             }
+
             GrantRequestInputDto savedGrantRequest = iGrantRequests.saveGrantRequest(grantRequestInputDTO, false);
 
             //sendnotification
@@ -430,5 +420,8 @@ else
 
     }
 }
+    private boolean isEqual(BigDecimal value1, BigDecimal value2) {
+        return value2 == null || value1.compareTo(value2) == 0;
+    }
 
 }
