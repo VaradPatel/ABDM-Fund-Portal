@@ -297,8 +297,10 @@ public class GrantRequestService implements IGrantRequests {
         }
         existingRequest.setTotalStateShare(dto.getTotalStateShare());
         existingRequest.setStatusDescription(getDefaultStatus(2));
-
+        if(dto.getTotalFamiliesCoveredInStateAsPerMou()!=null)
         existingRequest.setTotalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou());
+        if(dto.getTotalEligibleAshaAwwAwhFamilies()!=null)
+
         existingRequest.setTotalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies());
         if(dto.getNewBeneficiaryInstate()!=null)
             existingRequest.setNewBeneficiaryInstate(dto.getNewBeneficiaryInstate());
