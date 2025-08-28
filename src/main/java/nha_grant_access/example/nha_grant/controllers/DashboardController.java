@@ -465,7 +465,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                     document.add(title);
 
                     // Define table with number of columns (adjust as per fields)
-                    PdfPTable table = new PdfPTable(13);
+                    PdfPTable table = new PdfPTable(15);
                     table.setWidthPercentage(100);
                     table.setWidths(new float[]{4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f,4f,4f}); // column widths
 
@@ -755,7 +755,7 @@ try
                     document.add(title);
 
                     // Define table with number of columns (adjust as per fields)
-                    PdfPTable table = new PdfPTable(13);
+                    PdfPTable table = new PdfPTable(15);
                     table.setWidthPercentage(100);
                     table.setWidths(new float[]{4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f,4f,4f});
                     // Header font
