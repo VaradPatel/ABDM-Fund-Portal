@@ -243,7 +243,7 @@ public class GrantRequestController {
                     // Define table with number of columns (adjust as per fields)
                     PdfPTable table = new PdfPTable(13);
                     table.setWidthPercentage(100);
-                    table.setWidths(new float[]{5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f}); // column widths
+                    table.setWidths(new float[]{4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f,4f,4f}); // column widths
 
                     // Header font
                     Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
