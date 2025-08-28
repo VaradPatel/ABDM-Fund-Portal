@@ -388,7 +388,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
 
     @GetMapping("/statecord-all/{stateId}")
     @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
-    public ResponseEntity<?> stateCordAllProposal(@PathVariable("stateId") Integer stateId) throws AccessDeniedException {
+    public ResponseEntity<?> stateCordAllProposal(@PathVariable("stateId") Integer stateId, @RequestParam(value = "format", defaultValue = "json") String format) throws AccessDeniedException {
         try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -406,8 +406,133 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                 allGrantRequests = iGrantRequests.getAllGrantRequestByState(StateIds, null);
 
             }
+            if (format.equals("csv")) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            return ResponseEntity.ok().body(allGrantRequests);
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8))) {
+                    // Write CSV header
+                    writer.write("Request ID,Requested Amount,Release Amount,Date Requested,Released Date,Request Status,Proposal Type,Implementation Type,Tranche,Policy Start Date,Policy End Date,Financial Year,Sanction Date, Scheme Name, State Name");
+                    writer.newLine();
+
+                    // Write data rows
+                    for (AllGrantRequest row : allGrantRequests) {
+                        writer.write(String.join(",",
+                                sanitizeValue(row.getRequestId()),
+                                sanitizeValue(row.getRequestedAmount()),
+                                sanitizeValue(row.getReleaseAmount()),
+                                sanitizeValue(row.getDateRequested()),
+                                sanitizeValue(row.getReleasedDate()),
+                                sanitizeValue(row.getRequestStatus()),
+                                sanitizeValue(row.getProposalType() != null ? row.getProposalType().getName() : null),
+                                sanitizeValue(row.getImplementationTypes() != null ? row.getImplementationTypes().getName() : null),
+                                sanitizeValue(row.getTranche() != null ? row.getTranche().toString() : null),
+                                sanitizeValue(row.getPolicyStartDate()),
+                                sanitizeValue(row.getPolicyEndDate()),
+                                sanitizeValue(row.getFinancialYear()),
+                                sanitizeValue(row.getSanctionDate()),
+                                sanitizeValue(row.getSchemeName()),
+                                sanitizeValue(row.getStates().getName())
+                        ));
+                        writer.newLine();
+                    }
+
+                    writer.flush();
+                } catch (IOException e) {
+                    throw new RuntimeException("Error generating CSV", e);
+                }
+
+                // Convert to InputStream for ResponseEntity
+                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=AllGrantRequests.csv");
+                headers.setContentType(MediaType.TEXT_PLAIN);
+
+                return new ResponseEntity<>(new InputStreamResource(bais), headers, HttpStatus.OK);
+            } else if (format.equals("pdf")) {
+                try {
+                    com.lowagie.text.Document document = new Document(PageSize.A4.rotate()); // rotate for wide table
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    PdfWriter.getInstance(document, baos);
+                    document.open();
+
+                    // Title
+                    Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+                    Paragraph title = new Paragraph("All Grant Requests Report", titleFont);
+                    title.setAlignment(Element.ALIGN_CENTER);
+                    title.setSpacingAfter(20f);
+                    document.add(title);
+
+                    // Define table with number of columns (adjust as per fields)
+                    PdfPTable table = new PdfPTable(13);
+                    table.setWidthPercentage(100);
+                    table.setWidths(new float[]{5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f, 5f}); // column widths
+
+                    // Header font
+                    Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+
+                    // Add table headers
+                    String[] headers = {
+                            "Request ID", "Requested Amount", "Release Amount", "Date Requested", "Released Date",
+                            "Request Status", "Proposal Type", "Implementation Types", "Tranche", "Policy Start Date",
+                            "Policy End Date", "Financial Year", "Sanction Date" ,"Scheme Name", "State Name"
+                    };
+
+                    for (String header : headers) {
+                        PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                        cell.setBackgroundColor(new Color(220, 220, 220));
+                        table.addCell(cell);
+                    }
+
+                    // Content font
+                    Font contentFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+
+                    // Add rows for each AllGrantRequest
+                    for (AllGrantRequest row : allGrantRequests) {
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getRequestId()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getRequestedAmount()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getReleaseAmount()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getDateRequested()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getReleasedDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getRequestStatus()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getProposalType().getName()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getImplementationTypes().getName()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getTranche()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getPolicyStartDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getPolicyEndDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getFinancialYear()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getSanctionDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getSchemeName()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getStates().getName()), contentFont)));
+                    }
+
+                    // Add table to document
+                    document.add(table);
+
+                    document.close();
+
+                    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+
+                    HttpHeaders headersHttp = new HttpHeaders();
+                    headersHttp.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=AllGrantRequests.pdf");
+                    headersHttp.setContentType(MediaType.APPLICATION_PDF);
+
+                    return ResponseEntity.ok()
+                            .headers(headersHttp)
+                            .body(new InputStreamResource(bais));
+
+                } catch (Exception e) {
+                    throw new RuntimeException("Error generating PDF", e);
+                }
+            }
+            else {
+                return ResponseEntity.ok().body(allGrantRequests);
+            }
+
+
+
 
         } catch (Exception e) {
             log.error(e.toString());
@@ -576,7 +701,7 @@ try
 
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8))) {
                     // Write CSV header
-                    writer.write("Request ID,Requested Amount,Release Amount,Date Requested,Released Date,Request Status,Proposal Type,Implementation Type,Tranche,Policy Start Date,Policy End Date,Financial Year,Sanction Date");
+                    writer.write("Request ID,Requested Amount,Release Amount,Date Requested,Released Date,Request Status,Proposal Type,Implementation Type,Tranche,Policy Start Date,Policy End Date,Financial Year,Sanction Date, Scheme Name, State Name");
                     writer.newLine();
 
                     // Write data rows
@@ -594,7 +719,9 @@ try
                                 sanitizeValue(row.getPolicyStartDate()),
                                 sanitizeValue(row.getPolicyEndDate()),
                                 sanitizeValue(row.getFinancialYear()),
-                                sanitizeValue(row.getSanctionDate())
+                                sanitizeValue(row.getSanctionDate()),
+                                sanitizeValue(row.getSchemeName()),
+                                sanitizeValue(row.getStates().getName())
                         ));
                         writer.newLine();
                     }
@@ -639,7 +766,7 @@ try
                     String[] headers = {
                             "Request ID", "Requested Amount", "Release Amount", "Date Requested", "Released Date",
                             "Request Status", "Proposal Type", "Implementation Types", "Tranche", "Policy Start Date",
-                            "Policy End Date", "Financial Year", "Sanction Date"
+                            "Policy End Date", "Financial Year", "Sanction Date" ,"Scheme Name", "State Name"
                     };
 
                     for (String header : headers) {
@@ -667,6 +794,8 @@ try
                         table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getPolicyEndDate()), contentFont)));
                         table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getFinancialYear()), contentFont)));
                         table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getSanctionDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getSchemeName()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getStates().getName()), contentFont)));
                     }
 
                     // Add table to document

@@ -186,7 +186,7 @@ public class GrantRequestController {
 
                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8))) {
                     // Write CSV header
-                    writer.write("Request ID,Requested Amount,Release Amount,Date Requested,Released Date,Request Status,Proposal Type,Implementation Type,Tranche,Policy Start Date,Policy End Date,Financial Year,Sanction Date");
+                    writer.write("Request ID,Requested Amount,Release Amount,Date Requested,Released Date,Request Status,Proposal Type,Implementation Type,Tranche,Policy Start Date,Policy End Date,Financial Year,Sanction Date, Scheme Name, State Name");
                     writer.newLine();
 
                     // Write data rows
@@ -204,7 +204,10 @@ public class GrantRequestController {
                                 sanitizeValue(row.getPolicyStartDate()),
                                 sanitizeValue(row.getPolicyEndDate()),
                                 sanitizeValue(row.getFinancialYear()),
-                                sanitizeValue(row.getSanctionDate())
+                                sanitizeValue(row.getSanctionDate()),
+                                sanitizeValue(row.getSchemeName()),
+                                sanitizeValue(row.getStates().getName())
+
                         ));
                         writer.newLine();
                     }
@@ -249,7 +252,7 @@ public class GrantRequestController {
                     String[] headers = {
                             "Request ID", "Requested Amount", "Release Amount", "Date Requested", "Released Date",
                             "Request Status", "Proposal Type", "Implementation Types", "Tranche", "Policy Start Date",
-                            "Policy End Date", "Financial Year", "Sanction Date"
+                            "Policy End Date", "Financial Year", "Sanction Date", "Scheme Name" , "State Name"
                     };
 
                     for (String header : headers) {
@@ -277,6 +280,8 @@ public class GrantRequestController {
                         table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getPolicyEndDate()), contentFont)));
                         table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getFinancialYear()), contentFont)));
                         table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getSanctionDate()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getSchemeName()), contentFont)));
+                        table.addCell(new PdfPCell(new Phrase(sanitizeValue(row.getStates().getName()), contentFont)));
                     }
 
                     // Add table to document
