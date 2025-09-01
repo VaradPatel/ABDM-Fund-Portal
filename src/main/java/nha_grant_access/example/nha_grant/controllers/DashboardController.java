@@ -406,6 +406,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                 allGrantRequests = iGrantRequests.getAllGrantRequestByState(StateIds, null);
 
             }
+
             if (format.equals("csv")) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -467,8 +468,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
                     // Define table with number of columns (adjust as per fields)
                     PdfPTable table = new PdfPTable(15);
                     table.setWidthPercentage(100);
-                    table.setWidths(new float[]{4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f,4f,4f}); // column widths
-
+                    table.setWidths(new float[]{4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f, 4f,4f,4f});
                     // Header font
                     Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
 
@@ -533,12 +533,12 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
 
 
 
-
-        } catch (Exception e) {
-            log.error(e.toString());
-            return ResponseEntity.internalServerError().body(new Error("Error occured while fetching  details", e.toString()));
         }
+        catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Error occured while loading data ", e.toString()));
 
+        }
     }
 
     @PostMapping("/stateceo-approve")
