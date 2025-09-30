@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface IAashaHybrid extends JpaRepository<AashaHybrid, Integer> {
+
     @Query(value ="Select * from asha_hybrid_calc  where request_id= :requestId", nativeQuery = true)
     Optional<AashaHybrid> findByRequestId(String requestId);
 }

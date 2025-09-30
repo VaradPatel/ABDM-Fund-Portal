@@ -254,7 +254,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
         }
 
     }
-    @GetMapping("/getAashaHybrid/{requestId}")
+    @GetMapping("/getAashaImpHybrid/{requestId}")
     public ResponseEntity<?>getAashaHybrid(@PathVariable("requestId") String requestId)
     {
         try {
