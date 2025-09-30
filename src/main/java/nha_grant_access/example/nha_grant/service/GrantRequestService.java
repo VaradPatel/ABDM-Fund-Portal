@@ -4,6 +4,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.*;
+import nha_grant_access.example.nha_grant.dto.AashaAdmin;
+import nha_grant_access.example.nha_grant.dto.AashaHybrid;
 import nha_grant_access.example.nha_grant.entity.*;
 import nha_grant_access.example.nha_grant.entity.Roles;
 import nha_grant_access.example.nha_grant.repository.*;
@@ -35,6 +37,8 @@ public class GrantRequestService implements IGrantRequests {
     @Autowired
     private IRolesRepository roles;
     @Autowired
+    private IAashaAdmin iAashaAdmin;
+    @Autowired
     private IDashboardRepo iDashboardRepo;
     @Autowired
     private UserRepo userRepo;
@@ -58,6 +62,8 @@ public class GrantRequestService implements IGrantRequests {
     private IvvsImpleNew ivvsImpleNew;
     @Autowired
     private IashaImplTrust iashaImplTrust;
+    @Autowired
+    private IAashaHybrid aashaHybridRepo;
 
 
     @Override
@@ -617,6 +623,75 @@ public void saveToCalcFlow(GrantRequestInputDto dto1,GrantRequests savedRequest)
 
         iashaImplTrust.save(entity);
     }
+    else if (dto1.getAashaHybrid() != null) {
+        AashaHybrid dto = dto1.getAashaHybrid();
+
+        nha_grant_access.example.nha_grant.entity.AashaHybrid aashaHybridEntity = nha_grant_access.example.nha_grant.entity.AashaHybrid.builder()
+                .stateName(dto.getStateName())
+                .modeOfImplementation(dto.getModeOfImplementation())
+                .dateOfImplementation(dto.getDateOfImplementation())
+                .benefitCover(dto.getBenefitCover())
+                .nhaShareInGia(dto.getNhaShareInGia())
+                .schemeName(dto.getSchemeName())
+                .totalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou())
+                .totalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies())
+                .maxGiaImplementationByNhaPerFamily(dto.getMaxGiaImplementationByNhaPerFamily())
+                .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                .policyPeriod(dto.getPolicyPeriod())
+                .nameOfInsuranceCompany(dto.getNameOfInsuranceCompany())
+                .annualInsurancePremiumFamily(dto.getAnnualInsurancePremiumFamily())
+                .nhaShareOfPremiumPayable(dto.getNhaShareOfPremiumPayable())
+                .shaShareOfPremiumPayable(dto.getShaShareOfPremiumPayable())
+                .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(dto.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                .requestId(savedRequest.getRequestId())
+                .roleId(1)
+                .build();
+
+        aashaHybridRepo.save(aashaHybridEntity);
+    }
+    else if (dto1.getAashaAdmin() != null) {
+        AashaAdmin dto = dto1.getAashaAdmin();
+
+        nha_grant_access.example.nha_grant.entity.AashaAdmin entity = nha_grant_access.example.nha_grant.entity.AashaAdmin.builder()
+                .stateName(dto.getStateName())
+                .modeOfImplementation(dto.getModeOfImplementation())
+                .dateOfImplementation(dto.getDateOfImplementation())
+                .benefitCover(dto.getBenefitCover())
+                .nhaShareInGia(dto.getNhaShareInGia())
+                .schemeName(dto.getSchemeName())
+                .totalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou())
+                .totalEligibleAshaAwwAwhFamilies(dto.getTotalEligibleAshaAwwAwhFamilies())
+                .maxGiaImplementationByNhaPerFamily(dto.getMaxGiaImplementationByNhaPerFamily())
+                .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                .maxGiaAdminByNhaPerFamily(dto.getMaxGiaAdminByNhaPerFamily())
+                .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                .policyPeriod(dto.getPolicyPeriod())
+                .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
+                .costOfAdministrativeExpenseSha(dto.getCostOfAdministrativeExpenseSha())
+                .costOfAdministrativeExpenseNha(dto.getCostOfAdministrativeExpenseNha())
+                .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(dto.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                .requestId(savedRequest.getRequestId())
+                .roleId(1)
+                .build();
+
+      iAashaAdmin.save(entity);
+    }
+
+
 }
 }
 

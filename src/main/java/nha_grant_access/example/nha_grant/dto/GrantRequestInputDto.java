@@ -22,6 +22,8 @@ public class  GrantRequestInputDto {
     private ImplementationInsurancePayementDetails implementationInsurancePayementDetails;
     private  VVSImplementationNewBenef vvsImplementationNewBenef;
     private AashaImplementationTrust aashaImplementationTrust;
+    private AashaHybrid aashaHybrid;
+    private AashaAdmin aashaAdmin;
 
     @NotNull(message = "stateId is mandatory")
     private Integer stateId;

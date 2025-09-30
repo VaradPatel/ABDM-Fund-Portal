@@ -25,9 +25,13 @@ public class CalculationController {
     @Autowired
     IAdminCalcRepo iAdminCalcRepo;
     @Autowired
+    IAashaHybrid iAashaHybrid;
+    @Autowired
     ImplementTrustCalcRepo implementTrustCalcRepo;
     @Autowired
     ImplementInsuCalcRepo implementInsuCalcRepo;
+    @Autowired
+    IAashaAdmin iAashaAdmin;
     @Autowired
     IashaImplTrust iashaImplTrust;
     @Autowired
@@ -62,6 +66,44 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
                 ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
             }
             return ResponseEntity.ok().body(implementationNhaPayementDetails1);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
+        }
+    }
+    @PostMapping("/aasha/hybrid")
+    public ResponseEntity<?>AashaHybrid(@Valid @RequestBody AashaHybrid aashaHybrid)
+    {
+        try
+        {
+            AashaHybrid implementationNhaPayementDetails1=calculationService.AashaHybridCalc(aashaHybrid);
+            if(implementationNhaPayementDetails1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
+            return ResponseEntity.ok().body(implementationNhaPayementDetails1);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
+        }
+    }
+    @PostMapping("/aasha/admin")
+    public ResponseEntity<?>AashaAdmin(@Valid @RequestBody AashaAdmin aashaAdmin)
+    {
+        try
+        {
+            AashaAdmin aashaAdmin1=calculationService.AashaAdminCalc(aashaAdmin);
+            if(aashaAdmin1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
+            return ResponseEntity.ok().body(aashaAdmin1);
 
         }
         catch(Exception e)
@@ -202,6 +244,40 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
             return ResponseEntity.ok().body(ivvsImpleNew.findByRequestId(requestId));
+        }
+        catch (Exception e)
+        {
+            {
+                log.error(e.toString());
+                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+            }
+        }
+
+    }
+    @GetMapping("/getAashaHybrid/{requestId}")
+    public ResponseEntity<?>getAashaHybrid(@PathVariable("requestId") String requestId)
+    {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            return ResponseEntity.ok().body(iAashaHybrid.findByRequestId(requestId));
+        }
+        catch (Exception e)
+        {
+            {
+                log.error(e.toString());
+                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+            }
+        }
+
+    }
+    @GetMapping("/getAashaAdmin/{requestId}")
+    public ResponseEntity<?>getAashaAdmin(@PathVariable("requestId") String requestId)
+    {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            return ResponseEntity.ok().body(iAashaAdmin.findByRequestId(requestId));
         }
         catch (Exception e)
         {

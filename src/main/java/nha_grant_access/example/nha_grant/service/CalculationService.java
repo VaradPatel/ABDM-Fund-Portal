@@ -213,6 +213,188 @@ details.setNhaShareOfPremiumPayable(result);
         details.setAmountProposedToBeReleased(finalAmount);
        return details;
     }
+    public AashaHybrid AashaHybridCalc(AashaHybrid details)
+    {
+
+
+
+
+
+        // max GIA implementation/admin per family
+        BigDecimal baseAdmin = BigDecimal.valueOf(50);
+        BigDecimal population = details.getTotalEligibleAshaAwwAwhFamilies();
+
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            baseAdmin = BigDecimal.valueOf(150);
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            baseAdmin = BigDecimal.valueOf(200);
+        }
+        // max GIA implementation/admin per family
+        BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
+
+        BigDecimal maxAdminPerFamily = baseAdmin.multiply(details.getNhaShareInGia());
+        details.setMaxGiaImplementationByNhaPerFamily(maxImplPerFamily);
+
+
+        // max GIA by NHA
+        BigDecimal maxImplByNha = details.getTotalEligibleAshaAwwAwhFamilies().multiply(maxImplPerFamily);
+        BigDecimal maxAdminByNha = details.getTotalEligibleAshaAwwAwhFamilies().multiply(maxAdminPerFamily);
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("20000000"));
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("10000000"));
+        }
+        else {
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("150000000"));
+        }
+
+        details.setMaxGiaImplementationByNha(maxImplByNha);
+
+
+        BigDecimal baseAmount = new BigDecimal("1052");
+        if(details.getAnnualInsurancePremiumFamily().compareTo(BigDecimal.valueOf(1052)) > 0) {
+            BigDecimal result = baseAmount
+                    .multiply(details.getNhaShareInGia())
+                    .multiply(details.getTotalEligibleAshaAwwAwhFamilies());
+
+            details.setNhaShareOfPremiumPayable(result);
+        }
+        else {
+            BigDecimal result=details.getAnnualInsurancePremiumFamily().multiply(details.getTotalEligibleAshaAwwAwhFamilies()).multiply(details.getNhaShareInGia());
+            details.setNhaShareOfPremiumPayable(result);
+
+        }
+        BigDecimal shaShare = BigDecimal.ZERO;
+
+        if (details.getAnnualInsurancePremiumFamily().compareTo(BigDecimal.valueOf(1052)) > 0) {
+            shaShare = details.getAnnualInsurancePremiumFamily()
+                    .subtract(details.getMaxGiaImplementationByNhaPerFamily())
+                    .multiply(details.getTotalEligibleAshaAwwAwhFamilies());
+        } else {
+            BigDecimal nhaShareInGia = details.getNhaShareInGia();
+            BigDecimal oneMinusNhaShare = BigDecimal.ONE.subtract(nhaShareInGia);
+
+            shaShare = details.getAnnualInsurancePremiumFamily()
+                    .multiply(oneMinusNhaShare)
+                    .multiply(details.getTotalEligibleAshaAwwAwhFamilies());
+        }
+
+        details.setShaShareOfPremiumPayable(shaShare);
+
+
+        BigDecimal re = details.getUpfrontReleaseByShaForPmjay()
+                .multiply(details.getNhaShareInGia())
+                .divide(BigDecimal.ONE.subtract(details.getNhaShareInGia()), 3, RoundingMode.HALF_UP);
+
+
+        details.setNhaShareCorrespondingToShaRelease(re);
+
+        details.setTotalAmountPayableTillThisTranche(details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo()));
+        BigDecimal min = minOfThree(
+                details.getNhaShareOfPremiumPayable(),
+                details.getNhaShareCorrespondingToShaRelease(),
+                details.getTotalAmountPayableTillThisTranche()
+        );
+        details.setTotalAmountPayableByNhaAsOnDate(min);
+        // final amount to be released
+        BigDecimal finalAmount = min
+                .subtract(details.getEarlierAmountReleasedByNha())
+                .subtract(details.getUnspentAmountAsPerUc());
+
+        details.setAmountProposedToBeReleased(finalAmount);
+        return details;
+
+        // max GIA implementation/admin per family
+
+    }
+    public AashaAdmin AashaAdminCalc(AashaAdmin details)
+    {
+
+
+        // max GIA implementation/admin per family
+        BigDecimal baseAdmin = BigDecimal.valueOf(50);
+        BigDecimal population = details.getTotalEligibleAshaAwwAwhFamilies();
+
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            baseAdmin = BigDecimal.valueOf(150);
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            baseAdmin = BigDecimal.valueOf(200);
+        }
+        // max GIA implementation/admin per family
+        BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
+
+        BigDecimal maxAdminPerFamily = baseAdmin.multiply(details.getNhaShareInGia());
+        details.setMaxGiaImplementationByNhaPerFamily(maxImplPerFamily);
+        details.setMaxGiaAdminByNhaPerFamily(maxAdminPerFamily);
+
+        // max GIA by NHA
+        BigDecimal maxImplByNha = details.getTotalEligibleAshaAwwAwhFamilies().multiply(maxImplPerFamily);
+        BigDecimal maxAdminByNha = details.getTotalEligibleAshaAwwAwhFamilies().multiply(maxAdminPerFamily);
+        if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
+                population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("20000000"));
+
+        } else if (population.compareTo(BigDecimal.valueOf(100000)) <= 0) {
+
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("10000000"));
+        }
+        else {
+            maxAdminByNha = maxAdminByNha.max(new BigDecimal("150000000"));
+        }
+
+        details.setMaxGiaImplementationByNha(maxImplByNha);
+        details.setMaxGiaAdminByNha(maxAdminByNha);
+
+
+        BigDecimal treatmentCostForSHA = details.getTotalTreatmentCostPaidBySha()
+                .multiply(BigDecimal.ONE.subtract(details.getNhaShareInGia()));
+
+        details.setCostOfAdministrativeExpenseSha(treatmentCostForSHA);
+
+        // NHA's share in PM-JAY treatment
+        BigDecimal nhaShareInPmjay = details.getTotalTreatmentCostPaidBySha().multiply(details.getNhaShareInGia());
+        details.setCostOfAdministrativeExpenseNha(nhaShareInPmjay);
+
+        // NHA share corresponding to SHA release
+        BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
+        BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
+
+        // total amount payable till this tranche
+        BigDecimal totalTillTranche = maxAdminByNha.multiply(details.getPaymentTrancheNo());
+        details.setTotalAmountPayableTillThisTranche(totalTillTranche);
+
+        // Find minimum of 4 BigDecimal values
+        BigDecimal min = minOfThree(
+                maxAdminByNha,
+
+                nhaShareCorresponding,
+                totalTillTranche
+        );
+        details.setTotalAmountPayableByNhaAsOnDate(min);
+        // final amount to be released
+        BigDecimal finalAmount = min
+                .subtract(details.getEarlierAmountReleasedByNha())
+                .subtract(details.getUnspentAmountAsPerUc());
+
+        details.setAmountProposedToBeReleased(finalAmount);
+
+        return details;
+    }
     public AdminNhaPaymentDetails administrativeCalc(AdminNhaPaymentDetails details)
     {
         if (details.getTotalPopulationCoveredAsPerMou() != null && details.getTotalPopulationCoveredAsPerMou().compareTo(BigDecimal.ZERO) > 0) {
