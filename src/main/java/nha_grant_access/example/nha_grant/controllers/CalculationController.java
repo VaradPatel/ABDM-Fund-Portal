@@ -283,7 +283,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
         {
             {
                 log.error(e.toString());
-                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+                return  ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
             }
         }
 
