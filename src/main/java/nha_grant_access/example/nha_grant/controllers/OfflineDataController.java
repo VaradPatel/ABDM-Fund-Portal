@@ -29,18 +29,17 @@ public class OfflineDataController {
 
     @PostMapping
     public ResponseEntity<?> createOfflineData(
-            @Valid @RequestBody List<OfflineProposalRequest> request) {
+            @Valid @RequestBody OfflineProposalRequest request) {
 
         try {
 
-            List<OfflineData> savedDataList = new ArrayList<>();
 
-            for (OfflineProposalRequest req : request) {
-                OfflineData saved = offlineDataService.saveOfflineData(req);
-                savedDataList.add(saved);
-            }
 
-            return ResponseEntity.ok(savedDataList);
+
+                OfflineData saved = offlineDataService.saveOfflineData(request);
+
+
+            return ResponseEntity.ok(saved);
         }
         catch (Exception e)
         {
