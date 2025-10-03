@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 public class NhaAdminDashboard {
 
 
-        private BigDecimal totalRequestedAmount;
-        private BigDecimal totalReleasedAmount;
+        private BigDecimal onlineRequestedAmount;
+        private BigDecimal onlineReleasedAmount;
         private Integer approved;
         private Integer accepted;
         private Integer review;
@@ -23,9 +23,18 @@ public class NhaAdminDashboard {
         private Integer verifiedUsers;
         private Integer pendingUsers;
         private BigDecimal totalMaxEligibleGrants;
-        private BigDecimal totalReleaseAmountGc;
-        private BigDecimal totalReleaseAmountSc;
-        private BigDecimal totalReleaseAmountSt;
+        private BigDecimal onlineReleaseAmountGc;
+        private BigDecimal onlineReleaseAmountSc;
+        private BigDecimal onlineReleaseAmountSt;
+
+        private BigDecimal offlineRequestedAmount;
+        private BigDecimal offlineReleasedAmount;
+        private BigDecimal offlineReleaseAmountGc;
+        private BigDecimal offineReleaseAmountSc;
+        private BigDecimal offlineReleaseAmountSt;
+
+
+
 
     }
 

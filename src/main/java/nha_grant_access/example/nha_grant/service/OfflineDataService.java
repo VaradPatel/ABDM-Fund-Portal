@@ -84,8 +84,8 @@ public class OfflineDataService {
                 .amountGc(request.getAmountGC())
                 .schemeId(request.getSchemeId())
                 .schemeName(request.getSchemeName())
-                .requestedDate(request.getRequested_Date())
-                .releasedDate(request.getReleased_Date())
+                .requestedDate(request.getRequestedDate())
+                .releasedDate(request.getReleasedDate())
                 .build();
     }
 }

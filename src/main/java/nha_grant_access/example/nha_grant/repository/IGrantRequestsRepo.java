@@ -237,12 +237,33 @@ Integer totalShaPendingQueriesByState(Integer stateId);
     WHERE (:stateId = 0 OR gr.state_id = :stateId)
      AND (:proposalType = 0 OR proposal_type_id = :proposalType)
       AND (:financialYear = 'ALL' OR financial_year = :financialYear)
+      and (:schemeType=0 OR scheme_id= :schemeType)
       
 """, nativeQuery = true)
 
 
-    List<Object[]>getNhaAdminDashboard(Integer stateId, String financialYear, Integer proposalType);
+    List<Object[]>getNhaAdminDashboard(Integer stateId, String financialYear, Integer proposalType, Integer schemeType);
 
+
+    @Query(value = """
+    SELECT 
+        COALESCE(SUM(od.requested_amount), 0) AS total_requested_amount,
+        COALESCE(SUM(od.released_amount), 0) AS total_released_amount,
+        COALESCE(SUM(od.gc_amount), 0) AS total_released_amount_gc,
+        COALESCE(SUM(od.sc_amount), 0) AS total_released_amount_sc,
+        COALESCE(SUM(od.st_amount), 0) AS total_released_amount_st
+
+    FROM  offline_data od
+    WHERE (:stateId = 0 OR od.state_id = :stateId)
+     AND (:proposalType = 0 OR proposal_type_id = :proposalType)
+      AND (:financialYear = 'ALL' OR financial_year = :financialYear)
+      and (approved=1)
+     and (:schemeType=0 OR scheme_id= :schemeType)
+      
+""", nativeQuery = true)
+
+
+    List<Object[]>getNhaAdminOfflineDashboard(Integer stateId, String financialYear, Integer proposalType, Integer schemeType);
 
 
 

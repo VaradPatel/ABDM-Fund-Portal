@@ -902,43 +902,52 @@ responseList.get(0).setTotalMaxEligibleGrants(maxEligibleGrant);
         }
     }
     @GetMapping("/nhaAdmin/{stateId}")
-    @PreAuthorize("hasAuthority('NHA Admin') ")
-    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId , @RequestParam Integer proposalType, @RequestParam String financialYear) {
+   // @PreAuthorize("hasAuthority('NHA Admin') ")
+    public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId , @RequestParam Integer proposalType, @RequestParam String financialYear , @RequestParam(defaultValue = "0") Integer schemeType) {
         try {
 
 
 
-BigDecimal maxEligibleGrant;
+BigDecimal maxEligibleGrant=BigDecimal.ZERO;
 
             List<Object[]> results = null;
+            List<Object[]>offlineResult=null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getNhaAdminDashboard(stateId,financialYear,proposalType);
+                results = iGrantRequestsRepo.getNhaAdminDashboard(stateId,financialYear,proposalType,schemeType);
                 maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
 
             } else {
 
-                results = iGrantRequestsRepo.getNhaAdminDashboard( 0,financialYear,proposalType);
+                results = iGrantRequestsRepo.getNhaAdminDashboard( 0,financialYear,proposalType,schemeType);
                 maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),true);
 
 
             }
+            offlineResult=iGrantRequestsRepo.getNhaAdminOfflineDashboard(stateId,financialYear,proposalType,schemeType);
+            Object[]offline=offlineResult.get(0);
             Object[] row=results.get(0);
             NhaAdminDashboard responseList =
                      NhaAdminDashboard.builder()
-                            .totalRequestedAmount((BigDecimal) row[0])
-                            .totalReleasedAmount((BigDecimal) row[1])
+                            .onlineRequestedAmount((BigDecimal) row[0])
+                            .onlineReleasedAmount((BigDecimal) row[1])
                             .approved(((Number) row[2]).intValue())
                             .accepted(((Number) row[3]).intValue())
                             .review(((Number) row[4]).intValue())
                             .deactivatedUsers(((Number) row[5]).intValue())
                             .verifiedUsers(((Number) row[6]).intValue())
                             .pendingUsers(((Number) row[7]).intValue())
-                             .totalReleaseAmountGc((BigDecimal) row[8])
-                             .totalReleaseAmountSc((BigDecimal) row[9])
-                             .totalReleaseAmountSt((BigDecimal) row[10])
-                            .build();
+                             .onlineReleaseAmountGc((BigDecimal) row[8])
+                             .onlineReleaseAmountSc((BigDecimal) row[9])
+                             .onlineReleaseAmountSt((BigDecimal) row[10])
+                             .offlineRequestedAmount((BigDecimal)offline[0] )
+                             .offlineReleasedAmount((BigDecimal) offline[1])
+                             .offlineReleaseAmountGc((BigDecimal) offline[2])
+                             .offineReleaseAmountSc((BigDecimal) offline[3])
+                             .offlineReleaseAmountSt((BigDecimal) offline[4])
 
+                            .build();
+if(schemeType==1)
 responseList.setTotalMaxEligibleGrants(maxEligibleGrant);
 //ok
 

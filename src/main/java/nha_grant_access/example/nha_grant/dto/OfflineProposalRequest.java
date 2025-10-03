@@ -44,7 +44,7 @@ public class OfflineProposalRequest {
     private BigDecimal amountGC;
 
     private BigDecimal releasedAmount;
-    private LocalDate requested_Date;
-    private LocalDate Released_Date;
+    private LocalDate requestedDate;
+    private LocalDate ReleasedDate;
 
 }

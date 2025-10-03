@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +29,18 @@ public class OfflineDataController {
 
     @PostMapping
     public ResponseEntity<?> createOfflineData(
-            @Valid @RequestBody OfflineProposalRequest request) {
+            @Valid @RequestBody List<OfflineProposalRequest> request) {
 
         try {
-            OfflineData savedData = offlineDataService.saveOfflineData(request);
 
+            List<OfflineData> savedDataList = new ArrayList<>();
 
+            for (OfflineProposalRequest req : request) {
+                OfflineData saved = offlineDataService.saveOfflineData(req);
+                savedDataList.add(saved);
+            }
 
-            return ResponseEntity.ok().body(savedData);
+            return ResponseEntity.ok(savedDataList);
         }
         catch (Exception e)
         {

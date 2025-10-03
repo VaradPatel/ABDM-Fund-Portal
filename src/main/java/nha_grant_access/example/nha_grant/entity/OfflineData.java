@@ -113,6 +113,9 @@ public class OfflineData {
         @Column(name="scheme_name")
         private String schemeName;
 
+        @Column(name="approved")
+        private Integer approved;
+
 
 
 
