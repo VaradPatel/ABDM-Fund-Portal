@@ -28,10 +28,18 @@ public class States {
     private BigDecimal nhaShare;
     private BigDecimal administrativeMaxEligibleGrant;
 
-    private BigDecimal AashaImpMaxElgGrant;
-    private BigDecimal AashaAdminMaxElgGrant;
-    private BigDecimal VVSImpMaxElgGrant;
-    private BigDecimal VVSAdminMaxElgGrant;
+    @Column(name = "aasha_imp_max_elg_grant")
+    private BigDecimal aashaImpMaxElgGrant;
+
+    @Column(name = "aasha_admin_max_elg_grant")
+    private BigDecimal aashaAdminMaxElgGrant;
+
+    @Column(name = "vvs_imp_max_elg_grant")
+    private BigDecimal vvsImpMaxElgGrant;
+
+    @Column(name = "vvs_admin_max_elg_grant")
+    private BigDecimal vvsAdminMaxElgGrant;
+
 
     private BigDecimal q1;
     private BigDecimal q2;
