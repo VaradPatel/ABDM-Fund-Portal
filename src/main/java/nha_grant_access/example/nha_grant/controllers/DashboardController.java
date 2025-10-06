@@ -957,13 +957,14 @@ if(schemeType==1) {
             if(schemeType==0 && proposalType==0)
             {
                 BigDecimal totalMaxEligibleGrant =istatesRepository.getTotalGrantByState(stateId);
+
                 BigDecimal q1=istatesRepository.getq1(stateId);
                responseList.setTotalQ1Released(q1);
 
                 if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
 
                     BigDecimal percentage = q1
-                            .divide(totalMaxEligibleGrant, 14, RoundingMode.HALF_UP) // scale 4 for precision
+                            .divide(totalMaxEligibleGrant, 6, RoundingMode.HALF_UP) // scale 4 for precision
                             .multiply(new BigDecimal("100"));
                     responseList.setTotalQ1Perc(percentage);
                 } else {
@@ -975,8 +976,9 @@ if(schemeType==1) {
 
                 if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
                     BigDecimal percentage = q2
-                            .divide(totalMaxEligibleGrant, 4, RoundingMode.HALF_UP) // scale 4 for precision
+                            .divide(totalMaxEligibleGrant, 6, RoundingMode.HALF_UP) // scale 4 for precision
                             .multiply(new BigDecimal("100"));
+
                     responseList.setTotalQ2Perc(percentage);
                 } else {
                     responseList.setTotalQ2Perc(BigDecimal.ZERO);
@@ -987,7 +989,7 @@ if(schemeType==1) {
 
                 if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
                     BigDecimal percentage = q3
-                            .divide(totalMaxEligibleGrant, 4, RoundingMode.HALF_UP) // scale 4 for precision
+                            .divide(totalMaxEligibleGrant, 6, RoundingMode.HALF_UP) // scale 4 for precision
                             .multiply(new BigDecimal("100"));
                     responseList.setTotalQ3Perc(percentage);
                 } else {
@@ -998,7 +1000,7 @@ if(schemeType==1) {
                 responseList.setTotalQ4Released(q4);
                 if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
                     BigDecimal percentage = q4
-                            .divide(totalMaxEligibleGrant, 4, RoundingMode.HALF_UP) // scale 4 for precision
+                            .divide(totalMaxEligibleGrant, 6, RoundingMode.HALF_UP) // scale 4 for precision
                             .multiply(new BigDecimal("100"));
                     responseList.setTotalQ4Perc(percentage);
                 } else {

@@ -47,18 +47,20 @@ public interface IstatesRepository extends JpaRepository<States, Integer> {
     Integer addVVSImp(BigDecimal maxElgGrant, Integer stateId);
 
     @Query(value = """
-                 SELECT COALESCE(SUM(
-                                   implementation_max_eligible_grant +
-                                   administrative_max_eligible_grant +
-                                   aasha_imp_max_elg_grant +
-                                   aasha_admin_max_elg_grant +
-                                   vvs_imp_max_elg_grant +
-                                   vvs_admin_max_elg_grant
-                               ), 0) AS total_grant
-                               FROM states
-                               WHERE (:stateId = 0 OR id = :stateId)
-            """, nativeQuery = true)
-    BigDecimal getTotalGrantByState(Integer stateId);
+    SELECT COALESCE(SUM(
+        COALESCE(implementation_max_eligible_grant, 0) +
+        COALESCE(administrative_max_eligible_grant, 0) +
+        COALESCE(aasha_imp_max_elg_grant, 0) +
+        COALESCE(aasha_admin_max_elg_grant, 0) +
+        COALESCE(vvs_imp_max_elg_grant, 0) +
+        COALESCE(vvs_admin_max_elg_grant, 0)
+    ), 0) AS total_grant
+    FROM states
+    WHERE (:stateId = 0 OR id = :stateId)
+""", nativeQuery = true)
+    BigDecimal getTotalGrantByState( Integer stateId);
+
+
 
     @Query(value = "SELECT COALESCE(SUM(q1), 0) FROM states WHERE (:stateId = 0 OR id = :stateId)", nativeQuery = true)
     BigDecimal getq1(Integer stateId);
