@@ -956,7 +956,8 @@ if(schemeType==1) {
 //ok
             if(schemeType==0 && proposalType==0)
             {
-                BigDecimal totalMaxEligibleGrant =istatesRepository.getTotalGrantByState(stateId);
+//                BigDecimal totalMaxEligibleGrant =istatesRepository.getTotalGrantByState(stateId);
+                BigDecimal totalMaxEligibleGrant = new BigDecimal("87130900000");
 
                 BigDecimal q1=istatesRepository.getq1(stateId);
                responseList.setTotalQ1Released(q1);
