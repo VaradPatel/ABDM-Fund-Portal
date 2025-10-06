@@ -27,6 +27,17 @@ public class States {
     private BigDecimal ceilAmount;
     private BigDecimal nhaShare;
     private BigDecimal administrativeMaxEligibleGrant;
+
+    private BigDecimal AashaImpMaxElgGrant;
+    private BigDecimal AashaAdminMaxElgGrant;
+    private BigDecimal VVSImpMaxElgGrant;
+    private BigDecimal VVSAdminMaxElgGrant;
+
+    private BigDecimal q1;
+    private BigDecimal q2;
+    private BigDecimal q3;
+    private BigDecimal q4;
+
     @Column(name = "tranche_distribution", columnDefinition = "jsonb") // JSONB for PostgreSQL
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6+ annotation for JSON support
     private List<BigDecimal> trancheDistribution;

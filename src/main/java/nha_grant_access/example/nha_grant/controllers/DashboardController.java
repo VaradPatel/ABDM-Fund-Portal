@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -924,6 +925,8 @@ BigDecimal maxEligibleGrant=BigDecimal.ZERO;
 
 
             }
+
+
             offlineResult=iGrantRequestsRepo.getNhaAdminOfflineDashboard(stateId,financialYear,proposalType,schemeType);
             Object[]offline=offlineResult.get(0);
             Object[] row=results.get(0);
@@ -947,9 +950,63 @@ BigDecimal maxEligibleGrant=BigDecimal.ZERO;
                              .offlineReleaseAmountSt((BigDecimal) offline[4])
 
                             .build();
-if(schemeType==1)
-responseList.setTotalMaxEligibleGrants(maxEligibleGrant);
+if(schemeType==1) {
+    responseList.setTotalMaxEligibleGrants(maxEligibleGrant);
+}
 //ok
+            if(schemeType==0 && proposalType==0)
+            {
+                BigDecimal totalMaxEligibleGrant =istatesRepository.getTotalGrantByState(stateId);
+                BigDecimal q1=istatesRepository.getq1(stateId);
+               responseList.setTotalQ1Released(q1);
+
+                if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
+
+                    BigDecimal percentage = q1
+                            .divide(totalMaxEligibleGrant, 14, RoundingMode.HALF_UP) // scale 4 for precision
+                            .multiply(new BigDecimal("100"));
+                    responseList.setTotalQ1Perc(percentage);
+                } else {
+                    responseList.setTotalQ1Perc(BigDecimal.ZERO);
+                }
+
+                BigDecimal q2=istatesRepository.getq2(stateId);
+                responseList.setTotalQ2Released(q2);
+
+                if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal percentage = q2
+                            .divide(totalMaxEligibleGrant, 4, RoundingMode.HALF_UP) // scale 4 for precision
+                            .multiply(new BigDecimal("100"));
+                    responseList.setTotalQ2Perc(percentage);
+                } else {
+                    responseList.setTotalQ2Perc(BigDecimal.ZERO);
+                }
+
+                BigDecimal q3=istatesRepository.getq3(stateId);
+                responseList.setTotalQ3Released(q3);
+
+                if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal percentage = q3
+                            .divide(totalMaxEligibleGrant, 4, RoundingMode.HALF_UP) // scale 4 for precision
+                            .multiply(new BigDecimal("100"));
+                    responseList.setTotalQ3Perc(percentage);
+                } else {
+                    responseList.setTotalQ3Perc(BigDecimal.ZERO);
+                }
+
+                BigDecimal q4=istatesRepository.getq4(stateId);
+                responseList.setTotalQ4Released(q4);
+                if (totalMaxEligibleGrant != null && totalMaxEligibleGrant.compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal percentage = q4
+                            .divide(totalMaxEligibleGrant, 4, RoundingMode.HALF_UP) // scale 4 for precision
+                            .multiply(new BigDecimal("100"));
+                    responseList.setTotalQ4Perc(percentage);
+                } else {
+                    responseList.setTotalQ4Perc(BigDecimal.ZERO);
+                }
+
+
+            }
 
             return ResponseEntity.ok().body(responseList);
 
@@ -966,6 +1023,39 @@ responseList.setTotalMaxEligibleGrants(maxEligibleGrant);
         if (value instanceof BigDecimal) return value.toString();
         return value.toString().replace(",", " "); // Prevent CSV corruption
     }
+    @PostMapping("/add/maxElgGrant")
+    public ResponseEntity<?>vvsImplementationNew(@Valid @RequestBody AddMaxElgGrants addMaxElgGrants)
+    {
+        try
+        {
+             if(addMaxElgGrants.getSchemeId()==2 && addMaxElgGrants.getProposalTypeId()==1)
+             {
+                      istatesRepository.addAshaImp(addMaxElgGrants.getMaxElgGrant(), addMaxElgGrants.getStateId());
+                      return  ResponseEntity.ok().body(new SuccessResponse("Max Eligible Grant Updated "));
+             }
+            else if(addMaxElgGrants.getSchemeId()==2 && addMaxElgGrants.getProposalTypeId()==2)
+            {
+                istatesRepository.addAshaAdmin(addMaxElgGrants.getMaxElgGrant(), addMaxElgGrants.getStateId());
+                return  ResponseEntity.ok().body(new SuccessResponse("Max Eligible Grant Updated "));
+            }
+            else if(addMaxElgGrants.getSchemeId()==3 && addMaxElgGrants.getProposalTypeId()==1)
+            {
+                istatesRepository.addVVSImp(addMaxElgGrants.getMaxElgGrant(), addMaxElgGrants.getStateId());
+                return  ResponseEntity.ok().body(new SuccessResponse("Max Eligible Grant Updated "));
+            }
+            else
+            {
+                istatesRepository.addVVSAdmin(addMaxElgGrants.getMaxElgGrant(), addMaxElgGrants.getStateId());
+                return  ResponseEntity.ok().body(new SuccessResponse("Max Eligible Grant Updated "));
+            }
 
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return   ResponseEntity.internalServerError().body(new Error("Error while adding max Elg Grants", e.toString()));
+        }
+    }
 
 }

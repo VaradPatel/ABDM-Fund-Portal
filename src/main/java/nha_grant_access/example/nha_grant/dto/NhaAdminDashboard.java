@@ -33,6 +33,19 @@ public class NhaAdminDashboard {
         private BigDecimal offineReleaseAmountSc;
         private BigDecimal offlineReleaseAmountSt;
 
+        private BigDecimal TotalQ1Released;
+        private BigDecimal TotalQ1Perc;
+
+        private BigDecimal TotalQ2Released;
+        private BigDecimal TotalQ2Perc;
+
+        private BigDecimal TotalQ3Released;
+        private BigDecimal TotalQ3Perc;
+
+        private BigDecimal TotalQ4Released;
+        private BigDecimal TotalQ4Perc;
+
+
 
 
 
