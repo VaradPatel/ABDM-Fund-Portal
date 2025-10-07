@@ -688,7 +688,7 @@ try
 
 }
     @GetMapping("/nhareviewer-all")
-    @PreAuthorize("hasAuthority('NHA reviewer') or hasAuthority('NHA Admin') or hasAuthority('NHA Super Admin')")
+   // @PreAuthorize("hasAuthority('NHA reviewer') or hasAuthority('NHA Admin') or hasAuthority('NHA Super Admin')")
 
     public ResponseEntity<?> NhaReviewerAll(@RequestParam(value = "format", defaultValue = "json") String format) throws AccessDeniedException {
         try
