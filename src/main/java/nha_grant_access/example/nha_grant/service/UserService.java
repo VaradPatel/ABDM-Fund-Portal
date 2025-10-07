@@ -61,14 +61,14 @@ PasswordEncoder bCryptPasswordEncoder;
             throw new GrantUserAlreadyExistsException("Otp is not verified ");
         }
         List<UserStateRole> userStateRoles1;
-if(signup.getRoles().getId()>1) {
-    userStateRoles1 = iUserStateRoleRepo.getUserByStateAndRole(signup.getRoles().getId(), signup.getStateId());
-    if(userStateRoles1.size()>0)
-    {
-        throw new GrantUserAlreadyExistsException("There is a User corresponding to the state and role ");
-
-    }
-}
+//if(signup.getRoles().getId()>1) {
+//    userStateRoles1 = iUserStateRoleRepo.getUserByStateAndRole(signup.getRoles().getId(), signup.getStateId());
+//    if(userStateRoles1.size()>0)
+//    {
+//        throw new GrantUserAlreadyExistsException("There is a User corresponding to the state and role ");
+//
+//    }
+//}
 
         try
         {
