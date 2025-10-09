@@ -645,7 +645,7 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
         details.setMaxGiaImplementationPerFamilyNew(maxImplPerFamily);
         details.setMaxGiaImplementationByNha(maxPerFamily.add(maxImpPerFamilyOld ));
         BigDecimal baseAdmin = BigDecimal.valueOf(50);
-        BigDecimal population = details.getOldBeneficiaryInState();
+        BigDecimal population = details.getNewBeneficiaryInstate();
 
         if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
                 population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
@@ -657,7 +657,7 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
             baseAdmin = BigDecimal.valueOf(200);
         }
         BigDecimal maxAdminPerFamily = baseAdmin.multiply(details.getNhaShareInGia());
-        BigDecimal maxAdminByNha = details.getOldBeneficiaryInState().multiply(maxAdminPerFamily);
+        BigDecimal maxAdminByNha = details.getNewBeneficiaryInstate().multiply(maxAdminPerFamily);
         if (population.compareTo(BigDecimal.valueOf(100000)) > 0 &&
                 population.compareTo(BigDecimal.valueOf(1000000)) < 0) {
 
