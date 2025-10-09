@@ -33,6 +33,8 @@ public class CalculationController {
     @Autowired
     IAashaAdmin iAashaAdmin;
     @Autowired
+    IVvsHybrid iVvsHybrid;
+    @Autowired
     IashaImplTrust iashaImplTrust;
     @Autowired
     IvvsImpleNew ivvsImpleNew;
@@ -202,6 +204,25 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
+    @PostMapping("/vvs/implementation-hybrid")
+    public ResponseEntity<?>vvsImplHybrid(@Valid @RequestBody VvsHybrid vvsHybrid)
+    {
+        try
+        {
+           VvsHybrid vvsImplementationNewBenef1=calculationService.vvshybridcalc(vvsHybrid);
+            if(vvsImplementationNewBenef1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
+            return ResponseEntity.ok().body(vvsImplementationNewBenef1);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
+        }
+    }
     @PostMapping("/aasha/implementation-trust")
     public ResponseEntity<?>aashaImplementationNew(@Valid @RequestBody AashaImplementationTrust aashaImplementationTrust)
     {
@@ -245,6 +266,23 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
             return ResponseEntity.ok().body(ivvsImpleNew.findByRequestId(requestId));
+        }
+        catch (Exception e)
+        {
+            {
+                log.error(e.toString());
+                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+            }
+        }
+
+    }
+    @GetMapping("/getVVSImpHybrid/{requestId}")
+    public ResponseEntity<?>getVVShybridByRequestId(@PathVariable("requestId") String requestId)
+    {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            return ResponseEntity.ok().body(iVvsHybrid.findByRequestId(requestId));
         }
         catch (Exception e)
         {

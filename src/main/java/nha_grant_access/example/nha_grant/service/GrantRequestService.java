@@ -6,6 +6,7 @@ import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.AashaAdmin;
 import nha_grant_access.example.nha_grant.dto.AashaHybrid;
+import nha_grant_access.example.nha_grant.dto.VvsHybrid;
 import nha_grant_access.example.nha_grant.entity.*;
 import nha_grant_access.example.nha_grant.entity.Roles;
 import nha_grant_access.example.nha_grant.repository.*;
@@ -34,6 +35,8 @@ public class GrantRequestService implements IGrantRequests {
     private IstatesRepository statesRepository;
     @Autowired
     private IWorkFlow iWorkFlow;
+    @Autowired
+    private IVvsHybrid iVvsHybrid;
     @Autowired
     private IRolesRepository roles;
     @Autowired
@@ -689,6 +692,40 @@ public void saveToCalcFlow(GrantRequestInputDto dto1,GrantRequests savedRequest)
                 .build();
 
       iAashaAdmin.save(entity);
+    }
+    System.out.println("sdsds");
+    if (dto1.getVvsHybrid() != null) {
+        VvsHybrid dto = dto1.getVvsHybrid();
+
+        nha_grant_access.example.nha_grant.entity.VvsHybrid vvsHybrid = nha_grant_access.example.nha_grant.entity.VvsHybrid.builder()
+                .stateName(dto.getStateName())
+                .modeOfImplementation(dto.getModeOfImplementation())
+                .dateOfImplementation(dto.getDateOfImplementation())
+                .benefitCover(dto.getBenefitCover())
+                .nhaShareInGia(dto.getNhaShareInGia())
+                .schemeName(dto.getSchemeName())
+                .newBeneficiaryInstate(dto.getNewBeneficiaryInstate())
+                .oldBeneficiaryInState(dto.getOldBeneficiaryInState())
+                .maxGiaImplementationPerFamilyNew(dto.getMaxGiaImplementationPerFamilyNew())
+                .maxGiaImplementationPerFamilyOld(dto.getMaxGiaImplementationPerFamilyOld())
+                .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                .nameOfInsuranceCompany(dto.getNameOfInsuranceCompany())
+                .annualInsurancePremiumFamily(dto.getAnnualInsurancePremiumFamily())
+                .nhaShareOfPremiumPayable(dto.getNhaShareOfPremiumPayable())
+                .shaShareOfPremiumPayable(dto.getShaShareOfPremiumPayable())
+                .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(dto.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                .requestId(savedRequest.getRequestId())
+                .roleId(1)
+                .build();
+
+        iVvsHybrid.save(vvsHybrid);
     }
 
 

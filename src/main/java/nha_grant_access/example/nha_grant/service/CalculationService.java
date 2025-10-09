@@ -562,6 +562,75 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
     return details;
 
 }
+    public VvsHybrid vvshybridcalc(VvsHybrid details)
+    {
+        BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
+
+        BigDecimal maxPerFamily = maxImplPerFamily.multiply(details.getNewBeneficiaryInstate());
+        BigDecimal maxPerFamilyOld=BigDecimal.valueOf(75.70).multiply(details.getNhaShareInGia());
+        BigDecimal maxImpPerFamilyOld=maxPerFamilyOld.multiply(details.getOldBeneficiaryInState());
+
+        details.setMaxGiaImplementationPerFamilyOld(maxPerFamilyOld);
+
+        details.setMaxGiaImplementationPerFamilyNew(maxImplPerFamily);
+        details.setMaxGiaImplementationByNha(maxPerFamily.add(maxImpPerFamilyOld ));
+
+        BigDecimal baseAmount = new BigDecimal("1052");
+        if(details.getAnnualInsurancePremiumFamily().compareTo(BigDecimal.valueOf(1052)) > 0) {
+            BigDecimal result = baseAmount
+                    .multiply(details.getNhaShareInGia())
+                    .multiply(details.getOldBeneficiaryInState());
+
+            details.setNhaShareOfPremiumPayable(result);
+        }
+        else {
+            BigDecimal result=details.getAnnualInsurancePremiumFamily().multiply(details.getOldBeneficiaryInState()).multiply(details.getNhaShareInGia());
+            details.setNhaShareOfPremiumPayable(result);
+
+        }
+        BigDecimal shaShare = BigDecimal.ZERO;
+
+        if (details.getAnnualInsurancePremiumFamily().compareTo(BigDecimal.valueOf(1052)) > 0) {
+            shaShare = details.getAnnualInsurancePremiumFamily()
+                    .subtract(maxImplPerFamily)
+                    .multiply(details.getOldBeneficiaryInState());
+        } else {
+            BigDecimal nhaShareInGia = details.getNhaShareInGia();
+            BigDecimal oneMinusNhaShare = BigDecimal.ONE.subtract(nhaShareInGia);
+
+            shaShare = details.getAnnualInsurancePremiumFamily()
+                    .multiply(oneMinusNhaShare)
+                    .multiply(details.getOldBeneficiaryInState());
+        }
+
+        details.setShaShareOfPremiumPayable(shaShare);
+
+
+        BigDecimal re = details.getUpfrontReleaseByShaForPmjay()
+                .multiply(details.getNhaShareInGia())
+                .divide(BigDecimal.ONE.subtract(details.getNhaShareInGia()), 3, RoundingMode.HALF_UP);
+
+
+        details.setNhaShareCorrespondingToShaRelease(re);
+
+        details.setTotalAmountPayableTillThisTranche(details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo()));
+        BigDecimal min = minOfThree(
+                details.getNhaShareOfPremiumPayable(),
+                details.getNhaShareCorrespondingToShaRelease(),
+                details.getTotalAmountPayableTillThisTranche()
+        );
+        details.setTotalAmountPayableByNhaAsOnDate(min);
+        // final amount to be released
+        BigDecimal finalAmount = min
+                .subtract(details.getEarlierAmountReleasedByNha())
+                .subtract(details.getUnspentAmountAsPerUc());
+
+        details.setAmountProposedToBeReleased(finalAmount);
+        return details;
+
+
+
+    }
     private BigDecimal minOfFour(BigDecimal a, BigDecimal b, BigDecimal c, BigDecimal d) {
         return a.min(b).min(c).min(d);
     }
