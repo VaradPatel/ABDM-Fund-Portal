@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface VvsAdminRepo extends JpaRepository<VvsAdmin, Integer> {
     @Query(value ="Select * from vvs_admin_calc where request_id= :requestId", nativeQuery = true)
-    Optional<VVSImplementNew> findByRequestId(String requestId);
+    Optional<VvsAdmin> findByRequestId(String requestId);
 }
 
