@@ -6,6 +6,7 @@ import nha_grant_access.example.nha_grant.Interface.IGrantRequests;
 import nha_grant_access.example.nha_grant.dto.*;
 import nha_grant_access.example.nha_grant.dto.AashaAdmin;
 import nha_grant_access.example.nha_grant.dto.AashaHybrid;
+import nha_grant_access.example.nha_grant.dto.VvsAdmin;
 import nha_grant_access.example.nha_grant.dto.VvsHybrid;
 import nha_grant_access.example.nha_grant.entity.*;
 import nha_grant_access.example.nha_grant.entity.Roles;
@@ -33,6 +34,8 @@ public class GrantRequestService implements IGrantRequests {
     IactionRepository iactionRepository;
     @Autowired
     private IstatesRepository statesRepository;
+    @Autowired
+    private VvsAdminRepo vvsAdminRepo;
     @Autowired
     private IWorkFlow iWorkFlow;
     @Autowired
@@ -726,6 +729,39 @@ public void saveToCalcFlow(GrantRequestInputDto dto1,GrantRequests savedRequest)
                 .build();
 
         iVvsHybrid.save(vvsHybrid);
+    }
+    if (dto1.getVvsAdmin() != null) {
+        VvsAdmin dto = dto1.getVvsAdmin();
+
+        nha_grant_access.example.nha_grant.entity.VvsAdmin vvsAdmin = nha_grant_access.example.nha_grant.entity.VvsAdmin.builder()
+                .stateName(dto.getStateName())
+                .modeOfImplementation(dto.getModeOfImplementation())
+                .dateOfImplementation(dto.getDateOfImplementation())
+                .benefitCover(dto.getBenefitCover())
+                .nhaShareInGia(dto.getNhaShareInGia())
+                .schemeName(dto.getSchemeName())
+                .newBeneficiaryInstate(dto.getNewBeneficiaryInstate())
+                .oldBeneficiaryInState(dto.getOldBeneficiaryInState())
+                .maxGiaImplementationPerFamilyNew(dto.getMaxGiaImplementationPerFamilyNew())
+                .maxGiaImplementationPerFamilyOld(dto.getMaxGiaImplementationPerFamilyOld())
+                .maxGiaImplementationByNha(dto.getMaxGiaImplementationByNha())
+                .maxGiaAdminByNha(dto.getMaxGiaAdminByNha())
+                .policyPeriod(dto.getPolicyPeriod())
+                .totalTreatmentCostPaidBySha(dto.getTotalTreatmentCostPaidBySha())
+                .costOfAdministrativeExpenseSha(dto.getCostOfAdministrativeExpenseSha())
+                .costOfAdministrativeExpenseNha(dto.getCostOfAdministrativeExpenseNha())
+                .upfrontReleaseByShaForPmjay(dto.getUpfrontReleaseByShaForPmjay())
+                .nhaShareCorrespondingToShaRelease(dto.getNhaShareCorrespondingToShaRelease())
+                .paymentTrancheNo(dto.getPaymentTrancheNo())
+                .totalAmountPayableTillThisTranche(dto.getTotalAmountPayableTillThisTranche())
+                .totalAmountPayableByNhaAsOnDate(dto.getTotalAmountPayableByNhaAsOnDate())
+                .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
+                .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
+                .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
+                .requestedId(savedRequest.getRequestId())
+                .roleId("1")
+                .build();
+        vvsAdminRepo.save(vvsAdmin);
     }
 
 

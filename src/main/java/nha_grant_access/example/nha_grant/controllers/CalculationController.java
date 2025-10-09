@@ -23,6 +23,8 @@ public class CalculationController {
     @Autowired
     CalculationService calculationService;
     @Autowired
+    VvsAdminRepo vvsAdminRepo;
+    @Autowired
     IAdminCalcRepo iAdminCalcRepo;
     @Autowired
     IAashaHybrid iAashaHybrid;
@@ -223,6 +225,25 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
+    @PostMapping("/vvs/admin")
+    public ResponseEntity<?>vvsImplAdmin(@Valid @RequestBody VvsAdmin vvsAdmin)
+    {
+        try
+        {
+           VvsAdmin vvsImplementationNewBenef1=calculationService.VvsAdmin(vvsAdmin);
+            if(vvsImplementationNewBenef1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
+            {
+                ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
+            }
+            return ResponseEntity.ok().body(vvsImplementationNewBenef1);
+
+        }
+        catch(Exception e)
+        {
+            log.error(e.toString());
+            return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
+        }
+    }
     @PostMapping("/aasha/implementation-trust")
     public ResponseEntity<?>aashaImplementationNew(@Valid @RequestBody AashaImplementationTrust aashaImplementationTrust)
     {
@@ -317,6 +338,23 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
             return ResponseEntity.ok().body(iAashaAdmin.findByRequestId(requestId));
+        }
+        catch (Exception e)
+        {
+            {
+                log.error(e.toString());
+                return  ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
+            }
+        }
+
+    }
+    @GetMapping("/getVvsAdmin/{requestId}")
+    public ResponseEntity<?>getVvsAdmin(@PathVariable("requestId") String requestId)
+    {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String name = authentication.getName();
+            return ResponseEntity.ok().body(vvsAdminRepo.findByRequestId(requestId));
         }
         catch (Exception e)
         {

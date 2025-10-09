@@ -1,32 +1,30 @@
 package nha_grant_access.example.nha_grant.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
+
+import jakarta.persistence.*;
+import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "vvs_admin_calc")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @Builder
-@Table(name = "vvs_hybrid_calc")
-public class VvsHybrid {
+public class VvsAdmin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "request_id")
-    private String requestId;
+    @Column(name = "requested_id")
+    private String requestedId;
 
     @Column(name = "role_id")
-    private Integer roleId;
+    private String roleId;
 
     @Column(name = "state_name")
     private String stateName;
@@ -46,7 +44,7 @@ public class VvsHybrid {
     @Column(name = "scheme_name")
     private String schemeName;
 
-    @Column(name = "new_beneficiary_instate")
+    @Column(name = "new_beneficiary_in_state")
     private BigDecimal newBeneficiaryInstate;
 
     @Column(name = "old_beneficiary_in_state")
@@ -61,17 +59,20 @@ public class VvsHybrid {
     @Column(name = "max_gia_implementation_by_nha")
     private BigDecimal maxGiaImplementationByNha;
 
-    @Column(name = "name_of_insurance_company")
-    private String nameOfInsuranceCompany;
+    @Column(name = "max_gia_admin_by_nha")
+    private BigDecimal maxGiaAdminByNha;
 
-    @Column(name = "annual_insurance_premium_family")
-    private BigDecimal annualInsurancePremiumFamily;
+    @Column(name = "policy_period")
+    private String policyPeriod;
 
-    @Column(name = "nha_share_of_premium_payable")
-    private BigDecimal nhaShareOfPremiumPayable;
+    @Column(name = "total_treatment_cost_paid_by_sha")
+    private BigDecimal totalTreatmentCostPaidBySha;
 
-    @Column(name = "sha_share_of_premium_payable")
-    private BigDecimal shaShareOfPremiumPayable;
+    @Column(name = "cost_of_administrative_expense_sha")
+    private BigDecimal costOfAdministrativeExpenseSha;
+
+    @Column(name = "cost_of_administrative_expense_nha")
+    private BigDecimal costOfAdministrativeExpenseNha;
 
     @Column(name = "upfront_release_by_sha_for_pmjay")
     private BigDecimal upfrontReleaseByShaForPmjay;

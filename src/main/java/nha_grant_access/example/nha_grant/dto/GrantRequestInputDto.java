@@ -25,6 +25,7 @@ public class  GrantRequestInputDto {
     private AashaHybrid aashaHybrid;
     private AashaAdmin aashaAdmin;
     private VvsHybrid vvsHybrid;
+    private VvsAdmin vvsAdmin;
 
     @NotNull(message = "stateId is mandatory")
     private Integer stateId;
