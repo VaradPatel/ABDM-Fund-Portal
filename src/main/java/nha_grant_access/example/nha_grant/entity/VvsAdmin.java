@@ -21,7 +21,7 @@ public class VvsAdmin {
     private Integer id;
 
     @Column(name = "requested_id")
-    private String requestedId;
+    private String requestId;
 
     @Column(name = "role_id")
     private String roleId;
