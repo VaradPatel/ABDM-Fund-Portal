@@ -758,8 +758,8 @@ public void saveToCalcFlow(GrantRequestInputDto dto1,GrantRequests savedRequest)
                 .earlierAmountReleasedByNha(dto.getEarlierAmountReleasedByNha())
                 .unspentAmountAsPerUc(dto.getUnspentAmountAsPerUc())
                 .amountProposedToBeReleased(dto.getAmountProposedToBeReleased())
-                .requestedId(savedRequest.getRequestId())
-                .roleId("1")
+                .requestId(savedRequest.getRequestId())
+                .roleId(1)
                 .build();
         vvsAdminRepo.save(vvsAdmin);
     }

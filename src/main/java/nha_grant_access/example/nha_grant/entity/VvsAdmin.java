@@ -20,11 +20,11 @@ public class VvsAdmin {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "requested_id")
+    @Column(name = "request_id")
     private String requestId;
 
     @Column(name = "role_id")
-    private String roleId;
+    private Integer roleId;
 
     @Column(name = "state_name")
     private String stateName;
