@@ -85,8 +85,17 @@ public class CalculationService {
 
         // NHA share corresponding to SHA release
         BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
-        BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
-                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        BigDecimal nhaShareCorresponding;
+        if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+        {
+            nhaShareCorresponding= nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                    .multiply(details.getNhaShareInGia());
+
+        }
+        else {
+            nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                    .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        }
         details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
 
         // total amount payable till this tranche
