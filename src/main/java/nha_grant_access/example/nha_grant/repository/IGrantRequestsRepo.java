@@ -292,12 +292,16 @@ Integer totalShaPendingQueriesByState(Integer stateId);
     List<Object[]> findAllDistinctPolicyPeriods(Integer schemaId );
 
 
-    @Query(value = "SELECT DISTINCT on (gr.request_id), gr.remarks, gr.requested_amount, u.name AS user_name, gr.created_at, s.name AS state_name " +
+    @Query(value = "SELECT DISTINCT ON (gr.request_id) " +
+            "gr.request_id, gr.remarks, gr.requested_amount, u.name AS user_name, " +
+            "gr.created_at, s.name AS state_name " +
             "FROM grant_requests gr " +
             "JOIN user_state_role usr ON gr.state_id = usr.state_id AND usr.role_id = 3 " +
             "JOIN users u ON usr.user_id = u.id " +
             "JOIN states s ON gr.state_id = s.id " +
-            "WHERE  gr.flow_status = :flowStatus",
+            "WHERE gr.flow_status = :flowStatus " +
+            "ORDER BY gr.request_id, gr.created_at DESC";
+,
             nativeQuery = true)
     List<Object[]> getNhaReviewerPending(Integer flowStatus);
 
