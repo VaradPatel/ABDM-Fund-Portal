@@ -300,8 +300,7 @@ Integer totalShaPendingQueriesByState(Integer stateId);
             "JOIN users u ON usr.user_id = u.id " +
             "JOIN states s ON gr.state_id = s.id " +
             "WHERE gr.flow_status = :flowStatus " +
-            "ORDER BY gr.request_id, gr.created_at DESC";
-,
+            "ORDER BY gr.request_id, gr.created_at DESC",
             nativeQuery = true)
     List<Object[]> getNhaReviewerPending(Integer flowStatus);
 
