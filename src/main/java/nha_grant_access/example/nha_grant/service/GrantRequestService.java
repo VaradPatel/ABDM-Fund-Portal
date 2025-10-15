@@ -257,7 +257,7 @@ public class GrantRequestService implements IGrantRequests {
         if(dto.getNewBeneficiaryInstate()!=null)
             grantRequests.setNewBeneficiaryInstate(dto.getNewBeneficiaryInstate());
         if(dto.getOldBeneficiaryInState()!=null)
-            grantRequests.setOldBeneficiaryInstate(dto.getOldBeneficiaryInState());
+            grantRequests.setOldBeneficiaryInState(dto.getOldBeneficiaryInState());
         if(dto.getTotalFamiliesCoveredInStateAsPerMou()!=null)
             grantRequests.setTotalFamiliesCoveredInStateAsPerMou(dto.getTotalFamiliesCoveredInStateAsPerMou());
         if(dto.getTotalEligibleAshaAwwAwhFamilies()!=null)
@@ -317,7 +317,7 @@ public class GrantRequestService implements IGrantRequests {
         if(dto.getNewBeneficiaryInstate()!=null)
             existingRequest.setNewBeneficiaryInstate(dto.getNewBeneficiaryInstate());
         if(dto.getOldBeneficiaryInState()!=null)
-        existingRequest.setOldBeneficiaryInstate(dto.getOldBeneficiaryInState());
+        existingRequest.setOldBeneficiaryInState(dto.getOldBeneficiaryInState());
         return existingRequest;
     }
 
