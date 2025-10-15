@@ -53,7 +53,7 @@ public class VVSImplementNew {
     private BigDecimal newBeneficiaryInstate;
 
     @Column(name="old_beneficiary_in_state")
-    private BigDecimal oldBeneficiaryInstate;
+    private BigDecimal oldBeneficiaryInState;
 
     @Column(name = "max_gia_implementation_per_family_new")
     private BigDecimal maxGiaImplementationPerFamilyNew;

@@ -286,6 +286,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
+
             return ResponseEntity.ok().body(ivvsImpleNew.findByRequestId(requestId));
         }
         catch (Exception e)
