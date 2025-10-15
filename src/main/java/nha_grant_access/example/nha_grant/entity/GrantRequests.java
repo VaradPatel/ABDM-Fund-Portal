@@ -159,7 +159,7 @@ private BigDecimal amountSc;
     private BigDecimal totalEligibleAshaAwwAwhFamilies;
 
     private BigDecimal newBeneficiaryInstate;
-    private BigDecimal oldBeneficiaryInState;
+    private BigDecimal oldBeneficiaryInstate;
 
 
 
