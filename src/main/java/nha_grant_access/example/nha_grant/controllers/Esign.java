@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 
@@ -33,6 +34,7 @@ public class Esign {
     IGrantRequestsRepo iGrantRequestsRepo;
     @Value("${esign.name}")
     private String esignname;
+
     @PostMapping("/generate-request/{userId}/{requestId}")
     @PreAuthorize("hasAuthority('State CEO') ")
     public ResponseEntity<?> generateESignRequest(@RequestBody DocumentRequest documentRequest, @PathVariable Integer userId ,@PathVariable String requestId){
@@ -50,8 +52,11 @@ documentRequest.getDocument().setEmailId(user.getEmail());
 documentRequest.getDocument().setStateCEOName(user.getName());
 documentRequest.getDocument().setMobileNumber(user.getMobileNumber());
 documentRequest.getDocument().setSigningPlace(documentRequest.getDocument().getState());
-
-            System.out.println("document is "+ documentRequest.toString());
+ if(grantRequests.getOldBeneficiaryInstate()!=null && grantRequests.getOldBeneficiaryInstate().compareTo(BigDecimal.ZERO)==0)
+ {
+     documentRequest.getDocument().getGiaRequestDetails().getBeneficiaryAndFundingDetails().setNumberOfPMJAYBeneficiaries(grantRequests.getOldBeneficiaryInstate().add((grantRequests.getNewBeneficiaryInstate())).toString());
+ }
+            //System.out.println("document is "+ documentRequest.toString());
             documentRequest.getDocument().setIntegratorName(esignname);
             //documentRequest.getDocument().getMatchAadharDetailsTO().setAppintName(esignname);
 
