@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface ImplementInsuCalcRepo extends JpaRepository<ImplementInsuCalc, Integer> {
-    @Query(value ="Select * from implement_insurance_hybrid_calc where request_id= :requestId", nativeQuery = true)
+    @Query(value ="Select * from implement_insurance_hybrid_calc where request_id= :requestId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
     Optional<ImplementInsuCalc> findByRequestId(String requestId);
 }

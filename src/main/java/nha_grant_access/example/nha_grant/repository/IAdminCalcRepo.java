@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface IAdminCalcRepo extends JpaRepository<AdministrativeCalc, Integer> {
-    @Query(value ="Select * from administrative_calc where request_id= :requestId", nativeQuery = true)
+    @Query(value ="Select * from administrative_calc where request_id= :requestId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
     Optional<AdministrativeCalc> findByRequestId(String requestId);
 }

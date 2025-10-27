@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface IAashaHybrid extends JpaRepository<AashaHybrid, Integer> {
 
-    @Query(value ="Select * from asha_hybrid_calc  where request_id= :requestId", nativeQuery = true)
+    @Query(value ="Select * from asha_hybrid_calc  where request_id= :requestId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
     Optional<AashaHybrid> findByRequestId(String requestId);
 }
 
