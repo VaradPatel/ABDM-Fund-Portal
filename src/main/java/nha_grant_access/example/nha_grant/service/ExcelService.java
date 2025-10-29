@@ -21,13 +21,27 @@ public class ExcelService {
     ExcelFileRepository excelFileRepository;
 
     public ExcelFile storeFile(String requestId, MultipartFile file) throws IOException {
-        ExcelFile excelFile = ExcelFile.builder()
-                .requestId(requestId)
-                .fileName(file.getOriginalFilename())
-                .contentType(file.getContentType())
-                .data(file.getBytes())
-                .build();
+        Optional<ExcelFile> existingFile = excelFileRepository.findByRequestId(requestId);
 
+        ExcelFile excelFile;
+
+        if (existingFile.isPresent()) {
+            // Update the existing record
+            excelFile = existingFile.get();
+            excelFile.setFileName(file.getOriginalFilename());
+            excelFile.setContentType(file.getContentType());
+            excelFile.setData(file.getBytes());
+        } else {
+            // Create a new record
+            excelFile = ExcelFile.builder()
+                    .requestId(requestId)
+                    .fileName(file.getOriginalFilename())
+                    .contentType(file.getContentType())
+                    .data(file.getBytes())
+                    .build();
+        }
+
+        // Save or update (JPA handles both)
         return excelFileRepository.save(excelFile);
     }
 
