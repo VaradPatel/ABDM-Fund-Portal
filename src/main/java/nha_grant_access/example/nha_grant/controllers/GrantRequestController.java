@@ -12,10 +12,7 @@ import nha_grant_access.example.nha_grant.entity.GrantRequests;
 import nha_grant_access.example.nha_grant.entity.States;
 import nha_grant_access.example.nha_grant.entity.User;
 import nha_grant_access.example.nha_grant.entity.UserStateRole;
-import nha_grant_access.example.nha_grant.repository.IGrantRequestsRepo;
-import nha_grant_access.example.nha_grant.repository.IQueries;
-import nha_grant_access.example.nha_grant.repository.IstatesRepository;
-import nha_grant_access.example.nha_grant.repository.UserRepo;
+import nha_grant_access.example.nha_grant.repository.*;
 import nha_grant_access.example.nha_grant.service.GrantRequestService;
 import nha_grant_access.example.nha_grant.service.OtpService;
 import nha_grant_access.example.nha_grant.utils.JwtUtil;
@@ -89,6 +86,8 @@ public class GrantRequestController {
     GrantRequestService grantRequestService;
     @Autowired
     OtpService otpService;
+    @Autowired
+    ExcelFileRepository excelFileRepository;
 
     @PostMapping("/add")
    // @PreAuthorize("hasAuthority('SHA Finance Division Individual')")
@@ -340,8 +339,8 @@ public class GrantRequestController {
                 response.setCreatedAt(obj[2] != null ? ((java.sql.Timestamp) obj[2]).toLocalDateTime() : null);
                 return response;
             }).toList();
-
-            return ResponseEntity.ok(new WorkFlowHistory(grantRequests,remarks));
+            boolean ok = excelFileRepository.findByRequestId(requestId).isPresent();
+            return ResponseEntity.ok(new WorkFlowHistory(grantRequests,remarks,ok));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new Error("Failed to fetch grant request details", e.toString()));
         }

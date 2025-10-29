@@ -13,4 +13,5 @@ import java.util.List;
 public class WorkFlowHistory {
     private GrantRequests grantRequest;
     private List<WorkFlowRemarkResponse> workflowRemarks;
+    private Boolean IsCalcFileUploaded;
 }
