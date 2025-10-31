@@ -105,7 +105,7 @@ public class CalculationService {
         // Find minimum of 4 BigDecimal values
         BigDecimal min = minOfFour(
                 maxImplByNha,
-                treatmentCostForPmjay,
+                nhaShareInPmjay,
                 nhaShareCorresponding,
                 totalTillTranche
         );
