@@ -101,14 +101,26 @@ public class CalculationService {
         // total amount payable till this tranche
         BigDecimal totalTillTranche = maxImplByNha.multiply(details.getPaymentTrancheNo());
         details.setTotalAmountPayableTillThisTranche(totalTillTranche);
+        BigDecimal min;
+        if(details.getNhaShareInGia().equals(BigDecimal.ONE)) {
+            min=minOfThree(
+                    maxImplByNha,
+                    nhaShareInPmjay,
+                    totalTillTranche
+            );
 
-        // Find minimum of 4 BigDecimal values
-        BigDecimal min = minOfFour(
-                maxImplByNha,
-                nhaShareInPmjay,
-                nhaShareCorresponding,
-                totalTillTranche
-        );
+        }
+        else
+        {
+            min = minOfFour(
+                    maxImplByNha,
+                    nhaShareInPmjay,
+                    nhaShareCorresponding,
+                    totalTillTranche
+            );
+        }
+
+
 details.setTotalAmountPayableByNhaAsOnDate(min);
 
         // final amount to be released
