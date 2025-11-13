@@ -99,6 +99,7 @@ private List<Integer> tranche;
 private List<StateShare> stateShare;
 
 
+
     @Column(name = "created_at", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 

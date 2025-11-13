@@ -80,8 +80,10 @@ public class  GrantRequestInputDto {
 //    private BigDecimal stateShare;
  // Specifies JSONB type
 private List<StateShare> stateShare;
+
 @NotNull(message="totalStateShare cannot be null")
 private BigDecimal totalStateShare;
+
 
 private Integer schemeId;
 private String schemeName;
