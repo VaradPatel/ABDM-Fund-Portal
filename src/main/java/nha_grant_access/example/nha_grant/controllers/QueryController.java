@@ -216,7 +216,7 @@ return  ResponseEntity.ok().body(new SuccessResponse("Query Responded Succesfull
                 iGrantRequestsRepo.updateEsignStatusByRequestID(request.getRequestId(), bytes,"",false);
             }
             else if (actionId==3){
-                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 5);
+                iGrantRequestsRepo.updateStatusDescription(request.getRequestId(), 6);
                 grantRequestService.saveToWorkFlow(request.getRequestId(), request.getUserId(), 7, request.getProposalTypeId(), request.getQuery());
                 iQueries.save(query);
             }
