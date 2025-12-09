@@ -213,10 +213,18 @@ details.setNhaShareOfPremiumPayable(result);
         if (details.getShaShareOfPremiumPayable() != null &&
                 details.getShaShareOfPremiumPayable().compareTo(BigDecimal.ZERO) != 0) {
 
-            BigDecimal re = details.getUpfrontReleaseByShaForPmjay()
-                    .multiply(details.getNhaShareOfPremiumPayable())
-                    .divide(details.getShaShareOfPremiumPayable(), 3, RoundingMode.HALF_UP);
 
+            BigDecimal re;
+            if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+            {
+                re=details.getUpfrontReleaseByShaForPmjay().multiply(details.getNhaShareInGia());
+            }
+            else {
+                re = details.getUpfrontReleaseByShaForPmjay()
+                        .multiply(details.getNhaShareOfPremiumPayable())
+                        .divide(details.getShaShareOfPremiumPayable(), 3, RoundingMode.HALF_UP);
+
+            }
             details.setNhaShareCorrespondingToShaRelease(re);
         }
         details.setTotalAmountPayableTillThisTranche(details.getNhaShareOfPremiumPayable().multiply(details.getPaymentTrancheNo()));
@@ -391,8 +399,15 @@ details.setNhaShareOfPremiumPayable(result);
 
         // NHA share corresponding to SHA release
         BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
-        BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
-                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        BigDecimal nhaShareCorresponding ;
+        if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+        {
+            nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay().multiply(details.getNhaShareInGia());
+        }
+        else {
+            nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                    .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        }
         details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
 
         // total amount payable till this tranche
@@ -475,8 +490,15 @@ details.setNhaShareOfPremiumPayable(result);
 
         // NHA share corresponding to SHA release
         BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
-        BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
-                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        BigDecimal nhaShareCorresponding ;
+        if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+        {
+            nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay().multiply(details.getNhaShareInGia());
+        }
+        else {
+            nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                    .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        }
         details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
 
         // total amount payable till this tranche
@@ -517,8 +539,15 @@ details.setMaxGiaImplementationPerFamilyOld(maxPerFamilyOld);
     details.setNhaShareInPmjayTreatmentCost(nhaShareInPmjay);
 
     BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
-    BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
-            .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+    BigDecimal nhaShareCorresponding ;
+    if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+    {
+        nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay().multiply(details.getNhaShareInGia());
+    }
+    else {
+        nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+    }
     details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
 
 
@@ -556,8 +585,15 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
 
     // NHA share corresponding to SHA release
     BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
-    BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
-            .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+    BigDecimal nhaShareCorresponding ;
+    if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+    {
+        nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay().multiply(details.getNhaShareInGia());
+    }
+    else {
+        nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+    }
     details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
 
     // total amount payable till this tranche
@@ -627,10 +663,17 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
         details.setShaShareOfPremiumPayable(shaShare);
 
 
-        BigDecimal re = details.getUpfrontReleaseByShaForPmjay()
-                .multiply(details.getNhaShareInGia())
-                .divide(BigDecimal.ONE.subtract(details.getNhaShareInGia()), 3, RoundingMode.HALF_UP);
+        BigDecimal re;
+        if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+        {
+            re=details.getUpfrontReleaseByShaForPmjay().multiply(details.getNhaShareInGia());
+        }
+        else {
+            re = details.getUpfrontReleaseByShaForPmjay()
+                    .multiply(details.getNhaShareOfPremiumPayable())
+                    .divide(details.getShaShareOfPremiumPayable(), 3, RoundingMode.HALF_UP);
 
+        }
 
         details.setNhaShareCorrespondingToShaRelease(re);
 
@@ -705,8 +748,15 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
 
         // NHA share corresponding to SHA release
         BigDecimal oneMinusShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
-        BigDecimal nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
-                .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        BigDecimal nhaShareCorresponding ;
+        if(details.getNhaShareInGia().equals(BigDecimal.ONE))
+        {
+            nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay().multiply(details.getNhaShareInGia());
+        }
+        else {
+            nhaShareCorresponding = details.getUpfrontReleaseByShaForPmjay()
+                    .multiply(details.getNhaShareInGia().divide(oneMinusShare, 10, RoundingMode.HALF_UP));
+        }
         details.setNhaShareCorrespondingToShaRelease(nhaShareCorresponding);
 
         // total amount payable till this tranche

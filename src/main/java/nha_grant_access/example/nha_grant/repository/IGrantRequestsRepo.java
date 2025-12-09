@@ -38,7 +38,7 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
             "gr.remarks, " +
             "gr.requested_amount, " +
             "u.name AS user_name, " +
-            "gr.created_at, " +
+            "gr.updated_at, " +
             "s.name AS state_name " +
             "FROM " +
             "grant_requests gr " +
@@ -346,6 +346,21 @@ Integer totalShaPendingQueriesByState(Integer stateId);
             nativeQuery = true)
     int updateEsignStatusByRequestID(String requestId,
                                               byte[] esignLetter, String txnId, boolean status);
+
+//    @Modifying
+//    @Transactional
+//    @Query(value = "UPDATE grant_requests SET " +
+//            "e_sign_status_state_ceo = :status ," +
+//            "esign_txn_id = :txnId  ," +
+//
+//
+//
+//
+//
+//            "WHERE request_id = :requestId",
+//            nativeQuery = true)
+//    int updateTxnByRequestID(String requestId
+//                                     , String txnId, boolean status);
 
 
 }
