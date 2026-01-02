@@ -46,7 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
             mobile = jwtUtil.extractMobile(jwt);
 
             BlacklistToken blacklistToken=null;
-            blacklistToken = iBlacklistTokenRepository.findById(jwt).orElse(null);
+          //  blacklistToken = iBlacklistTokenRepository.findById(jwt).orElse(null);
             if(blacklistToken!=null)
             {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
