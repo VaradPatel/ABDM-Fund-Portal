@@ -149,7 +149,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
 
     }
 
-    @GetMapping("/admin-user-management/{status}")
+    @GetMapping("/adm-user-management/{status}")
     @PreAuthorize("hasAuthority('NHA Admin') ")
     public ResponseEntity<?> getUserApprovalByAdmin(@PathVariable("status") Integer status) throws AccessDeniedException {
         try {
@@ -902,7 +902,7 @@ responseList.get(0).setTotalMaxEligibleGrants(maxEligibleGrant);
 
         }
     }
-    @GetMapping("/nhaAdmin/{stateId}")
+    @GetMapping("/nhaAdm/{stateId}")
    // @PreAuthorize("hasAuthority('NHA Admin') ")
     public ResponseEntity<?> getNhaAdmin(@PathVariable("stateId") Integer stateId , @RequestParam Integer proposalType, @RequestParam String financialYear , @RequestParam(defaultValue = "0") Integer schemeType) {
         try {

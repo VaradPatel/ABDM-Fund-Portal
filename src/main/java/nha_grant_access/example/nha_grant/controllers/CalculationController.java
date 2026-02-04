@@ -97,7 +97,7 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
-    @PostMapping("/aasha/admin")
+    @PostMapping("/aasha/adm")
     public ResponseEntity<?>AashaAdmin(@Valid @RequestBody AashaAdmin aashaAdmin)
     {
         try
@@ -116,7 +116,7 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
-    @PostMapping("/administrative")
+    @PostMapping("/adm")
     public ResponseEntity<?>Administrative(@Valid @RequestBody AdminNhaPaymentDetails adminNhaPaymentDetails)
     {
         try
@@ -135,7 +135,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
-    @GetMapping("/getAdministrative/{requestId}")
+    @GetMapping("/getAdm/{requestId}")
             public ResponseEntity<?>getAdministrativeCalcByRequestId(@PathVariable("requestId") String requestId)
     {
         try {
@@ -225,7 +225,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
             return   ResponseEntity.internalServerError().body(new Error("Error while calculation", e.toString()));
         }
     }
-    @PostMapping("/vvs/admin")
+    @PostMapping("/vvs/adm")
     public ResponseEntity<?>vvsImplAdmin(@Valid @RequestBody VvsAdmin vvsAdmin)
     {
         try
@@ -332,7 +332,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
         }
 
     }
-    @GetMapping("/getAashaAdmin/{requestId}")
+    @GetMapping("/getAashaAdm/{requestId}")
     public ResponseEntity<?>getAashaAdmin(@PathVariable("requestId") String requestId)
     {
         try {
@@ -349,7 +349,7 @@ AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrative
         }
 
     }
-    @GetMapping("/getVvsAdmin/{requestId}")
+    @GetMapping("/getVvsAdm/{requestId}")
     public ResponseEntity<?>getVvsAdmin(@PathVariable("requestId") String requestId)
     {
         try {

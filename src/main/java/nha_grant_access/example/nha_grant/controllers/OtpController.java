@@ -133,7 +133,7 @@ catch (Exception e)
                 .headers(headers)
                 .body(resource);
     }
-    @GetMapping("/download/pmjay-administrative")
+    @GetMapping("/download/pmjay-adm")
     public ResponseEntity<Resource> getPmjayAdministrativePdf() throws IOException
     {
         Resource resource = new ClassPathResource("pdf/PMJAY-Administrative.pdf");
