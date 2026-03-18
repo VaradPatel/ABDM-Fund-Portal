@@ -32,23 +32,28 @@ public interface IGrantRequestsRepo extends JpaRepository<GrantRequests, Integer
     List<Object[]> findAllGrantRequestByStatus(Integer stateId , Integer flowStatus);
 
 
-    @Query(value = "SELECT DISTINCT ON (gr.request_id) " +
-            "gr.request_id, " +
-
-            "gr.remarks, " +
-            "gr.requested_amount, " +
-            "u.name AS user_name, " +
-            "gr.updated_at, " +
-            "s.name AS state_name " +
-            "FROM " +
-            "grant_requests gr " +
-            "JOIN work_flow wf ON wf.request_id = gr.request_id " +
-            "JOIN user_state_role usr ON wf.user_id = usr.user_id AND usr.role_id = :roleId " +
-            "JOIN users u ON usr.user_id = u.id " +
-            "JOIN states s ON gr.state_id = s.id " +
-            "WHERE gr.state_id IN (:stateId) " +
-            "AND gr.flow_status = :flowStatus",
+    @Query(value =
+            "SELECT * FROM ( " +
+                    "   SELECT " +
+                    "       gr.request_id, " +
+                    "       gr.remarks, " +
+                    "       gr.requested_amount, " +
+                    "       u.name AS user_name, " +
+                    "       gr.updated_at, " +
+                    "       s.name AS state_name, " +
+                    "       ROW_NUMBER() OVER (PARTITION BY gr.request_id ORDER BY gr.updated_at DESC) rn " +
+                    "   FROM grant_requests gr " +
+                    "   JOIN work_flow wf ON wf.request_id = gr.request_id " +
+                    "   JOIN user_state_role usr ON wf.user_id = usr.user_id AND usr.role_id = :roleId " +
+                    "   JOIN users u ON usr.user_id = u.id " +
+                    "   JOIN states s ON gr.state_id = s.id " +
+                    "   WHERE gr.state_id IN (:stateId) " +
+                    "   AND gr.flow_status = :flowStatus " +
+                    ") t " +
+                    "WHERE rn = 1 " +
+                    "ORDER BY updated_at DESC",
             nativeQuery = true)
+
     List<Object[]> getGrantRequestsWithState( List<Integer>stateId, Integer flowStatus, Integer roleId);
 
 
@@ -305,7 +310,7 @@ Integer totalShaPendingQueriesByState(Integer stateId);
     List<Object[]> getNhaReviewerPending(Integer flowStatus);
 
     @Query(value = """
-    SELECT * FROM grant_requests
+    SELECT * FROM grant_requests order by  created_at desc
     
     """, nativeQuery = true)
     List<GrantRequests> findAllGrantRequestForReviwer();

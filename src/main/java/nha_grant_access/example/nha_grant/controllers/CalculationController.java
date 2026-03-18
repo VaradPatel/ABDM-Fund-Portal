@@ -121,7 +121,7 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
     {
         try
         {
-AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrativeCalc(adminNhaPaymentDetails);
+            AdminNhaPaymentDetails adminNhaPaymentDetails1=calculationService.administrativeCalc(adminNhaPaymentDetails);
             if(adminNhaPaymentDetails1.getAmountProposedToBeReleased().compareTo(BigDecimal.ZERO) <0)
             {
                 ResponseEntity.badRequest().body(new Error("Kindly check the entered data. The requested amount cannot be negative ","Kindly check the entered data. The requested amount cannot be negative"));
