@@ -11,17 +11,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -52,6 +49,16 @@ public class stateController {
         return istatesRepository.findAll();
 
     }
+
+    @GetMapping(path = "/state/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<States> stateById(@PathVariable Integer id) {
+
+        return istatesRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
     @GetMapping(path = "/all-roles", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Roles> roles() throws Exception {
 

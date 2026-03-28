@@ -74,6 +74,10 @@ public interface IstatesRepository extends JpaRepository<States, Integer> {
     @Query(value = "SELECT COALESCE(SUM(q4), 0) FROM states WHERE (:stateId = 0 OR id = :stateId)", nativeQuery = true)
     BigDecimal getq4(Integer stateId);
 
+    @Query(value = "SELECT * FROM states WHERE id = :stateId ", nativeQuery = true)
+    BigDecimal getState(Integer stateId);
+
+
 
 
 

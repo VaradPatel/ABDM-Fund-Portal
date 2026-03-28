@@ -208,9 +208,55 @@ Integer totalShaPendingQueriesByState(Integer stateId);
             """, nativeQuery = true)
     List<Object[]>getNhaReviewerDashboard(Integer userId,  Integer stateId, String policyStartDate, String policyEndDate,Integer proposalType);
 
+//    @Query(value = """
+//    SELECT
+//        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+//        COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
+//        COUNT(*) FILTER (WHERE gr.flow_status = 9) AS approved,
+//        COUNT(*) FILTER (WHERE gr.flow_status = 8) AS accepted,
+//        COUNT(*) FILTER (WHERE gr.flow_status NOT IN (8, 9)) AS review,
+//
+//        (
+//            SELECT COUNT(*)
+//            FROM users u
+//            WHERE u.is_activated = false
+//        ) AS deactivated_users,
+//
+//        (
+//            SELECT COUNT(*)
+//            FROM users u
+//            WHERE u.is_verified = true AND u.role_id > 1
+//        ) AS verified_users,
+//
+//        (
+//            SELECT COUNT(*)
+//            FROM users u
+//            WHERE u.is_verified = false AND u.role_id > 1
+//        ) AS pending_users,
+//
+//        COALESCE(SUM(gr.gc_amount), 0) AS total_released_amount_gc,
+//        COALESCE(SUM(gr.sc_amount), 0) AS total_released_amount_sc,
+//        COALESCE(SUM(gr.st_amount), 0) AS total_released_amount_st
+//
+//    FROM grant_requests gr
+//    WHERE (:stateId = 0 OR gr.state_id = :stateId)
+//     AND (:proposalType = 0 OR proposal_type_id = :proposalType)
+//      AND (:financialYear = 'ALL' OR financial_year = :financialYear)
+//      and (:schemeType=0 OR scheme_id= :schemeType)
+//
+//""", nativeQuery = true)
+//
+//
+//    List<Object[]>getNhaAdminDashboard(Integer stateId, String financialYear, Integer proposalType, Integer schemeType);
+
     @Query(value = """
     SELECT 
-        COALESCE(SUM(gr.requested_amount), 0) AS total_requested_amount,
+        COALESCE(SUM(CASE 
+            WHEN :quarter = 'ALL' OR EXTRACT(QUARTER FROM gr.created_at) = CAST(:quarter AS INTEGER)
+            THEN gr.requested_amount 
+            ELSE 0 
+        END), 0) AS total_requested_amount,
+        
         COALESCE(SUM(gr.released_amount), 0) AS total_released_amount,
         COUNT(*) FILTER (WHERE gr.flow_status = 9) AS approved,
         COUNT(*) FILTER (WHERE gr.flow_status = 8) AS accepted,
@@ -240,16 +286,18 @@ Integer totalShaPendingQueriesByState(Integer stateId);
 
     FROM grant_requests gr
     WHERE (:stateId = 0 OR gr.state_id = :stateId)
-     AND (:proposalType = 0 OR proposal_type_id = :proposalType)
+      AND (:proposalType = 0 OR proposal_type_id = :proposalType)
       AND (:financialYear = 'ALL' OR financial_year = :financialYear)
-      and (:schemeType=0 OR scheme_id= :schemeType)
-      
+      AND (:schemeType = 0 OR scheme_id = :schemeType)
 """, nativeQuery = true)
 
-
-    List<Object[]>getNhaAdminDashboard(Integer stateId, String financialYear, Integer proposalType, Integer schemeType);
-
-
+    List<Object[]> getNhaAdminDashboard(
+            Integer stateId,
+            String financialYear,
+            Integer proposalType,
+            Integer schemeType,
+            String quarter
+    );
     @Query(value = """
     SELECT 
         COALESCE(SUM(od.requested_amount), 0) AS total_requested_amount,
