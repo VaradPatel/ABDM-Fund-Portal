@@ -93,7 +93,7 @@ public class AdministrativeExcelService {
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable by NHA",
                     d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (Max Admin, NHA Expense, SHA Corresponding, Tranche)");
+                    "Minimum of (Max Admin Payable , Administrative Expense (NHA) , NHA Share Corresponding to SHA Release, Total Amount Payable Till Tranche)");
 
             rowIdx = row(sheet, rowIdx,
                     "Amount Proposed to be Released",

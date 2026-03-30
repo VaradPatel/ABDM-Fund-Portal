@@ -78,7 +78,7 @@ public class AashaHybridExcelService {
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable by NHA",
                     d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (NHA Premium Share, SHA Corresponding, Tranche)");
+                    "Minimum of (NHA Share of Premium Payable , NHA Share Corresponding to SHA Release , Total Amount Payable Till Tranche)");
 
             rowIdx = row(sheet, rowIdx,
                     "Amount Proposed to be Released",

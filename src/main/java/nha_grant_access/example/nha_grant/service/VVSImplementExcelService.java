@@ -1,5 +1,10 @@
 package nha_grant_access.example.nha_grant.service;
 
+import nha_grant_access.example.nha_grant.entity.VVSImplementNew;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayInputStream;
 import nha_grant_access.example.nha_grant.entity.AashaAdmin;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -10,14 +15,13 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
-
 @Service
-public class AashaAdminExcelService {
+public class VVSImplementExcelService {
 
-    public ByteArrayInputStream generateExcel(List<AashaAdmin> list) throws Exception {
+    public ByteArrayInputStream generateExcel(List<VVSImplementNew> list) throws Exception {
 
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Aasha Admin");
+        Sheet sheet = workbook.createSheet("VVS Implement Trust");
 
         Row header = sheet.createRow(0);
         header.createCell(0).setCellValue("Field Name");
@@ -26,7 +30,7 @@ public class AashaAdminExcelService {
 
         int rowIdx = 1;
 
-        for (AashaAdmin d : list) {
+        for (VVSImplementNew d : list) {
 
             // -------- NON CALCULATED --------
             rowIdx = row(sheet, rowIdx, "State Name", d.getStateName(), "");
@@ -35,7 +39,8 @@ public class AashaAdminExcelService {
             rowIdx = row(sheet, rowIdx, "Scheme Name", d.getSchemeName(), "");
             rowIdx = row(sheet, rowIdx, "Benefit Cover", d.getBenefitCover(), "");
             rowIdx = row(sheet, rowIdx, "NHA Share in GIA", d.getNhaShareInGia(), "");
-            rowIdx = row(sheet, rowIdx, "Total Eligible Families", d.getTotalEligibleAshaAwwAwhFamilies(), "");
+            rowIdx = row(sheet, rowIdx, "New Beneficiaries", d.getNewBeneficiaryInstate(), "");
+            rowIdx = row(sheet, rowIdx, "Old Beneficiaries", d.getOldBeneficiaryInState(), "");
             rowIdx = row(sheet, rowIdx, "Total Treatment Cost Paid by SHA", d.getTotalTreatmentCostPaidBySha(), "");
             rowIdx = row(sheet, rowIdx, "Upfront Release by SHA", d.getUpfrontReleaseByShaForPmjay(), "");
             rowIdx = row(sheet, rowIdx, "Payment Tranche No", d.getPaymentTrancheNo(), "");
@@ -45,33 +50,23 @@ public class AashaAdminExcelService {
             // -------- CALCULATED --------
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Implementation per Family",
-                    d.getMaxGiaImplementationByNhaPerFamily(),
+                    "Max Implementation per Family (New)",
+                    d.getMaxGiaImplementationPerFamilyNew(),
                     "1052 × NHA Share");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Admin per Family",
-                    d.getMaxGiaAdminByNhaPerFamily(),
-                    "Base Admin (150/200/50) × NHA Share");
+                    "Max Implementation per Family (Old)",
+                    d.getMaxGiaImplementationPerFamilyOld(),
+                    "75.70 × NHA Share");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Implementation by NHA",
+                    "Max Implementation by NHA",
                     d.getMaxGiaImplementationByNha(),
-                    "Eligible Families × Implementation per Family");
+                    "(New Beneficiaries × New Rate) + (Old Beneficiaries × Old Rate)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Admin by NHA",
-                    d.getMaxGiaAdminByNha(),
-                    "Eligible Families × Admin per Family (with minimum cap)");
-
-            rowIdx = row(sheet, rowIdx,
-                    "Administrative Expense (SHA)",
-                    d.getCostOfAdministrativeExpenseSha(),
-                    "Total Treatment Cost × (1 - NHA Share)");
-
-            rowIdx = row(sheet, rowIdx,
-                    "Administrative Expense (NHA)",
-                    d.getCostOfAdministrativeExpenseNha(),
+                    "NHA Share in Treatment Cost",
+                    d.getNhaShareInPmjayTreatmentCost(),
                     "Total Treatment Cost × NHA Share");
 
             rowIdx = row(sheet, rowIdx,
@@ -82,12 +77,12 @@ public class AashaAdminExcelService {
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable Till Tranche",
                     d.getTotalAmountPayableTillThisTranche(),
-                    "Max GIA Admin × Tranche No");
+                    "Max Implementation × Tranche No");
 
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable by NHA",
                     d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (Max Admin, CostOfAdministrativeExpenseNha,NhaShareCorrespondingToShaRelease, TotalAmountPayableTillThisTranche)");
+                    "Minimum of (Max Implementation Amount , NhaShareInPmjayTreatmentCost , NHA Share Corresponding to SHA Release, Total Amount Payable Till Tranche)");
 
             rowIdx = row(sheet, rowIdx,
                     "Amount Proposed to be Released",

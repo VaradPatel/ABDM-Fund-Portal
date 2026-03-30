@@ -68,6 +68,20 @@ public class CalculationController {
     IvvsImpleNew ivvsImpleNew;
 
     @Autowired
+    VVSImplementExcelService vvsImplementExcelService;
+
+    @Autowired
+    VVSHybridExcelService vvsHybridExcelService;
+    @Autowired
+    VVSAdminExcelService vvsAdminExcelService;
+
+    @Autowired
+    AashaImplTrustExcelService aashaImplTrustExcelService;
+
+
+
+
+    @Autowired
     StateCordEditService service;
     @PostMapping("/implementation/trust")
     public ResponseEntity<?>ImplementationTrust(@Valid @RequestBody ImplementationTrustNhaPayementDetails implementationNhaPayementDetails ,  @RequestParam(value = "requestId", required = false) String requestId )
@@ -411,56 +425,122 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         }
     }
     @GetMapping("/getAshaImpTrust/{requestId}")
-    public ResponseEntity<?>getAshaTrustByRequestId(@PathVariable("requestId") String requestId)
-    {
+    public ResponseEntity<?> getAshaTrustByRequestId(
+            @PathVariable("requestId") String requestId,
+            @RequestParam(value = "excel", required = false, defaultValue = "false") boolean excel) {
+
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
-            return ResponseEntity.ok().body(iashaImplTrust.findByRequestId(requestId));
-        }
-        catch (Exception e)
-        {
-            {
-                log.error(e.toString());
-                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
-            }
-        }
 
+            Optional<AashaImplTrust> optional = iashaImplTrust.findByRequestId(requestId);
+
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No data found for requestId: " + requestId);
+            }
+
+            AashaImplTrust obj = optional.get();
+
+            // 🔥 SAME PATTERN: wrap in list (since repo returns single record)
+            List<AashaImplTrust> data = List.of(obj);
+
+            // ✅ Excel download
+            if (excel) {
+                ByteArrayInputStream excelFile = aashaImplTrustExcelService.generateExcel(data);
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=asha_impl_trust.xlsx")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(new InputStreamResource(excelFile));
+            }
+
+            // ✅ JSON response (NO calculation here — same as other APIs)
+            return ResponseEntity.ok(obj);
+
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError()
+                    .body(new Error("Error while fetching calculation details", e.toString()));
+        }
     }
     @GetMapping("/getVVSImpTrust/{requestId}")
-    public ResponseEntity<?>getVVSTrustByRequestId(@PathVariable("requestId") String requestId)
-    {
+    public ResponseEntity<?> getVVSTrustByRequestId(
+            @PathVariable("requestId") String requestId,
+            @RequestParam(value = "excel", required = false, defaultValue = "false") boolean excel) {
+
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
 
-            return ResponseEntity.ok().body(ivvsImpleNew.findByRequestId(requestId));
-        }
-        catch (Exception e)
-        {
-            {
-                log.error(e.toString());
-                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
-            }
-        }
+            Optional<VVSImplementNew> optional = ivvsImpleNew.findByRequestId(requestId);
 
+            // ✅ Handle no data
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No data found for requestId: " + requestId);
+            }
+
+            VVSImplementNew data = optional.get();
+
+            // ✅ Excel case
+            if (excel) {
+                ByteArrayInputStream excelFile =
+                        vvsImplementExcelService.generateExcel(List.of(data));
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=vvs_implement_trust.xlsx")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(new InputStreamResource(excelFile));
+            }
+
+            // ✅ JSON
+            return ResponseEntity.ok(data);
+
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError()
+                    .body(new Error("Error while fetching calculation details", e.toString()));
+        }
     }
     @GetMapping("/getVVSImpHybrid/{requestId}")
-    public ResponseEntity<?>getVVShybridByRequestId(@PathVariable("requestId") String requestId)
-    {
+    public ResponseEntity<?> getVVShybridByRequestId(
+            @PathVariable("requestId") String requestId,
+            @RequestParam(value = "excel", required = false, defaultValue = "false") boolean excel) {
+
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
-            return ResponseEntity.ok().body(iVvsHybrid.findByRequestId(requestId));
-        }
-        catch (Exception e)
-        {
-            {
-                log.error(e.toString());
-                return   ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
-            }
-        }
 
+            Optional<nha_grant_access.example.nha_grant.entity.VvsHybrid> optional = iVvsHybrid.findByRequestId(requestId);
+
+            // ✅ Handle no data
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No data found for requestId: " + requestId);
+            }
+
+            nha_grant_access.example.nha_grant.entity.VvsHybrid data = optional.get();
+
+            // ✅ Excel case
+            if (excel) {
+                ByteArrayInputStream excelFile =
+                        vvsHybridExcelService.generateExcel(List.of(data));
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=vvs_hybrid.xlsx")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(new InputStreamResource(excelFile));
+            }
+
+            // ✅ JSON
+            return ResponseEntity.ok(data);
+
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError()
+                    .body(new Error("Error while fetching calculation details", e.toString()));
+        }
     }
     @GetMapping("/getAashaImpHybrid/{requestId}")
     public ResponseEntity<?> getAashaHybrid(
@@ -539,21 +619,44 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             return ResponseEntity.internalServerError()
                     .body(new Error("Error while fetching calculation details", e.toString()));
         }
-    }    @GetMapping("/getVvsAdm/{requestId}")
-    public ResponseEntity<?>getVvsAdmin(@PathVariable("requestId") String requestId)
-    {
+    }
+    @GetMapping("/getVvsAdm/{requestId}")
+    public ResponseEntity<?> getVvsAdmin(
+            @PathVariable("requestId") String requestId,
+            @RequestParam(value = "excel", required = false, defaultValue = "false") boolean excel) {
+
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
-            return ResponseEntity.ok().body(vvsAdminRepo.findByRequestId(requestId));
-        }
-        catch (Exception e)
-        {
-            {
-                log.error(e.toString());
-                return  ResponseEntity.internalServerError().body(new Error("Error while fetching calculation details", e.toString()));
-            }
-        }
 
+            Optional<nha_grant_access.example.nha_grant.entity.VvsAdmin> optional = vvsAdminRepo.findByRequestId(requestId);
+
+            // ✅ No data
+            if (optional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No data found for requestId: " + requestId);
+            }
+
+            nha_grant_access.example.nha_grant.entity.VvsAdmin data = optional.get();
+
+            // ✅ Excel case
+            if (excel) {
+                ByteArrayInputStream excelFile =
+                        vvsAdminExcelService.generateExcel(List.of(data));
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=vvs_admin.xlsx")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(new InputStreamResource(excelFile));
+            }
+
+            // ✅ JSON
+            return ResponseEntity.ok(data);
+
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError()
+                    .body(new Error("Error while fetching calculation details", e.toString()));
+        }
     }
 }

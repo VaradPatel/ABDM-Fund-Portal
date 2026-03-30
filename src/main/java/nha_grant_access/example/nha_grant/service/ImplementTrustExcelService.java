@@ -96,7 +96,7 @@ public class ImplementTrustExcelService {
             rowIdx = createRow(sheet, rowIdx,
                     "Total Amount Payable by NHA (As On Date)",
                     d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (Max Amout for Implementation, NHA Share in Treatment ,  Nha Share Corresponding to share Release , Amount Payable upto tranche)");
+                    "Minimum of (Max Amount for Implementation, NHA Share in Treatment ,  Nha Share Corresponding to share Release , Amount Payable upto tranche)");
 
             rowIdx = createRow(sheet, rowIdx,
                     "Amount Proposed to be Released",

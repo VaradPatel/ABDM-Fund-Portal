@@ -415,9 +415,9 @@ details.setNhaShareOfPremiumPayable(result);
         details.setTotalAmountPayableTillThisTranche(totalTillTranche);
 
         // Find minimum of 4 BigDecimal values
-        BigDecimal min = minOfThree(
+        BigDecimal min = minOfFour(
                 maxAdminByNha,
-
+                nhaShareInPmjay,
                 nhaShareCorresponding,
                 totalTillTranche
         );
@@ -764,9 +764,9 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
         details.setTotalAmountPayableTillThisTranche(totalTillTranche);
 
         // Find minimum of 4 BigDecimal values
-        BigDecimal min = minOfThree(
+        BigDecimal min = minOfFour(
                 maxAdminByNha,
-
+                nhaShareInPmjay,
                 nhaShareCorresponding,
                 totalTillTranche
         );
