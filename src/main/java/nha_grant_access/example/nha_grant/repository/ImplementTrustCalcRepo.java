@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface ImplementTrustCalcRepo extends JpaRepository<ImplementTrustCalc, Integer> {
-    @Query(value ="Select * from implement_trust_calc where request_id= :requestId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<ImplementTrustCalc> findByRequestId(String requestId);
+    @Query(value ="Select * from implement_trust_calc where request_id= :requestId and roleId= :roleId  ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
+    Optional<ImplementTrustCalc> findByRequestId(String requestId, Integer roleId);
 }

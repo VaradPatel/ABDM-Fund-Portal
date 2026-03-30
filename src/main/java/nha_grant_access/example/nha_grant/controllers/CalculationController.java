@@ -220,8 +220,13 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
 
-            Optional<AdministrativeCalc> optional = iAdminCalcRepo.findByRequestId(requestId);
+            Optional<AdministrativeCalc> optional = iAdminCalcRepo.findByRequestId(requestId,roleId);
 
             // ✅ Handle no data
             if (optional.isEmpty()) {
@@ -260,7 +265,13 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
 
-            ImplementTrustCalc data = implementTrustCalcRepo.findByRequestId(requestId).get();
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+
+            ImplementTrustCalc data = implementTrustCalcRepo.findByRequestId(requestId,roleId).get();
             List<ImplementTrustCalc>lst=new ArrayList<>();
             lst.add(data);
             // ✅ If Excel requested
@@ -291,7 +302,12 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
 
-            Optional<ImplementInsuCalc> optional = implementInsuCalcRepo.findByRequestId(requestId);
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+            Optional<ImplementInsuCalc> optional = implementInsuCalcRepo.findByRequestId(requestId, roleId);
 
             if (optional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -432,8 +448,12 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
-
-            Optional<AashaImplTrust> optional = iashaImplTrust.findByRequestId(requestId);
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+            Optional<AashaImplTrust> optional = iashaImplTrust.findByRequestId(requestId,roleId);
 
             if (optional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -473,7 +493,12 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
 
-            Optional<VVSImplementNew> optional = ivvsImpleNew.findByRequestId(requestId);
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+            Optional<VVSImplementNew> optional = ivvsImpleNew.findByRequestId(requestId,roleId);
 
             // ✅ Handle no data
             if (optional.isEmpty()) {
@@ -511,8 +536,12 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
-
-            Optional<nha_grant_access.example.nha_grant.entity.VvsHybrid> optional = iVvsHybrid.findByRequestId(requestId);
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+            Optional<nha_grant_access.example.nha_grant.entity.VvsHybrid> optional = iVvsHybrid.findByRequestId(requestId ,roleId);
 
             // ✅ Handle no data
             if (optional.isEmpty()) {
@@ -550,8 +579,12 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
-
-            Optional<nha_grant_access.example.nha_grant.entity.AashaHybrid> optional = iAashaHybrid.findByRequestId(requestId);
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+            Optional<nha_grant_access.example.nha_grant.entity.AashaHybrid> optional = iAashaHybrid.findByRequestId(requestId, roleId);
 
             // ✅ Handle no data
             if (optional.isEmpty()) {
@@ -590,7 +623,12 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
 
-            Optional<nha_grant_access.example.nha_grant.entity.AashaAdmin> optional = iAashaAdmin.findByRequestId(requestId);
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+            Optional<nha_grant_access.example.nha_grant.entity.AashaAdmin> optional = iAashaAdmin.findByRequestId(requestId,roleId);
 
             // ✅ No data case
             if (optional.isEmpty()) {
@@ -629,7 +667,12 @@ return ResponseEntity.ok().body(implementationNhaPayementDetails1);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String name = authentication.getName();
 
-            Optional<nha_grant_access.example.nha_grant.entity.VvsAdmin> optional = vvsAdminRepo.findByRequestId(requestId);
+            Integer roleId=1;
+            if(excel)
+            {
+                roleId=3;
+            }
+            Optional<nha_grant_access.example.nha_grant.entity.VvsAdmin> optional = vvsAdminRepo.findByRequestId(requestId ,roleId);
 
             // ✅ No data
             if (optional.isEmpty()) {

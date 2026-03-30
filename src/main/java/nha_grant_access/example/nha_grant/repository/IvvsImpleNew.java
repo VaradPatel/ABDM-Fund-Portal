@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface IvvsImpleNew extends JpaRepository<VVSImplementNew, Integer> {
-    @Query(value ="Select * from vvs_implementtrust_calc where request_id= :requestId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<VVSImplementNew> findByRequestId(String requestId);
+    @Query(value ="Select * from vvs_implementtrust_calc where request_id= :requestId and and roleId= :roleId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
+    Optional<VVSImplementNew> findByRequestId(String requestId, Integer roleId);
 }

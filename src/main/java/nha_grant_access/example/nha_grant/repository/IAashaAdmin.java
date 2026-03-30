@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface IAashaAdmin extends JpaRepository<AashaAdmin, Integer> {
-    @Query(value ="Select * from aasha_admin_calc where request_id= :requestId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<AashaAdmin> findByRequestId(String requestId);
+    @Query(value ="Select * from aasha_admin_calc where request_id= :requestId and roleId= :roleId  ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
+    Optional<AashaAdmin> findByRequestId(String requestId , Integer roleId);
 }
 
