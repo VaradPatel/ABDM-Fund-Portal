@@ -1,6 +1,5 @@
 package nha_grant_access.example.nha_grant.service;
 
-import nha_grant_access.example.nha_grant.entity.AashaAdmin;
 import nha_grant_access.example.nha_grant.entity.AashaImplTrust;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+
 @Service
 public class AashaImplTrustExcelService {
 
@@ -19,9 +19,10 @@ public class AashaImplTrustExcelService {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Aasha Impl Trust");
 
+        // Header
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Field Name");
-        header.createCell(1).setCellValue("Value");
+        header.createCell(0).setCellValue("Particulars");
+        header.createCell(1).setCellValue("Information");
         header.createCell(2).setCellValue("Description");
 
         int rowIdx = 1;
@@ -34,51 +35,75 @@ public class AashaImplTrustExcelService {
             rowIdx = row(sheet, rowIdx, "Date of Implementation", d.getDateOfImplementation(), "");
             rowIdx = row(sheet, rowIdx, "Scheme Name", d.getSchemeName(), "");
             rowIdx = row(sheet, rowIdx, "Benefit Cover", d.getBenefitCover(), "");
-            rowIdx = row(sheet, rowIdx, "NHA Share in GIA", d.getNhaShareInGia(), "");
-            rowIdx = row(sheet, rowIdx, "Total Eligible Families", d.getTotalEligibleAshaAwwAwhFamilies(), "");
-            rowIdx = row(sheet, rowIdx, "Upfront Release by SHA", d.getUpfrontReleaseByShaForPmjay(), "");
-            rowIdx = row(sheet, rowIdx, "Payment Tranche No", d.getPaymentTrancheNo(), "");
-            rowIdx = row(sheet, rowIdx, "Earlier Released", d.getEarlierAmountReleasedByNha(), "");
-            rowIdx = row(sheet, rowIdx, "Unspent Amount", d.getUnspentAmountAsPerUc(), "");
+            rowIdx = row(sheet, rowIdx, "NHA Share in GIA (A)", d.getNhaShareInGia(), "");
+            rowIdx = row(sheet, rowIdx, "Total Eligible Families (B)", d.getTotalEligibleAshaAwwAwhFamilies(), "");
+            rowIdx = row(sheet, rowIdx, "Policy Period", d.getPolicyPeriod(), "");
 
             // -------- CALCULATED --------
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Implementation per Family",
                     d.getMaxGiaImplementationByNhaPerFamily(),
-                    "1052 × NHA Share");
+                    "1052 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Implementation by NHA",
+                    "Max GIA Implementation by NHA (C)",
                     d.getMaxGiaImplementationByNha(),
-                    "Eligible Families × Max per family");
+                    "Eligible Families (B) × 1052 * A");
 
             rowIdx = row(sheet, rowIdx,
-                    "NHA Share in Cost",
+                    "Total Treatment Cost Paid by SHA (D)",
+                    d.getTotalTreatmentCostPaidBySha(),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "NHA Share in Cost (E)",
                     d.getNhaShareInCostForAshaAwsAww(),
-                    "Total Treatment Cost × NHA Share");
+                    "Total Treatment Cost (D) × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "NHA Share Corresponding to SHA Release",
+                    "Upfront Release by SHA (F)",
+                    d.getUpfrontReleaseByShaForPmjay(),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "NHA Share Corresponding to SHA Release (G)",
                     d.getNhaShareCorrespondingToShaRelease(),
-                    "Upfront × (NHA Share / (1 - NHA Share))");
+                    "Upfront Release (F) × (A / (1 - A))");
 
             rowIdx = row(sheet, rowIdx,
-                    "Total Amount Payable Till Tranche",
+                    "Payment Tranche No",
+                    d.getPaymentTrancheNo(),
+                    "(0.5/0.75/1.0)");
+
+
+            rowIdx = row(sheet, rowIdx,
+                    "Total Amount Payable Till Tranche (J)",
                     d.getTotalAmountPayableTillThisTranche(),
-                    "Max GIA × Tranche No");
+                    "Max GIA Implementation (C) × Tranche No");
 
             rowIdx = row(sheet, rowIdx,
-                    "Total Amount Payable by NHA",
+                    "Total Amount Payable by NHA (K)",
                     d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (MaxGiaImplementationByNha, NhaShareInCostForAshaAwsAww , NhaShareCorrespondingToShaRelease, TotalAmountPayableTillThisTranche)");
+                    "Minimum of (C, E, G, J)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Amount Proposed to be Released",
+                    "Earlier Released (H)",
+                    d.getEarlierAmountReleasedByNha(),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Unspent Amount (I)",
+                    d.getUnspentAmountAsPerUc(),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Amount Proposed to be Released (L)",
                     d.getAmountProposedToBeReleased(),
-                    "Total Payable - Earlier Released - Unspent");
+                    "K - H - I");
         }
 
+        // Auto-size
         for (int i = 0; i < 3; i++) sheet.autoSizeColumn(i);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

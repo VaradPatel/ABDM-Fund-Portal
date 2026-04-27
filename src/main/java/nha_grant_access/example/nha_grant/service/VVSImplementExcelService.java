@@ -1,11 +1,6 @@
 package nha_grant_access.example.nha_grant.service;
 
 import nha_grant_access.example.nha_grant.entity.VVSImplementNew;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.springframework.stereotype.Service;
-
-import java.io.ByteArrayInputStream;
-import nha_grant_access.example.nha_grant.entity.AashaAdmin;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -14,7 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+
 @Service
 public class VVSImplementExcelService {
 
@@ -23,9 +21,10 @@ public class VVSImplementExcelService {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("VVS Implement Trust");
 
+        // Header
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Field Name");
-        header.createCell(1).setCellValue("Value");
+        header.createCell(0).setCellValue("Particulars");
+        header.createCell(1).setCellValue("Information");
         header.createCell(2).setCellValue("Description");
 
         int rowIdx = 1;
@@ -38,58 +37,80 @@ public class VVSImplementExcelService {
             rowIdx = row(sheet, rowIdx, "Date of Implementation", d.getDateOfImplementation(), "");
             rowIdx = row(sheet, rowIdx, "Scheme Name", d.getSchemeName(), "");
             rowIdx = row(sheet, rowIdx, "Benefit Cover", d.getBenefitCover(), "");
-            rowIdx = row(sheet, rowIdx, "NHA Share in GIA", d.getNhaShareInGia(), "");
-            rowIdx = row(sheet, rowIdx, "New Beneficiaries", d.getNewBeneficiaryInstate(), "");
-            rowIdx = row(sheet, rowIdx, "Old Beneficiaries", d.getOldBeneficiaryInState(), "");
-            rowIdx = row(sheet, rowIdx, "Total Treatment Cost Paid by SHA", d.getTotalTreatmentCostPaidBySha(), "");
-            rowIdx = row(sheet, rowIdx, "Upfront Release by SHA", d.getUpfrontReleaseByShaForPmjay(), "");
-            rowIdx = row(sheet, rowIdx, "Payment Tranche No", d.getPaymentTrancheNo(), "");
-            rowIdx = row(sheet, rowIdx, "Earlier Released", d.getEarlierAmountReleasedByNha(), "");
-            rowIdx = row(sheet, rowIdx, "Unspent Amount", d.getUnspentAmountAsPerUc(), "");
+            rowIdx = row(sheet, rowIdx, "NHA Share in GIA (A)", round(d.getNhaShareInGia()), "");
+            rowIdx = row(sheet, rowIdx, "New Beneficiaries (B)", d.getNewBeneficiaryInstate(), "");
+            rowIdx = row(sheet, rowIdx, "Old Beneficiaries (C)", d.getOldBeneficiaryInState(), "");
+            rowIdx = row(sheet, rowIdx, "Policy Period", d.getPolicyPeriod(), "");
 
             // -------- CALCULATED --------
 
             rowIdx = row(sheet, rowIdx,
                     "Max Implementation per Family (New)",
-                    d.getMaxGiaImplementationPerFamilyNew(),
-                    "1052 × NHA Share");
+                    round(d.getMaxGiaImplementationPerFamilyNew()),
+                    "1052 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Max Implementation per Family (Old)",
-                    d.getMaxGiaImplementationPerFamilyOld(),
-                    "75.70 × NHA Share");
+                    round(d.getMaxGiaImplementationPerFamilyOld()),
+                    "75.70 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max Implementation by NHA",
-                    d.getMaxGiaImplementationByNha(),
-                    "(New Beneficiaries × New Rate) + (Old Beneficiaries × Old Rate)");
+                    "Max Implementation by NHA (D)",
+                    round(d.getMaxGiaImplementationByNha()),
+                    "(B × 1052 * A) + (C × 75.70 * A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "NHA Share in Treatment Cost",
-                    d.getNhaShareInPmjayTreatmentCost(),
-                    "Total Treatment Cost × NHA Share");
+                    "Total Treatment Cost Paid by SHA (E)",
+                    round(d.getTotalTreatmentCostPaidBySha()),
+                    "");
 
             rowIdx = row(sheet, rowIdx,
-                    "NHA Share Corresponding to SHA Release",
-                    d.getNhaShareCorrespondingToShaRelease(),
-                    "Upfront × Share / (1 - Share) OR direct if share = 1");
+                    "NHA Share in Treatment Cost (F)",
+                    round(d.getNhaShareInPmjayTreatmentCost()),
+                    "Total Treatment Cost (E) × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Total Amount Payable Till Tranche",
-                    d.getTotalAmountPayableTillThisTranche(),
-                    "Max Implementation × Tranche No");
+                    "Upfront Release by SHA (G)",
+                    round(d.getUpfrontReleaseByShaForPmjay()),
+                    "");
 
             rowIdx = row(sheet, rowIdx,
-                    "Total Amount Payable by NHA",
-                    d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (Max Implementation Amount , NhaShareInPmjayTreatmentCost , NHA Share Corresponding to SHA Release, Total Amount Payable Till Tranche)");
+                    "NHA Share Corresponding to SHA Release (H)",
+                    round(d.getNhaShareCorrespondingToShaRelease()),
+                    "Upfront (G) × (A / (1 - A))");
 
             rowIdx = row(sheet, rowIdx,
-                    "Amount Proposed to be Released",
-                    d.getAmountProposedToBeReleased(),
-                    "Total Payable - Earlier Released - Unspent");
+                    "Payment Tranche No",
+                    d.getPaymentTrancheNo(),
+                    "(0.5/0.75/1.0)");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Total Amount Payable Till Tranche (I)",
+                    round(d.getTotalAmountPayableTillThisTranche()),
+                    "Max Implementation by NHA (D) × Tranche No");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Total Amount Payable by NHA (J)",
+                    round(d.getTotalAmountPayableByNhaAsOnDate()),
+                    "Minimum of (D, F, H, I)");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Earlier Released (K)",
+                    round(d.getEarlierAmountReleasedByNha()),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Unspent Amount (L)",
+                    round(d.getUnspentAmountAsPerUc()),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Amount Proposed to be Released (M)",
+                    round(d.getAmountProposedToBeReleased()),
+                    "J - K - L");
         }
 
+        // Auto size
         for (int i = 0; i < 3; i++) sheet.autoSizeColumn(i);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -99,6 +120,12 @@ public class VVSImplementExcelService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
+    // ✅ Common rounding
+    private Object round(BigDecimal value) {
+        return value != null ? value.setScale(2, RoundingMode.HALF_UP) : null;
+    }
+
+    // Helper
     private int row(Sheet sheet, int i, String f, Object v, String d) {
         Row r = sheet.createRow(i);
         r.createCell(0).setCellValue(f);

@@ -179,12 +179,14 @@ Integer totalShaPendingQueriesByState(Integer stateId);
                 FROM grant_requests gr
                 WHERE gr.state_id IN (:stateId) 
                  AND (:proposalType = 0 OR proposal_type_id = :proposalType)
+                  AND (:financialYear = 'ALL' OR financial_year = :financialYear)
+                       AND (:schemeType = 0 OR scheme_id = :schemeType)
                AND (:policyStartDate = 'ALL' OR TO_CHAR(gr.policy_start_date, 'YYYY-MM-DD') = :policyStartDate)
                                 AND (:policyEndDate = 'ALL' OR TO_CHAR(gr.policy_end_date, 'YYYY-MM-DD') = :policyEndDate)
                 
             """, nativeQuery = true)
 
-    List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId , String policyStartDate , String policyEndDate, Integer proposalType);
+    List<Object[]>getStateCordDashboard(Integer userId,  List<Integer>stateId , String policyStartDate , String policyEndDate, Integer proposalType, String financialYear , Integer schemeType);
 
     @Query(value = """
                 SELECT 
@@ -252,7 +254,15 @@ Integer totalShaPendingQueriesByState(Integer stateId);
     @Query(value = """
     SELECT 
         COALESCE(SUM(CASE 
-            WHEN :quarter = 'ALL' OR EXTRACT(QUARTER FROM gr.created_at) = CAST(:quarter AS INTEGER)
+            WHEN :quarter = 'ALL' OR 
+                 (
+                    CASE 
+                        WHEN EXTRACT(MONTH FROM gr.created_at) BETWEEN 4 AND 6 THEN 1
+                        WHEN EXTRACT(MONTH FROM gr.created_at) BETWEEN 7 AND 9 THEN 2
+                        WHEN EXTRACT(MONTH FROM gr.created_at) BETWEEN 10 AND 12 THEN 3
+                        ELSE 4
+                    END
+                 ) = CAST(:quarter AS INTEGER)
             THEN gr.requested_amount 
             ELSE 0 
         END), 0) AS total_requested_amount,

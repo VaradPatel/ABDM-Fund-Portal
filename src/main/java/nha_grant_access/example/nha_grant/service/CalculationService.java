@@ -213,7 +213,7 @@ details.setNhaShareOfPremiumPayable(result);
         if (details.getShaShareOfPremiumPayable() != null &&
                 details.getShaShareOfPremiumPayable().compareTo(BigDecimal.ZERO) != 0) {
 
-
+            BigDecimal oneMinusNhaShare = BigDecimal.ONE.subtract(details.getNhaShareInGia());
             BigDecimal re;
             if(details.getNhaShareInGia().equals(BigDecimal.ONE))
             {
@@ -221,18 +221,32 @@ details.setNhaShareOfPremiumPayable(result);
             }
             else {
                 re = details.getUpfrontReleaseByShaForPmjay()
-                        .multiply(details.getNhaShareOfPremiumPayable())
-                        .divide(details.getShaShareOfPremiumPayable(), 3, RoundingMode.HALF_UP);
+                        .multiply(details.getNhaShareInGia())
+                        .divide(oneMinusNhaShare, 3, RoundingMode.HALF_UP);
 
             }
             details.setNhaShareCorrespondingToShaRelease(re);
         }
         details.setTotalAmountPayableTillThisTranche(details.getNhaShareOfPremiumPayable().multiply(details.getPaymentTrancheNo()));
-        BigDecimal min = minOfThree(
-               details.getNhaShareOfPremiumPayable(),
-                details.getNhaShareCorrespondingToShaRelease(),
-                details.getTotalAmountPayableTillThisTranche()
-        );
+
+        BigDecimal min;
+        if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+        {
+            min=minOfTwo(
+                    details.getNhaShareOfPremiumPayable(),
+
+                    details.getTotalAmountPayableTillThisTranche()
+            );
+        }
+        else {
+            // Find minimum of 4 BigDecimal values
+           min= minOfThree(
+                    details.getNhaShareOfPremiumPayable(),
+                    details.getNhaShareCorrespondingToShaRelease(),
+                    details.getTotalAmountPayableTillThisTranche()
+            );
+        }
+
         details.setTotalAmountPayableByNhaAsOnDate(min);
         // final amount to be released
         BigDecimal finalAmount = min
@@ -327,11 +341,24 @@ details.setNhaShareOfPremiumPayable(result);
         details.setNhaShareCorrespondingToShaRelease(re);
 
         details.setTotalAmountPayableTillThisTranche(details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo()));
-        BigDecimal min = minOfThree(
-                details.getNhaShareOfPremiumPayable(),
-                details.getNhaShareCorrespondingToShaRelease(),
-                details.getTotalAmountPayableTillThisTranche()
-        );
+        BigDecimal min;
+        if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+        {
+            min=minOfTwo(
+                    details.getNhaShareOfPremiumPayable(),
+
+                    details.getTotalAmountPayableTillThisTranche()
+            );
+        }
+        else {
+            // Find minimum of 4 BigDecimal values
+            min= minOfThree(
+                    details.getNhaShareOfPremiumPayable(),
+                    details.getNhaShareCorrespondingToShaRelease(),
+                    details.getTotalAmountPayableTillThisTranche()
+            );
+        }
+
         details.setTotalAmountPayableByNhaAsOnDate(min);
         // final amount to be released
         BigDecimal finalAmount = min
@@ -414,13 +441,27 @@ details.setNhaShareOfPremiumPayable(result);
         BigDecimal totalTillTranche = maxAdminByNha.multiply(details.getPaymentTrancheNo());
         details.setTotalAmountPayableTillThisTranche(totalTillTranche);
 
+        BigDecimal min;
+        if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+        {
+            min = minOfThree(
+                    maxAdminByNha,
+                    nhaShareInPmjay,
+
+                    totalTillTranche
+            );
+        }
+        else {
+            // Find minimum of 4 BigDecimal values
+            min = minOfFour(
+                    maxAdminByNha,
+                    nhaShareInPmjay,
+                    nhaShareCorresponding,
+                    totalTillTranche
+            );
+        }
         // Find minimum of 4 BigDecimal values
-        BigDecimal min = minOfFour(
-                maxAdminByNha,
-                nhaShareInPmjay,
-                nhaShareCorresponding,
-                totalTillTranche
-        );
+
         details.setTotalAmountPayableByNhaAsOnDate(min);
         // final amount to be released
         BigDecimal finalAmount = min
@@ -504,14 +545,24 @@ details.setNhaShareOfPremiumPayable(result);
         // total amount payable till this tranche
         BigDecimal totalTillTranche = maxAdminByNha.multiply(details.getPaymentTrancheNo());
         details.setTotalAmountPayableTillThisTranche(totalTillTranche);
-
-        // Find minimum of 4 BigDecimal values
-        BigDecimal min = minOfFour(
-                maxAdminByNha,
-details.getCostOfAdministrativeExpenseNha(),
-                nhaShareCorresponding,
-                totalTillTranche
-        );
+        BigDecimal min;
+        if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+        {
+            min = minOfThree(
+                    maxAdminByNha,
+                    details.getCostOfAdministrativeExpenseNha(),
+                    totalTillTranche
+            );
+        }
+        else {
+            // Find minimum of 4 BigDecimal values
+            min = minOfFour(
+                    maxAdminByNha,
+                    details.getCostOfAdministrativeExpenseNha(),
+                    nhaShareCorresponding,
+                    totalTillTranche
+            );
+        }
         details.setTotalAmountPayableByNhaAsOnDate(min);
         // final amount to be released
         BigDecimal finalAmount = min
@@ -553,13 +604,26 @@ details.setMaxGiaImplementationPerFamilyOld(maxPerFamilyOld);
 
     BigDecimal totalTillTranche = details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo());
     details.setTotalAmountPayableTillThisTranche(totalTillTranche);
+    BigDecimal min;
+    if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+    {
+        min=minOfThree(
+                details.getMaxGiaImplementationByNha(),
+                details.getNhaShareInPmjayTreatmentCost(),
 
-    BigDecimal min = minOfFour(
-           details.getMaxGiaImplementationByNha(),
-           details.getNhaShareInPmjayTreatmentCost(),
-            nhaShareCorresponding,
-            totalTillTranche
-    );
+                totalTillTranche
+        );
+    }
+    else {
+        // Find minimum of 4 BigDecimal values
+        min= minOfFour(
+                details.getMaxGiaImplementationByNha(),
+                details.getNhaShareInPmjayTreatmentCost(),
+                nhaShareCorresponding,
+                totalTillTranche
+        );
+    }
+
     details.setTotalAmountPayableByNhaAsOnDate(min);
 
     BigDecimal finalAmount = min
@@ -599,14 +663,27 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
     // total amount payable till this tranche
     BigDecimal totalTillTranche = details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo());
     details.setTotalAmountPayableTillThisTranche(totalTillTranche);
+    BigDecimal min;
+    if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+    {
+        min=minOfThree(
+                details.getMaxGiaImplementationByNha(),
+                details.getNhaShareInCostForAshaAwsAww(),
 
+                totalTillTranche
+        );
+    }
+    else {
+        // Find minimum of 4 BigDecimal values
+       min=minOfFour(
+                details.getMaxGiaImplementationByNha(),
+                details.getNhaShareInCostForAshaAwsAww(),
+                nhaShareCorresponding,
+                totalTillTranche
+        );
+    }
     // Find minimum of 4 BigDecimal values
-    BigDecimal min = minOfFour(
-            details.getMaxGiaImplementationByNha(),
-            details.getNhaShareInCostForAshaAwsAww(),
-            nhaShareCorresponding,
-            totalTillTranche
-    );
+
     details.setTotalAmountPayableByNhaAsOnDate(min);
 
     // final amount to be released
@@ -678,11 +755,25 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
         details.setNhaShareCorrespondingToShaRelease(re);
 
         details.setTotalAmountPayableTillThisTranche(details.getMaxGiaImplementationByNha().multiply(details.getPaymentTrancheNo()));
-        BigDecimal min = minOfThree(
-                details.getNhaShareOfPremiumPayable(),
-                details.getNhaShareCorrespondingToShaRelease(),
-                details.getTotalAmountPayableTillThisTranche()
-        );
+
+        BigDecimal min;
+        if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+        {
+            min=minOfTwo(
+                    details.getNhaShareOfPremiumPayable(),
+
+                    details.getTotalAmountPayableTillThisTranche()
+            );
+        }
+        else {
+            // Find minimum of 4 BigDecimal values
+            min= minOfThree(
+                    details.getNhaShareOfPremiumPayable(),
+                    details.getNhaShareCorrespondingToShaRelease(),
+                    details.getTotalAmountPayableTillThisTranche()
+            );
+        }
+
         details.setTotalAmountPayableByNhaAsOnDate(min);
         // final amount to be released
         BigDecimal finalAmount = min
@@ -763,13 +854,27 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
         BigDecimal totalTillTranche = maxAdminByNha.multiply(details.getPaymentTrancheNo());
         details.setTotalAmountPayableTillThisTranche(totalTillTranche);
 
+        BigDecimal min;
+        if(details.getNhaShareCorrespondingToShaRelease().equals(BigDecimal.ZERO))
+        {
+            min=minOfThree(
+                    maxAdminByNha,
+                    nhaShareInPmjay,
+
+                    totalTillTranche
+            );
+        }
+        else {
+            // Find minimum of 4 BigDecimal values
+            min= minOfFour(
+                    maxAdminByNha,
+                    nhaShareInPmjay,
+                    nhaShareCorresponding,
+                    totalTillTranche
+            );
+        }
         // Find minimum of 4 BigDecimal values
-        BigDecimal min = minOfFour(
-                maxAdminByNha,
-                nhaShareInPmjay,
-                nhaShareCorresponding,
-                totalTillTranche
-        );
+
         details.setTotalAmountPayableByNhaAsOnDate(min);
         // final amount to be released
         BigDecimal finalAmount = min
@@ -787,5 +892,8 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
     }
     private BigDecimal minOfThree(BigDecimal a, BigDecimal b, BigDecimal c) {
         return a.min(b).min(c);
+    }
+    private BigDecimal minOfTwo(BigDecimal a, BigDecimal b) {
+        return a.min(b);
     }
 }

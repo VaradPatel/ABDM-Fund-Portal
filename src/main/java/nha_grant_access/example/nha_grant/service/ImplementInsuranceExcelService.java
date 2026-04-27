@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -20,8 +21,8 @@ public class ImplementInsuranceExcelService {
         Sheet sheet = workbook.createSheet("Insurance Calculation");
 
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Field Name");
-        header.createCell(1).setCellValue("Value");
+        header.createCell(0).setCellValue("Particulars");
+        header.createCell(1).setCellValue("Information");
         header.createCell(2).setCellValue("Description");
 
         int rowIdx = 1;
@@ -35,74 +36,103 @@ public class ImplementInsuranceExcelService {
             rowIdx = row(sheet, rowIdx, "Scheme Name", d.getSchemeName(), "");
             rowIdx = row(sheet, rowIdx, "Insurance Company", d.getNameOfInsuranceCompany(), "");
             rowIdx = row(sheet, rowIdx, "Benefit Cover", d.getBenefitCover(), "");
-            rowIdx = row(sheet, rowIdx, "NHA Share in GIA", d.getNhaShareInGia(), "");
-            rowIdx = row(sheet, rowIdx, "Total Population Covered", d.getTotalPopulationCoveredAsPerMou(), "");
-            rowIdx = row(sheet, rowIdx, "Eligible SECC Population", d.getEligibleSeccPopulation(), "");
+            rowIdx = row(sheet, rowIdx, "NHA Share in GIA (A)", d.getNhaShareInGia(), "");
+            rowIdx = row(sheet, rowIdx, "Total Population Covered (B)", d.getTotalPopulationCoveredAsPerMou(), "");
+            rowIdx = row(sheet, rowIdx, "Eligible SECC Population (C)", d.getEligibleSeccPopulation(), "As per the OM No-S12018/130/2021 , Dated-12th jan 2023, the beneficiary base under the scheme has been increased.");
             rowIdx = row(sheet, rowIdx, "Annual Insurance Premium/Family", d.getAnnualInsurancePremiumFamily(), "");
-            rowIdx = row(sheet, rowIdx, "Upfront Release by SHA", d.getUpfrontReleaseByShaForPmjay(), "");
-            rowIdx = row(sheet, rowIdx, "Payment Tranche No", d.getPaymentTrancheNo(), "");
-            rowIdx = row(sheet, rowIdx, "Earlier Released", d.getEarlierAmountReleasedByNha(), "");
-            rowIdx = row(sheet, rowIdx, "Unspent Amount", d.getUnspentAmountAsPerUc(), "");
+            rowIdx = row(sheet, rowIdx, "Policy Period", d.getPolicyPeriod(), "");
 
             // -------- CALCULATED --------
 
             rowIdx = row(sheet, rowIdx,
-                    "% Eligible SECC Population",
-                    d.getPercentageEligibleSeccPopulation(),
-                    "Eligible SECC Population / Total Population");
+                    "% Eligible SECC Population (D)",
+                    d.getPercentageEligibleSeccPopulation() != null
+                            ? d.getPercentageEligibleSeccPopulation().setScale(2, RoundingMode.HALF_UP)
+                            : null,
+                    "Eligible SECC Population(C) / Total Population(B)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Implementation per Family",
-                    d.getMaxGiaImplementationPerFamily(),
-                    "1052 × NHA Share");
+                    "Max GIA Implementation per Family (E)",
+                    d.getMaxGiaImplementationPerFamily().setScale(2, RoundingMode.HALF_UP),
+                    "1052 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Admin per Family",
-                    d.getMaxGiaAdminPerFamily(),
-                    "Base Admin (150/200/50) × NHA Share");
+                    "Max GIA Admin per Family (F)",
+                    d.getMaxGiaAdminPerFamily().setScale(2, RoundingMode.HALF_UP),
+                    "Base Admin (150/200/50) × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Implementation by NHA",
-                    d.getMaxGiaImplementationByNha(),
-                    "Eligible Population × Max Implementation per Family");
+                    "Max GIA Implementation by NHA (G)",
+                    d.getMaxGiaImplementationByNha().setScale(2, RoundingMode.HALF_UP),
+                    "Eligible Population(C) × Max Implementation per Family(E)");
+
+            StringBuilder descH = new StringBuilder();
+            descH.append("Eligible Population(C) × Admin per Family(F) with min cap + Base Admin (150/200/50 based on population) × NHA Share in GIA\n");
+            descH.append("-States/UTs with up to 1 lakh beneficiary families, the amount will be ₹200 per family or ₹1 crore, whichever is higher;\n");
+            descH.append("-states with more than 1 lakh but less than 10 lakh beneficiary families, the amount will be ₹150 per family or ₹2 crore, whichever is higher,\n");
+            descH.append("-states with more than 10 lakh beneficiary families, the amount will be ₹50 per family or ₹15 crore, whichever is higher.\n");
+            descH.append("x NHA Share in GIA (A)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Max GIA Admin by NHA",
-                    d.getMaxGiaAdminByNha(),
-                    "Eligible Population × Admin per Family (with min cap)");
+                    "Max GIA Admin by NHA (H)",
+                    d.getMaxGiaAdminByNha().setScale(2, RoundingMode.HALF_UP),
+                    descH.toString());
 
             rowIdx = row(sheet, rowIdx,
-                    "NHA Share of Premium Payable",
-                    d.getNhaShareOfPremiumPayable(),
-                    "If premium > 1052 → 1052 × Share × Population ELSE Premium × Share × Population");
+                    "NHA Share of Premium Payable (I)",
+                    d.getNhaShareOfPremiumPayable().setScale(2, RoundingMode.HALF_UP),
+                    "If premium > 1052 → 1052 × A × C ELSE Premium × A × C");
 
             rowIdx = row(sheet, rowIdx,
-                    "SHA Share of Premium Payable",
-                    d.getShaShareOfPremiumPayable(),
-                    "If premium > 1052 → (Premium - MaxImpl) × Population ELSE Premium × (1 - Share) × Population");
+                    "SHA Share of Premium Payable (J)",
+                    d.getShaShareOfPremiumPayable().setScale(2, RoundingMode.HALF_UP),
+                    "If premium > 1052 → (Premium - (1052*A)) × C ELSE Premium × (1-A) × C");
 
             rowIdx = row(sheet, rowIdx,
-                    "NHA Share Corresponding to SHA Release",
-                    d.getNhaShareCorrespondingToShaRelease(),
-                    "If Share=1 → direct ELSE (Upfront × NHA Share Premium / SHA Share)");
+                    "Upfront Release by SHA (K)",
+                    d.getUpfrontReleaseByShaForPmjay().setScale(2, RoundingMode.HALF_UP),
+                    "");
 
             rowIdx = row(sheet, rowIdx,
-                    "Total Amount Payable Till Tranche",
+                    "NHA Share Corresponding to SHA Release (L)",
+                    d.getNhaShareCorrespondingToShaRelease().setScale(2, RoundingMode.HALF_UP),
+                    "If (k × A /(1-A)");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Payment Tranche No (M)",
+                    d.getPaymentTrancheNo(),
+                    "(0.5/0.75/1.0)");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Total Amount Payable Till Tranche (N)",
                     d.getTotalAmountPayableTillThisTranche(),
-                    "NHA Share Premium × Tranche No");
+                    "NHA Share Premium(I) × Tranche No");
 
             rowIdx = row(sheet, rowIdx,
-                    "Total Amount Payable by NHA",
+                    "Total Amount Payable by NHA (O)",
                     d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (NHA Share In Premium, NHA Corresponding to SHA Release, Amount Payable upto Tranche)");
+                    "Minimum of (I, L, N)");
 
             rowIdx = row(sheet, rowIdx,
-                    "Amount Proposed to be Released",
+                    "Earlier Released (P)",
+                    d.getEarlierAmountReleasedByNha(),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Unspent Amount (Q)",
+                    d.getUnspentAmountAsPerUc(),
+                    "");
+
+            rowIdx = row(sheet, rowIdx,
+                    "Amount Proposed to be Released (R)",
                     d.getAmountProposedToBeReleased(),
-                    "Total Payable - Earlier Released - Unspent");
+                    "O - P - Q");
         }
 
-        for (int i = 0; i < 3; i++) sheet.autoSizeColumn(i);
+        // Auto-size columns
+        for (int i = 0; i < 3; i++) {
+            sheet.autoSizeColumn(i);
+        }
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);

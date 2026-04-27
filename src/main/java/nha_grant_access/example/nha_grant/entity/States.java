@@ -40,6 +40,8 @@ public class States {
     @Column(name = "vvs_admin_max_elg_grant")
     private BigDecimal vvsAdminMaxElgGrant;
 
+    @Column(name = "mode_id")
+    private Integer modeId;
 
     private BigDecimal q1;
     private BigDecimal q2;

@@ -1,6 +1,8 @@
 package nha_grant_access.example.nha_grant.service;
 
 import nha_grant_access.example.nha_grant.entity.ImplementTrustCalc;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -19,10 +22,14 @@ public class ImplementTrustExcelService {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Implement Trust");
 
+        // Create a reusable style for text wrapping on description column
+        CellStyle wrapStyle = workbook.createCellStyle();
+        wrapStyle.setWrapText(true);
+
         // Header
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Field Name");
-        header.createCell(1).setCellValue("Value");
+        header.createCell(0).setCellValue("Particulars");
+        header.createCell(1).setCellValue("Information");
         header.createCell(2).setCellValue("Description");
 
         int rowIdx = 1;
@@ -31,77 +38,87 @@ public class ImplementTrustExcelService {
 
             // ---------- NON CALCULATED FIELDS (Description = blank) ----------
 
-            rowIdx = createRow(sheet, rowIdx, "State Name", d.getStateName(), "");
-            rowIdx = createRow(sheet, rowIdx, "Mode of Implementation", d.getModeOfImplementation(), "");
-            rowIdx = createRow(sheet, rowIdx, "Date of Implementation", d.getDateOfImplementation(), "");
-            rowIdx = createRow(sheet, rowIdx, "Scheme Name", d.getSchemeName(), "");
-            rowIdx = createRow(sheet, rowIdx, "Benefit Cover", d.getBenefitCover(), "");
-            rowIdx = createRow(sheet, rowIdx, "NHA Share in GIA", d.getNhaShareInGia(), "");
-            rowIdx = createRow(sheet, rowIdx, "Total Population Covered (MOU)", d.getTotalPopulationCoveredAsPerMou(), "");
-            rowIdx = createRow(sheet, rowIdx, "Eligible SECC Population", d.getEligibleSeccPopulation(), "");
-            rowIdx = createRow(sheet, rowIdx, "Policy Period", d.getPolicyPeriod(), "");
-            rowIdx = createRow(sheet, rowIdx, "Total Treatment Cost Paid by SHA", d.getTotalTreatmentCostPaidBySha(), "");
-            rowIdx = createRow(sheet, rowIdx, "Upfront Release by SHA", d.getUpfrontReleaseByShaForPmjay(), "");
-            rowIdx = createRow(sheet, rowIdx, "Payment Tranche No", d.getPaymentTrancheNo(), "");
-            rowIdx = createRow(sheet, rowIdx, "Earlier Amount Released by NHA", d.getEarlierAmountReleasedByNha(), "");
-            rowIdx = createRow(sheet, rowIdx, "Unspent Amount as per UC", d.getUnspentAmountAsPerUc(), "");
+            rowIdx = createRow(sheet, rowIdx, "State Name", d.getStateName(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Mode of Implementation", d.getModeOfImplementation(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Date of Implementation", d.getDateOfImplementation(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Scheme Name", "AB PM-JAY", "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Benefit Cover", d.getBenefitCover(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "NHA Share in GIA (A) ", d.getNhaShareInGia(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Total Population Covered (MOU) (B)", d.getTotalPopulationCoveredAsPerMou(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Eligible SECC Population (C)", d.getEligibleSeccPopulation(), "As per the OM No-S12018/130/2021 , Dated-12th jan 2023, the beneficiary base under the scheme has been increased.", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Policy Period", d.getPolicyPeriod(), "", wrapStyle);
 
             // ---------- CALCULATED FIELDS (WITH DESCRIPTION) ----------
 
             rowIdx = createRow(sheet, rowIdx,
-                    "% Eligible SECC Population",
-                    d.getPercentageEligibleSeccPopulation(),
-                    "Eligible SECC Population / Total Population Covered");
-
+                    "% Eligible SECC Population (D)",
+                    d.getPercentageEligibleSeccPopulation() != null
+                            ? d.getPercentageEligibleSeccPopulation().setScale(2, RoundingMode.HALF_UP)
+                            : null,
+                    "Eligible SECC Population(C) / Total Population Covered (B)", wrapStyle);
             rowIdx = createRow(sheet, rowIdx,
                     "Max GIA Implementation per Family",
                     d.getMaxGiaImplementationPerFamily(),
-                    "1052 × NHA Share in GIA");
+                    "1052 × NHA Share in GIA (A)", wrapStyle);
+
+            StringBuilder descE = new StringBuilder();
+            descE.append("-States/UTs with up to 1 lakh beneficiary families, the amount will be ₹200 per family or ₹1 crore, whichever is higher;\n");
+            descE.append("-states with more than 1 lakh but less than 10 lakh beneficiary families, the amount will be ₹150 per family or ₹2 crore, whichever is higher,\n");
+            descE.append("-states with more than 10 lakh beneficiary families, the amount will be ₹50 per family or ₹15 crore, whichever is higher.\n");
+            descE.append("x NHA Share in GIA (A)");
 
             rowIdx = createRow(sheet, rowIdx,
-                    "Max GIA Admin per Family",
+                    "Max GIA Admin per Family(E)",
                     d.getMaxGiaAdminPerFamily(),
-                    "Base Admin (150/200/50 based on population) × NHA Share");
+                    descE.toString(), wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
-                    "Max GIA Implementation by NHA",
+                    "Max GIA Implementation by NHA (F) ",
                     d.getMaxGiaImplementationByNha(),
-                    "Eligible SECC Population × Max GIA Implementation per Family");
+                    "Eligible SECC Population(C) × Max GIA Implementation per Family(1052 *A)", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
-                    "Max GIA Admin by NHA",
+                    "Max GIA Admin by NHA(G)",
                     d.getMaxGiaAdminByNha(),
-                    "Eligible SECC Population × Max GIA Admin per Family (with minimum cap)");
+                    "Eligible SECC Population × Max GIA Admin per Family(E) (with minimum cap)", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Total Treatment Cost Paid by SHA(H)", d.getTotalTreatmentCostPaidBySha(), "As per SHA Claim paid Sheet ", wrapStyle);
+
 
             rowIdx = createRow(sheet, rowIdx,
-                    "Treatment Cost for PMJAY",
-                    d.getTreatmentCostForPmjayBeneficiaries(),
-                    "Total Treatment Cost Paid by SHA × % Eligible SECC Population");
+                    "Treatment Cost for PMJAY(I)",
+                    d.getTreatmentCostForPmjayBeneficiaries().setScale(2, RoundingMode.HALF_UP),
+                    "Total Treatment Cost Paid by SHA (H)× % Eligible SECC Population (D)", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
-                    "NHA Share in PMJAY Treatment Cost",
-                    d.getNhaShareInPmjayTreatmentCost(),
-                    "Treatment Cost × NHA Share");
+                    "NHA Share in PMJAY Treatment Cost (K)",
+                    d.getNhaShareInPmjayTreatmentCost().setScale(2, RoundingMode.HALF_UP),
+                    "Treatment Cost(I) × NHA Share(A)", wrapStyle);
+
+            rowIdx = createRow(sheet, rowIdx, "Upfront Release by SHA(L)", d.getUpfrontReleaseByShaForPmjay(), "", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
-                    "NHA Share Corresponding to SHA Release",
+                    "NHA Share Corresponding to SHA Release (M)",
                     d.getNhaShareCorrespondingToShaRelease(),
-                    "Upfront SHA Release × (NHA Share / (1 - NHA Share)) OR direct if share = 1");
+                    "Upfront SHA Release(L) × (A / (1 -A))", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Payment Tranche No", d.getPaymentTrancheNo(), "(0.5/0.75/1.0)", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
-                    "Total Amount Payable Till Tranche",
+                    "Total Amount Payable Till Tranche (O)",
                     d.getTotalAmountPayableTillThisTranche(),
-                    "Max GIA Implementation by NHA × Payment Tranche No");
+                    "Max GIA Implementation by NHA(F) × Payment Tranche No", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
-                    "Total Amount Payable by NHA (As On Date)",
+                    "Total Amount Payable by NHA (P)",
                     d.getTotalAmountPayableByNhaAsOnDate(),
-                    "Minimum of (Max Amount for Implementation, NHA Share in Treatment ,  Nha Share Corresponding to share Release , Amount Payable upto tranche)");
+                    "Minimum of (F, K, M, O)", wrapStyle);
+
+            rowIdx = createRow(sheet, rowIdx, "Earlier Amount Released by NHA(Q)", d.getEarlierAmountReleasedByNha(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Unspent Amount as per UC(R)", d.getUnspentAmountAsPerUc(), "", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
-                    "Amount Proposed to be Released",
+                    "Amount Proposed to be Released(S)",
                     d.getAmountProposedToBeReleased(),
-                    "Total Payable - Earlier Released - Unspent Amount");
+                    "P-Q-R", wrapStyle);
         }
 
         // Auto size columns
@@ -117,11 +134,13 @@ public class ImplementTrustExcelService {
     }
 
     // Helper method
-    private int createRow(Sheet sheet, int rowIdx, String field, Object value, String desc) {
+    private int createRow(Sheet sheet, int rowIdx, String field, Object value, String desc, CellStyle wrapStyle) {
         Row row = sheet.createRow(rowIdx);
         row.createCell(0).setCellValue(field);
         row.createCell(1).setCellValue(value != null ? value.toString() : "");
-        row.createCell(2).setCellValue(desc);
+        Cell descCell = row.createCell(2);
+        descCell.setCellValue(desc);
+        descCell.setCellStyle(wrapStyle);
         return rowIdx + 1;
     }
 }

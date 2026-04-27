@@ -302,7 +302,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
     @GetMapping("/statecord/{stateId}")
     @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
     public ResponseEntity<?> getStateCordDashboard(@PathVariable("stateId") Integer stateId , @RequestParam String policyStartDate,
-                                                   @RequestParam String policyEndDate, @RequestParam Integer proposalType) {
+                                                   @RequestParam String policyEndDate, @RequestParam Integer proposalType , @RequestParam(defaultValue ="ALL") String financialYear , @RequestParam(defaultValue = "0") Integer schemeType) {
         try {
 
 
@@ -317,14 +317,14 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
             List<Object[]> results = null;
             if (stateId != 0) {
                 System.out.println("states " + stateId);
-                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId), policyStartDate, policyEndDate, proposalType );
+                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), Collections.singletonList(stateId), policyStartDate, policyEndDate, proposalType , financialYear, schemeType);
                maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,List.of(stateId),false);
 
             } else {
                 System.out.println("states" + StateIds.toString());
                 maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,StateIds,false);
 
-                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), StateIds , policyStartDate, policyEndDate,proposalType);
+                results = iGrantRequestsRepo.getStateCordDashboard(user.getId(), StateIds , policyStartDate, policyEndDate,proposalType,financialYear,schemeType);
             }
 
             List<StateCordDashboardResponse> responseList = results.stream()
