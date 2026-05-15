@@ -631,7 +631,7 @@ BigDecimal maxEligibleGrant= istatesRepository.getMaxEligibleGrant(proposalType,
     }
     @GetMapping("/upload-sanction-list")
     @PreAuthorize("hasAuthority('NHA State Co-ordinator') ")
-    public ResponseEntity<?> uploadSanctionList() {
+    public ResponseEntity<?> uploadSanctionList(@RequestParam(value = "stateId", defaultValue = "0") Integer stateId) {
 try
 {
     List<Object[]> results = null;
@@ -639,8 +639,15 @@ try
     String name = authentication.getName();
     User user = userRepo.findByEmail(name).get();
 
-
-    List<Integer> StateIds = userRepo.findStateIdByRole(3, user.getId());
+    List<Integer> StateIds;
+    
+    // If stateId is provided (not 0), use it; otherwise, use current logic
+    if (stateId != null && stateId != 0) {
+        StateIds = List.of(stateId);
+    } else {
+        StateIds = userRepo.findStateIdByRole(3, user.getId());
+    }
+    
     System.out.println("state ids are " + StateIds.toString());
     results = iGrantRequestsRepo.getGrantRequestsWithState(StateIds, 8,3);
     List<ReviewProposal> result = results.stream().map(obj -> new ReviewProposal(
@@ -1010,6 +1017,19 @@ if(schemeType==1) {
                 } else {
                     responseList.setTotalQ4Perc(BigDecimal.ZERO);
                 }
+
+
+            }
+            if(financialYear.equals("2026-2027")) {
+                responseList.setTotalQ1Perc(BigDecimal.ZERO);
+                    responseList.setTotalQ2Perc(BigDecimal.ZERO);
+                    responseList.setTotalQ3Perc(BigDecimal.ZERO);
+                    responseList.setTotalQ4Perc(BigDecimal.ZERO);
+                    responseList.setTotalQ1Released(BigDecimal.ZERO);
+                    responseList.setTotalQ2Released(BigDecimal.ZERO);
+                    responseList.setTotalQ3Released(BigDecimal.ZERO);
+                    responseList.setTotalQ4Released(BigDecimal.ZERO);
+
 
 
             }

@@ -89,7 +89,7 @@ public class AdministrativeExcelService {
             rowIdx = row(sheet, rowIdx,
                     "Total Admin Cost Paid by SHA (I)",
                     scale(d.getTotalTreatmentCostPaidBySha()),
-                    "", wrapStyle);
+                    "With reference to DO No. S-12018/410/2025-NHA, the State Health Agency (SHA) has submitted the State Annual Action Plan for administrative expenses for release of the first tranche.", wrapStyle);
 
             rowIdx = row(sheet, rowIdx,
                     "Administrative Expense (SHA) (J)",

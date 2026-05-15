@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface IstatesRepository extends JpaRepository<States, Integer> {
     @Query(value = """
@@ -77,12 +78,11 @@ public interface IstatesRepository extends JpaRepository<States, Integer> {
     @Query(value = "SELECT * FROM states WHERE id = :stateId ", nativeQuery = true)
     BigDecimal getState(Integer stateId);
 
-
-
-
-
-
-
-
-
+    @Query(value = "SELECT * FROM states WHERE tcs_dashboard_state_id = :tcsDashboardStateId", nativeQuery = true)
+    Optional<States> findByTcsDashboardStateId(Integer tcsDashboardStateId);
 }
+
+
+
+
+

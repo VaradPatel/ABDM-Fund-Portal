@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
@@ -46,24 +47,22 @@ public class ImplementInsuranceExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "% Eligible SECC Population (D)",
-                    d.getPercentageEligibleSeccPopulation() != null
-                            ? d.getPercentageEligibleSeccPopulation().setScale(2, RoundingMode.HALF_UP)
-                            : null,
+                    scale(d.getPercentageEligibleSeccPopulation()),
                     "Eligible SECC Population(C) / Total Population(B)");
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Implementation per Family (E)",
-                    d.getMaxGiaImplementationPerFamily().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaImplementationPerFamily()),
                     "1052 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Admin per Family (F)",
-                    d.getMaxGiaAdminPerFamily().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaAdminPerFamily()),
                     "Base Admin (150/200/50) × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Implementation by NHA (G)",
-                    d.getMaxGiaImplementationByNha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaImplementationByNha()),
                     "Eligible Population(C) × Max Implementation per Family(E)");
 
             StringBuilder descH = new StringBuilder();
@@ -75,27 +74,27 @@ public class ImplementInsuranceExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Admin by NHA (H)",
-                    d.getMaxGiaAdminByNha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaAdminByNha()),
                     descH.toString());
 
             rowIdx = row(sheet, rowIdx,
                     "NHA Share of Premium Payable (I)",
-                    d.getNhaShareOfPremiumPayable().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getNhaShareOfPremiumPayable()),
                     "If premium > 1052 → 1052 × A × C ELSE Premium × A × C");
 
             rowIdx = row(sheet, rowIdx,
                     "SHA Share of Premium Payable (J)",
-                    d.getShaShareOfPremiumPayable().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getShaShareOfPremiumPayable()),
                     "If premium > 1052 → (Premium - (1052*A)) × C ELSE Premium × (1-A) × C");
 
             rowIdx = row(sheet, rowIdx,
                     "Upfront Release by SHA (K)",
-                    d.getUpfrontReleaseByShaForPmjay().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getUpfrontReleaseByShaForPmjay()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "NHA Share Corresponding to SHA Release (L)",
-                    d.getNhaShareCorrespondingToShaRelease().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getNhaShareCorrespondingToShaRelease()),
                     "If (k × A /(1-A)");
 
             rowIdx = row(sheet, rowIdx,
@@ -105,27 +104,27 @@ public class ImplementInsuranceExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable Till Tranche (N)",
-                    d.getTotalAmountPayableTillThisTranche(),
+                    scale(d.getTotalAmountPayableTillThisTranche()),
                     "NHA Share Premium(I) × Tranche No");
 
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable by NHA (O)",
-                    d.getTotalAmountPayableByNhaAsOnDate(),
+                    scale(d.getTotalAmountPayableByNhaAsOnDate()),
                     "Minimum of (I, L, N)");
 
             rowIdx = row(sheet, rowIdx,
                     "Earlier Released (P)",
-                    d.getEarlierAmountReleasedByNha(),
+                    scale(d.getEarlierAmountReleasedByNha()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Unspent Amount (Q)",
-                    d.getUnspentAmountAsPerUc(),
+                    scale(d.getUnspentAmountAsPerUc()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Amount Proposed to be Released (R)",
-                    d.getAmountProposedToBeReleased(),
+                    scale(d.getAmountProposedToBeReleased()),
                     "O - P - Q");
         }
 
@@ -139,6 +138,11 @@ public class ImplementInsuranceExcelService {
         workbook.close();
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    // 🔥 Common rounding utility (clean + reusable)
+    private BigDecimal scale(BigDecimal val) {
+        return val != null ? val.setScale(2, RoundingMode.HALF_UP) : null;
     }
 
     private int row(Sheet sheet, int i, String f, Object v, String d) {

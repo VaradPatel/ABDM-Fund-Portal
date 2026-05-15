@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -40,35 +42,34 @@ public class AashaImplTrustExcelService {
             rowIdx = row(sheet, rowIdx, "Policy Period", d.getPolicyPeriod(), "");
 
             // -------- CALCULATED --------
-
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Implementation per Family",
-                    d.getMaxGiaImplementationByNhaPerFamily(),
+                    scale(d.getMaxGiaImplementationByNhaPerFamily()),
                     "1052 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Implementation by NHA (C)",
-                    d.getMaxGiaImplementationByNha(),
+                    scale(d.getMaxGiaImplementationByNha()),
                     "Eligible Families (B) × 1052 * A");
 
             rowIdx = row(sheet, rowIdx,
                     "Total Treatment Cost Paid by SHA (D)",
-                    d.getTotalTreatmentCostPaidBySha(),
+                    scale(d.getTotalTreatmentCostPaidBySha()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "NHA Share in Cost (E)",
-                    d.getNhaShareInCostForAshaAwsAww(),
+                    scale(d.getNhaShareInCostForAshaAwsAww()),
                     "Total Treatment Cost (D) × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Upfront Release by SHA (F)",
-                    d.getUpfrontReleaseByShaForPmjay(),
+                    scale(d.getUpfrontReleaseByShaForPmjay()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "NHA Share Corresponding to SHA Release (G)",
-                    d.getNhaShareCorrespondingToShaRelease(),
+                    scale(d.getNhaShareCorrespondingToShaRelease()),
                     "Upfront Release (F) × (A / (1 - A))");
 
             rowIdx = row(sheet, rowIdx,
@@ -79,27 +80,27 @@ public class AashaImplTrustExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable Till Tranche (J)",
-                    d.getTotalAmountPayableTillThisTranche(),
+                    scale(d.getTotalAmountPayableTillThisTranche()),
                     "Max GIA Implementation (C) × Tranche No");
 
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable by NHA (K)",
-                    d.getTotalAmountPayableByNhaAsOnDate(),
+                    scale(d.getTotalAmountPayableByNhaAsOnDate()),
                     "Minimum of (C, E, G, J)");
 
             rowIdx = row(sheet, rowIdx,
                     "Earlier Released (H)",
-                    d.getEarlierAmountReleasedByNha(),
+                    scale(d.getEarlierAmountReleasedByNha()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Unspent Amount (I)",
-                    d.getUnspentAmountAsPerUc(),
+                    scale(d.getUnspentAmountAsPerUc()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Amount Proposed to be Released (L)",
-                    d.getAmountProposedToBeReleased(),
+                    scale(d.getAmountProposedToBeReleased()),
                     "K - H - I");
         }
 
@@ -111,6 +112,11 @@ public class AashaImplTrustExcelService {
         workbook.close();
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    // 🔥 Common rounding utility (clean + reusable)
+    private BigDecimal scale(BigDecimal val) {
+        return val != null ? val.setScale(2, RoundingMode.HALF_UP) : null;
     }
 
     private int row(Sheet sheet, int i, String f, Object v, String d) {

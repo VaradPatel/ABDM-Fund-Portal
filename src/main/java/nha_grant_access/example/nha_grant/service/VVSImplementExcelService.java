@@ -125,6 +125,11 @@ public class VVSImplementExcelService {
         return value != null ? value.setScale(2, RoundingMode.HALF_UP) : null;
     }
 
+    // 🔥 Common rounding utility (clean + reusable)
+    private BigDecimal scale(BigDecimal val) {
+        return val != null ? val.setScale(2, RoundingMode.HALF_UP) : null;
+    }
+
     // Helper
     private int row(Sheet sheet, int i, String f, Object v, String d) {
         Row r = sheet.createRow(i);

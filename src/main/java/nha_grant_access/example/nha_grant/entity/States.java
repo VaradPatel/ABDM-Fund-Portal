@@ -43,6 +43,23 @@ public class States {
     @Column(name = "mode_id")
     private Integer modeId;
 
+    @Column(name = "tcs_dashboard_state_id")
+    private Integer tcsDashboardStateId;
+
+    @Column(name = "tcs_pmjay_family")
+    private Integer tcsPmjayFamily;
+
+    @Column(name = "tcs_new_family")
+    private Integer tcsNewFamily;
+
+    @Column(name = "tcs_old_family")
+    private Integer tcsOldFamily;
+
+    @Column(name = "tcs_aasha_family")
+    private Integer tcsAashaFamily;
+
+
+
     private BigDecimal q1;
     private BigDecimal q2;
     private BigDecimal q3;
@@ -51,4 +68,10 @@ public class States {
     @Column(name = "tranche_distribution", columnDefinition = "jsonb") // JSONB for PostgreSQL
     @JdbcTypeCode(SqlTypes.JSON) // Hibernate 6+ annotation for JSON support
     private List<BigDecimal> trancheDistribution;
+
+    @Column(name = "insurance_company")
+    private String insuranceCompany;
+    
+    @Column(name = "premium_amount")
+    private BigDecimal premiumAmount;
 }

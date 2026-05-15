@@ -46,17 +46,17 @@ public class VVSAdminExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Max Implementation per Family (New)",
-                    d.getMaxGiaImplementationPerFamilyNew(),
+                    scale(d.getMaxGiaImplementationPerFamilyNew()),
                     "1052 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Max Implementation per Family (Old)",
-                    d.getMaxGiaImplementationPerFamilyOld(),
+                    scale(d.getMaxGiaImplementationPerFamilyOld()),
                     "75.70 × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Max Implementation by NHA (D)",
-                    d.getMaxGiaImplementationByNha(),
+                    scale(d.getMaxGiaImplementationByNha()),
                     "(B × 1052 * A) + (C × 75.70 * A)");
 
             StringBuilder descAdmin = new StringBuilder();
@@ -67,31 +67,31 @@ public class VVSAdminExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Max Admin by NHA (E)",
-                    d.getMaxGiaAdminByNha(),
+                    scale(d.getMaxGiaAdminByNha()),
                     descAdmin.toString());
             rowIdx = row(sheet, rowIdx,
                     "Admin Cost Paid by SHA (F)",
-                    d.getTotalTreatmentCostPaidBySha(),
+                    scale(d.getTotalTreatmentCostPaidBySha()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Administrative Expense (SHA)",
-                    d.getCostOfAdministrativeExpenseSha(),
+                    scale(d.getCostOfAdministrativeExpenseSha()),
                     "F × (1 - A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Administrative Expense (NHA) (G)",
-                    d.getCostOfAdministrativeExpenseNha(),
+                    scale(d.getCostOfAdministrativeExpenseNha()),
                     "F × A");
 
             rowIdx = row(sheet, rowIdx,
                     "Upfront Release (H)",
-                    d.getUpfrontReleaseByShaForPmjay(),
+                    scale(d.getUpfrontReleaseByShaForPmjay()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "NHA Share Corresponding to SHA Release (I)",
-                    d.getNhaShareCorrespondingToShaRelease(),
+                    scale(d.getNhaShareCorrespondingToShaRelease()),
                     "H × (A / (1 - A))");
 
             rowIdx = row(sheet, rowIdx,
@@ -102,27 +102,27 @@ public class VVSAdminExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Total Payable Till Tranche (J)",
-                    d.getTotalAmountPayableTillThisTranche(),
+                    scale(d.getTotalAmountPayableTillThisTranche()),
                     "E × Tranche No");
 
             rowIdx = row(sheet, rowIdx,
                     "Total Payable by NHA(M)",
-                    d.getTotalAmountPayableByNhaAsOnDate(),
+                    scale(d.getTotalAmountPayableByNhaAsOnDate()),
                     "Minimum of (E, G, I, J)");
 
             rowIdx = row(sheet, rowIdx,
                     "Earlier Released (K)",
-                    d.getEarlierAmountReleasedByNha(),
+                    scale(d.getEarlierAmountReleasedByNha()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Unspent Amount (L)",
-                    d.getUnspentAmountAsPerUc(),
+                    scale(d.getUnspentAmountAsPerUc()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Amount Proposed",
-                    d.getAmountProposedToBeReleased(),
+                    scale(d.getAmountProposedToBeReleased()),
                     "M - K - L");
         }
 
@@ -133,6 +133,11 @@ public class VVSAdminExcelService {
         workbook.close();
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    // 🔥 Common rounding utility (clean + reusable)
+    private BigDecimal scale(BigDecimal val) {
+        return val != null ? val.setScale(2, RoundingMode.HALF_UP) : null;
     }
 
     // 🔥 CENTRALIZED ROUNDING HERE

@@ -10,7 +10,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
@@ -52,13 +54,11 @@ public class ImplementTrustExcelService {
 
             rowIdx = createRow(sheet, rowIdx,
                     "% Eligible SECC Population (D)",
-                    d.getPercentageEligibleSeccPopulation() != null
-                            ? d.getPercentageEligibleSeccPopulation().setScale(2, RoundingMode.HALF_UP)
-                            : null,
+                    scale(d.getPercentageEligibleSeccPopulation()),
                     "Eligible SECC Population(C) / Total Population Covered (B)", wrapStyle);
             rowIdx = createRow(sheet, rowIdx,
                     "Max GIA Implementation per Family",
-                    d.getMaxGiaImplementationPerFamily(),
+                    scale(d.getMaxGiaImplementationPerFamily()),
                     "1052 × NHA Share in GIA (A)", wrapStyle);
 
             StringBuilder descE = new StringBuilder();
@@ -69,55 +69,55 @@ public class ImplementTrustExcelService {
 
             rowIdx = createRow(sheet, rowIdx,
                     "Max GIA Admin per Family(E)",
-                    d.getMaxGiaAdminPerFamily(),
+                    scale(d.getMaxGiaAdminPerFamily()),
                     descE.toString(), wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
                     "Max GIA Implementation by NHA (F) ",
-                    d.getMaxGiaImplementationByNha(),
+                    scale(d.getMaxGiaImplementationByNha()),
                     "Eligible SECC Population(C) × Max GIA Implementation per Family(1052 *A)", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
                     "Max GIA Admin by NHA(G)",
-                    d.getMaxGiaAdminByNha(),
+                    scale(d.getMaxGiaAdminByNha()),
                     "Eligible SECC Population × Max GIA Admin per Family(E) (with minimum cap)", wrapStyle);
-            rowIdx = createRow(sheet, rowIdx, "Total Treatment Cost Paid by SHA(H)", d.getTotalTreatmentCostPaidBySha(), "As per SHA Claim paid Sheet ", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Total Treatment Cost Paid by SHA(H)", scale(d.getTotalTreatmentCostPaidBySha()), "As per SHA Claim paid Sheet ", wrapStyle);
 
 
             rowIdx = createRow(sheet, rowIdx,
                     "Treatment Cost for PMJAY(I)",
-                    d.getTreatmentCostForPmjayBeneficiaries().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getTreatmentCostForPmjayBeneficiaries()),
                     "Total Treatment Cost Paid by SHA (H)× % Eligible SECC Population (D)", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
                     "NHA Share in PMJAY Treatment Cost (K)",
-                    d.getNhaShareInPmjayTreatmentCost().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getNhaShareInPmjayTreatmentCost()),
                     "Treatment Cost(I) × NHA Share(A)", wrapStyle);
 
-            rowIdx = createRow(sheet, rowIdx, "Upfront Release by SHA(L)", d.getUpfrontReleaseByShaForPmjay(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Upfront Release by SHA(L)", scale(d.getUpfrontReleaseByShaForPmjay()), "", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
                     "NHA Share Corresponding to SHA Release (M)",
-                    d.getNhaShareCorrespondingToShaRelease(),
+                    scale(d.getNhaShareCorrespondingToShaRelease()),
                     "Upfront SHA Release(L) × (A / (1 -A))", wrapStyle);
             rowIdx = createRow(sheet, rowIdx, "Payment Tranche No", d.getPaymentTrancheNo(), "(0.5/0.75/1.0)", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
                     "Total Amount Payable Till Tranche (O)",
-                    d.getTotalAmountPayableTillThisTranche(),
+                    scale(d.getTotalAmountPayableTillThisTranche()),
                     "Max GIA Implementation by NHA(F) × Payment Tranche No", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
                     "Total Amount Payable by NHA (P)",
-                    d.getTotalAmountPayableByNhaAsOnDate(),
+                    scale(d.getTotalAmountPayableByNhaAsOnDate()),
                     "Minimum of (F, K, M, O)", wrapStyle);
 
-            rowIdx = createRow(sheet, rowIdx, "Earlier Amount Released by NHA(Q)", d.getEarlierAmountReleasedByNha(), "", wrapStyle);
-            rowIdx = createRow(sheet, rowIdx, "Unspent Amount as per UC(R)", d.getUnspentAmountAsPerUc(), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Earlier Amount Released by NHA(Q)", scale(d.getEarlierAmountReleasedByNha()), "", wrapStyle);
+            rowIdx = createRow(sheet, rowIdx, "Unspent Amount as per UC(R)", scale(d.getUnspentAmountAsPerUc()), "", wrapStyle);
 
             rowIdx = createRow(sheet, rowIdx,
                     "Amount Proposed to be Released(S)",
-                    d.getAmountProposedToBeReleased(),
+                    scale(d.getAmountProposedToBeReleased()),
                     "P-Q-R", wrapStyle);
         }
 
@@ -131,6 +131,11 @@ public class ImplementTrustExcelService {
         workbook.close();
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    // 🔥 Common rounding utility (clean + reusable)
+    private BigDecimal scale(BigDecimal val) {
+        return val != null ? val.setScale(2, RoundingMode.HALF_UP) : null;
     }
 
     // Helper method

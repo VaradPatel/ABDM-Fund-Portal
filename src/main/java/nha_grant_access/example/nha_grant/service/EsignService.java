@@ -3,6 +3,7 @@ package nha_grant_access.example.nha_grant.service;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import nha_grant_access.example.nha_grant.dto.Esign.Document;
 import nha_grant_access.example.nha_grant.dto.Esign.DocumentRequest;
@@ -17,6 +18,7 @@ import java.util.regex.Matcher;
 
 
 @Service
+@Slf4j
 public class EsignService {
     @Value("${esignapi.url}")
     private String esignapiurl;
@@ -54,7 +56,17 @@ public class EsignService {
         HttpEntity<DocumentRequest> request = new HttpEntity<>(documentRequest, headers);
         System.out.println("request is " + request.toString());
 
-        ResponseEntity<EspResponse> response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, EspResponse.class);
+        ResponseEntity<EspResponse> response = null;
+        try {
+            response = restTemplate.exchange(apiUrl, HttpMethod.POST, request, EspResponse.class);
+            log.info("EspResponse: " + response.toString());
+        } catch (org.springframework.web.client.HttpClientErrorException | org.springframework.web.client.HttpServerErrorException e) {
+            log.error("API Error - Status Code: {}, Response Body: {}", e.getRawStatusCode(), e.getResponseBodyAsString(), e);
+            throw new Exception("API Error from DigiSign: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Error calling DigiSign API: {}", e.getMessage(), e);
+            throw e;
+        }
 
         String xml=response.getBody().getEspRequest();
         Pattern pattern = Pattern.compile("(<Esign.*?</Esign>)", Pattern.DOTALL);

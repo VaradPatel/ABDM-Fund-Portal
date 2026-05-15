@@ -12,6 +12,10 @@ public class CalculationService {
 
     public ImplementationTrustNhaPayementDetails implementationTruestCalc(ImplementationTrustNhaPayementDetails details)
     {
+        // Set earlierAmountReleasedByNha to 0 by default if not provided
+        if (details.getEarlierAmountReleasedByNha() == null) {
+            details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+        }
 
 //             implementationNhaPayementDetails.setPercentageEligibleSeccPopulation(implementationNhaPayementDetails.getEligibleSeccPopulation()/implementationNhaPayementDetails.getTotalPopulationCoveredAsPerMou());
 //             implementationNhaPayementDetails.setMaxGiaImplementationPerFamily(1052*(implementationNhaPayementDetails.getNhaShareInGia()));
@@ -134,6 +138,11 @@ details.setTotalAmountPayableByNhaAsOnDate(min);
     }
     public ImplementationInsurancePayementDetails implementInsuCalc(ImplementationInsurancePayementDetails details)
     {
+        // Set earlierAmountReleasedByNha to 0 by default if not provided
+        if (details.getEarlierAmountReleasedByNha() == null) {
+            details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+        }
+        
         if (details.getTotalPopulationCoveredAsPerMou() != null && details.getTotalPopulationCoveredAsPerMou().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal percentage = details.getEligibleSeccPopulation()
                     .divide(details.getTotalPopulationCoveredAsPerMou(), 10, RoundingMode.HALF_UP);
@@ -258,10 +267,10 @@ details.setNhaShareOfPremiumPayable(result);
     }
     public AashaHybrid AashaHybridCalc(AashaHybrid details)
     {
-
-
-
-
+        // Set earlierAmountReleasedByNha to 0 by default if not provided
+        if (details.getEarlierAmountReleasedByNha() == null) {
+            details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+        }
 
         // max GIA implementation/admin per family
         BigDecimal baseAdmin = BigDecimal.valueOf(50);
@@ -373,7 +382,10 @@ details.setNhaShareOfPremiumPayable(result);
     }
     public AashaAdmin AashaAdminCalc(AashaAdmin details)
     {
-
+        // Set earlierAmountReleasedByNha to 0 by default if not provided
+        if (details.getEarlierAmountReleasedByNha() == null) {
+            details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+        }
 
         // max GIA implementation/admin per family
         BigDecimal baseAdmin = BigDecimal.valueOf(50);
@@ -474,6 +486,11 @@ details.setNhaShareOfPremiumPayable(result);
     }
     public AdminNhaPaymentDetails administrativeCalc(AdminNhaPaymentDetails details)
     {
+        // Set earlierAmountReleasedByNha to 0 by default if not provided
+        if (details.getEarlierAmountReleasedByNha() == null) {
+            details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+        }
+        
         if (details.getTotalPopulationCoveredAsPerMou() != null && details.getTotalPopulationCoveredAsPerMou().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal percentage = details.getEligibleSeccPopulation()
                     .divide(details.getTotalPopulationCoveredAsPerMou(), 10, RoundingMode.HALF_UP);
@@ -575,6 +592,11 @@ details.setNhaShareOfPremiumPayable(result);
     }
 public VVSImplementationNewBenef vvsimplementationNewBenef(VVSImplementationNewBenef details)
 {
+    // Set earlierAmountReleasedByNha to 0 by default if not provided
+    if (details.getEarlierAmountReleasedByNha() == null) {
+        details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+    }
+    
     BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
 
     BigDecimal maxPerFamily = maxImplPerFamily.multiply(details.getNewBeneficiaryInstate());
@@ -635,6 +657,11 @@ details.setMaxGiaImplementationPerFamilyOld(maxPerFamilyOld);
     return details;
 }
 public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrust details) {
+    // Set earlierAmountReleasedByNha to 0 by default if not provided
+    if (details.getEarlierAmountReleasedByNha() == null) {
+        details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+    }
+    
     BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
 
      details.setMaxGiaImplementationByNhaPerFamily(maxImplPerFamily);
@@ -698,6 +725,11 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
 }
     public VvsHybrid vvshybridcalc(VvsHybrid details)
     {
+        // Set earlierAmountReleasedByNha to 0 by default if not provided
+        if (details.getEarlierAmountReleasedByNha() == null) {
+            details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+        }
+        
         BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
 
         BigDecimal maxPerFamily = maxImplPerFamily.multiply(details.getNewBeneficiaryInstate());
@@ -786,9 +818,13 @@ public AashaImplementationTrust aashaImplementationTrust(AashaImplementationTrus
 
 
     }
-    public VvsAdmin VvsAdmin(VvsAdmin details
-    )
+    public VvsAdmin VvsAdmin(VvsAdmin details)
     {
+        // Set earlierAmountReleasedByNha to 0 by default if not provided
+        if (details.getEarlierAmountReleasedByNha() == null) {
+            details.setEarlierAmountReleasedByNha(BigDecimal.ZERO);
+        }
+        
         BigDecimal maxImplPerFamily = new BigDecimal("1052").multiply(details.getNhaShareInGia());
 
         BigDecimal maxPerFamily = maxImplPerFamily.multiply(details.getNewBeneficiaryInstate());

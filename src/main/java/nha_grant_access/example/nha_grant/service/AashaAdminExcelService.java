@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class AashaAdminExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Implementation per Family",
-                    d.getMaxGiaImplementationByNhaPerFamily().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaImplementationByNhaPerFamily()),
                     "1052 × NHA Share (A)");
 
             StringBuilder descAdminFamily = new StringBuilder();
@@ -65,42 +66,42 @@ public class AashaAdminExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Admin per Family",
-                    d.getMaxGiaAdminByNhaPerFamily().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaAdminByNhaPerFamily()),
                     descAdminFamily.toString());
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Implementation by NHA",
-                    d.getMaxGiaImplementationByNha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaImplementationByNha()),
                     "Eligible Families (B) × 1052 * A");
 
             rowIdx = row(sheet, rowIdx,
                     "Max GIA Admin by NHA (C)",
-                    d.getMaxGiaAdminByNha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getMaxGiaAdminByNha()),
                     "Eligible Families (B) × Admin per Family (with minimum cap)");
 
             rowIdx = row(sheet, rowIdx,
                     "Total Admin Cost Paid by SHA (D)",
-                    d.getTotalTreatmentCostPaidBySha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getTotalTreatmentCostPaidBySha()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Administrative Expense (SHA)",
-                    d.getCostOfAdministrativeExpenseSha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getCostOfAdministrativeExpenseSha()),
                     "Total Admin Cost (D) × (1 - NHA Share (A))");
 
             rowIdx = row(sheet, rowIdx,
                     "Administrative Expense NHA (E)",
-                    d.getCostOfAdministrativeExpenseNha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getCostOfAdministrativeExpenseNha()),
                     "Total Admin Cost (D) × NHA Share (A)");
 
             rowIdx = row(sheet, rowIdx,
                     "Upfront Release by SHA (F)",
-                    d.getUpfrontReleaseByShaForPmjay().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getUpfrontReleaseByShaForPmjay()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "NHA Share Corresponding to SHA Release (G)",
-                    d.getNhaShareCorrespondingToShaRelease().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getNhaShareCorrespondingToShaRelease()),
                     "Upfront (F) × (A / (1 - A))");
 
             rowIdx = row(sheet, rowIdx,
@@ -110,27 +111,27 @@ public class AashaAdminExcelService {
 
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable Till Tranche (I)",
-                    d.getTotalAmountPayableTillThisTranche().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getTotalAmountPayableTillThisTranche()),
                     "Max GIA Admin by NHA (C) × Tranche No (H)");
 
             rowIdx = row(sheet, rowIdx,
                     "Total Amount Payable by NHA(M)",
-                    d.getTotalAmountPayableByNhaAsOnDate().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getTotalAmountPayableByNhaAsOnDate()),
                     "Minimum of (C, E, G, I)");
 
             rowIdx = row(sheet, rowIdx,
                     "Earlier Released (J)",
-                    d.getEarlierAmountReleasedByNha().setScale(2, RoundingMode.HALF_UP),
+                    scale(d.getEarlierAmountReleasedByNha()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Unspent Amount (K)",
-                    d.getUnspentAmountAsPerUc(),
+                    scale(d.getUnspentAmountAsPerUc()),
                     "");
 
             rowIdx = row(sheet, rowIdx,
                     "Amount Proposed to be Released",
-                    d.getAmountProposedToBeReleased(),
+                    scale(d.getAmountProposedToBeReleased()),
                     "M - Earlier Released (J) - Unspent (K)");
         }
 
@@ -142,6 +143,11 @@ public class AashaAdminExcelService {
         workbook.close();
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    // 🔥 Common rounding utility (clean + reusable)
+    private BigDecimal scale(BigDecimal val) {
+        return val != null ? val.setScale(2, RoundingMode.HALF_UP) : null;
     }
 
     private int row(Sheet sheet, int i, String f, Object v, String d) {
