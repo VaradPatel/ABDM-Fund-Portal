@@ -1,0 +1,881 @@
+openapi: 3.0.3
+info:
+  title: ABDM NHA Grant Access API
+  description: >
+    Full API surface of the application: authentication, OTP, states/roles
+    lookups, static document downloads, and PFMS expenditure reporting.
+    All routes are prefixed with the server context path (see `servers`).
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8090/abdm/v1/api
+    description: Local
+
+tags:
+  - name: Auth
+  - name: OTP
+  - name: States & Roles
+  - name: Downloads
+  - name: PFMS Expenditure Report
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ---------------------------------------------------------------------
+  # Auth (LoginController)
+  # ---------------------------------------------------------------------
+  /login:
+    post:
+      tags: [Auth]
+      summary: Login with email + RSA-encrypted password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid email/password or user not activated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Error while logging in (e.g. decryption failure)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /signup:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      description: Requires a verified OTP transactionId (see /send-otp + /verify-otp) before calling this.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Signup"
+      responses:
+        "200":
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /encrypt:
+    post:
+      tags: [Auth]
+      summary: RSA-encrypt a plaintext value
+      description: Utility endpoint — used by the frontend to encrypt the password before calling /login or /signup.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Test"
+      responses:
+        "200":
+          description: Encrypted value (returned inside SuccessResponse.message)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /decrypt:
+    post:
+      tags: [Auth]
+      summary: RSA-decrypt a value
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Test"
+      responses:
+        "200":
+          description: Decrypted plaintext string
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /change-password:
+    post:
+      tags: [Auth]
+      summary: Change password for the logged-in user (requires a verified OTP)
+      description: >
+        Requires a Bearer token identifying the current user (matched by
+        email from the token). `mobile` must match the token user's mobile
+        number, and `transactionId` must reference an OTP that is verified,
+        not expired, and tied to the same `mobile`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePassword"
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: No user found / missing transactionId / invalid or unverified OTP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Change password failed / unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /forgot-password:
+    post:
+      tags: [Auth]
+      summary: Reset password via a verified OTP (no login required)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePassword"
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: No user found / missing transactionId / invalid or unverified OTP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Change password failed / unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user-activate/{userId}/{status}:
+    post:
+      tags: [Auth]
+      summary: Activate or deactivate a user
+      description: Caller must be authenticated with the `NHA Admin` authority.
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: status
+          in: path
+          required: true
+          description: Non-zero activates the user; 0 deactivates.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User activated/deactivated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "403":
+          description: Caller lacks the NHA Admin authority
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/logout:
+    post:
+      tags: [Auth]
+      summary: Log out the current user (invalidates the token)
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: "Bearer token, e.g. `Bearer <jwt>`."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /validate-token:
+    get:
+      tags: [Auth]
+      summary: Validate a Bearer token
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: "Bearer token, e.g. `Bearer <jwt>`."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Missing or invalid token
+
+  # ---------------------------------------------------------------------
+  # OTP (OtpController)
+  # ---------------------------------------------------------------------
+  /send-otp:
+    post:
+      tags: [OTP]
+      summary: Send an OTP to a mobile number
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpGenerateRequest"
+      responses:
+        "200":
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpResponseTo"
+        "500":
+          description: Failed to send OTP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /verify-otp:
+    post:
+      tags: [OTP]
+      summary: Verify an OTP, optionally logging the user in
+      description: >
+        If `islogin` is true and verification succeeds, a user lookup by
+        `contact` (mobile) is performed and a login token is returned instead
+        of a plain success message.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyOtpRequest"
+      responses:
+        "200":
+          description: OTP verified (LoginResponse if islogin=true, else SuccessResponse)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/LoginResponse"
+                  - $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Incorrect OTP, or no user found for the given contact (when islogin=true)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected error while verifying OTP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------------------------------------------------------------------
+  # Downloads (OtpController) — static documents, no parameters
+  # ---------------------------------------------------------------------
+  /download/pmjay-implementation:
+    get:
+      tags: [Downloads]
+      summary: Download the PMJAY Implementation PDF
+      security: []
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /download/pmjay-adm:
+    get:
+      tags: [Downloads]
+      summary: Download the PMJAY Administrative PDF
+      security: []
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /download/frs:
+    get:
+      tags: [Downloads]
+      summary: Download the FRS document (.docx)
+      security: []
+      responses:
+        "200":
+          description: Word document
+          content:
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: string
+                format: binary
+
+  /download/gia-calculation-steps:
+    get:
+      tags: [Downloads]
+      summary: Download the GIA Calculation Steps document (.docx)
+      security: []
+      responses:
+        "200":
+          description: Word document
+          content:
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: string
+                format: binary
+
+  # ---------------------------------------------------------------------
+  # States & Roles (stateController)
+  # ---------------------------------------------------------------------
+  /all-states:
+    get:
+      tags: [States & Roles]
+      summary: List all states/UTs
+      description: Use this to build the `states` picker for the PFMS expenditure APIs.
+      security: []
+      responses:
+        "200":
+          description: All states
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/States"
+
+  /state/{id}:
+    get:
+      tags: [States & Roles]
+      summary: Get a single state by ID
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: State found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/States"
+        "404":
+          description: State not found
+
+  /all-roles:
+    get:
+      tags: [States & Roles]
+      summary: List all roles
+      security: []
+      responses:
+        "200":
+          description: All roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Roles"
+
+  # ---------------------------------------------------------------------
+  # PFMS Expenditure Report (PfmsExpenditureReportController)
+  # ---------------------------------------------------------------------
+  /pfms-expenditure/upload:
+    post:
+      tags: [PFMS Expenditure Report]
+      summary: Upload a PFMS TSA Expenditure excel report for a given date
+      description: >
+        Parses the uploaded excel, resolves each row's state name against the
+        states master table (tolerating known aliases/typos), and upserts one
+        row per (reportDate, state). Re-uploading for the same date + state
+        overwrites the existing values.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, date, financialYear, quarter]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The PFMS TSA Expenditure excel file (.xls/.xlsx). Must contain columns State, Total Fund- Released, Total Success Expenditure by State, Balance.
+                date:
+                  type: string
+                  format: date
+                  description: Report date (ISO-8601, e.g. 2025-01-31). All rows in the file are saved against this single date.
+                financialYear:
+                  type: string
+                  description: Financial year label, e.g. "2025-26".
+                quarter:
+                  type: string
+                  description: One of Q1, Q2, Q3, Q4 (case-insensitive).
+                  enum: [Q1, Q2, Q3, Q4]
+      responses:
+        "200":
+          description: Upload succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Validation failed (missing fields, missing/unmatched columns, unmatched state names, missing tracked states)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /pfms-expenditure/summary:
+    get:
+      tags: [PFMS Expenditure Report]
+      summary: Get day-by-day expenditure data for a date range, per state
+      description: >
+        Returns one entry per requested state, each containing a `data` array
+        with one snapshot per calendar day between `startDate` and `endDate`
+        (inclusive). If a state has no uploaded report for a given day, that
+        day's snapshot still appears with `reportDate` set and the amount
+        fields as `null`.
+      parameters:
+        - name: states
+          in: query
+          required: true
+          description: >
+            List of state IDs to include. Accepts either repeated params
+            (`states=1&states=2`) or a comma-separated value (`states=1,2,3`).
+            Pass **`0`** alone to mean "all states" (equivalent to enumerating
+            every state ID from `/all-states`).
+          schema:
+            type: array
+            items:
+              type: integer
+          example: [1, 2, 3]
+        - name: startDate
+          in: query
+          required: true
+          description: Start of the date range (inclusive), ISO-8601.
+          schema:
+            type: string
+            format: date
+          example: "2025-01-01"
+        - name: endDate
+          in: query
+          required: false
+          description: End of the date range (inclusive), ISO-8601. Defaults to `startDate` if omitted (single-day query). Must not be before `startDate`.
+          schema:
+            type: string
+            format: date
+          example: "2025-01-05"
+        - name: financialYear
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this financial year, e.g. "2025-26".
+          schema:
+            type: string
+        - name: quarter
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this quarter (Q1-Q4).
+          schema:
+            type: string
+            enum: [Q1, Q2, Q3, Q4]
+      responses:
+        "200":
+          description: Per-state, per-day expenditure data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateExpenditureSummary"
+              example:
+                - stateId: 1
+                  stateName: "Andhra Pradesh"
+                  data:
+                    - reportDate: "2025-01-01"
+                      totalFundReleased: 1000000
+                      totalSuccessExpenditure: 400000
+                      balance: 600000
+                    - reportDate: "2025-01-02"
+                      totalFundReleased: null
+                      totalSuccessExpenditure: null
+                      balance: null
+        "400":
+          description: Validation failed (e.g. missing states/startDate, endDate before startDate)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /pfms-expenditure/latest-two-days:
+    get:
+      tags: [PFMS Expenditure Report]
+      summary: Get the most recent 2 report dates, per state or summed across states
+      description: >
+        Finds the 2 most recent distinct report dates present in the DB for
+        the requested states, then returns a `data` array with one snapshot
+        per date (most recent last).
+        When `sumStates=true`, returns a single entry (`stateId: null`,
+        `stateName: "ALL"`) whose `data` values are the sum of
+        totalFundReleased / totalSuccessExpenditure / balance across all
+        requested states for each of the 2 dates. When `sumStates=false`
+        (default), returns one entry per state instead.
+      parameters:
+        - name: states
+          in: query
+          required: true
+          description: >
+            List of state IDs to include. Accepts either repeated params
+            (`states=1&states=2`) or a comma-separated value (`states=1,2,3`).
+            Pass **`0`** alone to mean "all states".
+          schema:
+            type: array
+            items:
+              type: integer
+          example: [1, 2, 3]
+        - name: sumStates
+          in: query
+          required: false
+          description: If true, sum the amounts across all requested states for each of the 2 dates instead of returning per-state breakdowns.
+          schema:
+            type: boolean
+            default: false
+        - name: financialYear
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this financial year.
+          schema:
+            type: string
+        - name: quarter
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this quarter (Q1-Q4).
+          schema:
+            type: string
+            enum: [Q1, Q2, Q3, Q4]
+      responses:
+        "200":
+          description: >
+            Per-state (sumStates=false) or single summed entry
+            (sumStates=true) for the latest 2 report dates. Empty array if no
+            reports exist yet for the requested states.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateExpenditureSummary"
+              examples:
+                perState:
+                  summary: sumStates=false
+                  value:
+                    - stateId: 1
+                      stateName: "Andhra Pradesh"
+                      data:
+                        - reportDate: "2025-03-30"
+                          totalFundReleased: 1000000
+                          totalSuccessExpenditure: 400000
+                          balance: 600000
+                        - reportDate: "2025-03-31"
+                          totalFundReleased: 1200000
+                          totalSuccessExpenditure: 500000
+                          balance: 700000
+                summed:
+                  summary: sumStates=true
+                  value:
+                    - stateId: null
+                      stateName: "ALL"
+                      data:
+                        - reportDate: "2025-03-30"
+                          totalFundReleased: 55000000
+                          totalSuccessExpenditure: 21000000
+                          balance: 34000000
+                        - reportDate: "2025-03-31"
+                          totalFundReleased: 57000000
+                          totalSuccessExpenditure: 23000000
+                          balance: 34000000
+        "400":
+          description: Validation failed (e.g. missing states)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          description: RSA-encrypted password (see POST /encrypt).
+
+    LoginResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+        email:
+          type: string
+        mobile:
+          type: string
+        name:
+          type: string
+        isNew:
+          type: boolean
+        token:
+          type: string
+          description: JWT bearer token to use in `Authorization: Bearer <token>` for subsequent requests.
+
+    Signup:
+      type: object
+      required: [stateId, email, mobile, name, roles, designation, gender, dob, transactionId]
+      properties:
+        stateId:
+          type: array
+          items:
+            type: integer
+        email:
+          type: string
+          format: email
+        mobile:
+          type: string
+          description: 10-digit Indian mobile number, must start with 6-9.
+          pattern: "^[6-9]\\d{9}$"
+        name:
+          type: string
+          pattern: "^[a-zA-Z\\s]+$"
+        roles:
+          $ref: "#/components/schemas/Roles"
+        designation:
+          type: string
+          pattern: "^[a-zA-Z\\s]+$"
+        gender:
+          type: string
+        dob:
+          type: string
+          format: date
+        transactionId:
+          type: string
+          description: Transaction ID of a verified OTP (see /send-otp + /verify-otp).
+
+    Test:
+      type: object
+      properties:
+        encrypt:
+          type: string
+          description: For /encrypt this is the plaintext to encrypt; for /decrypt this is the ciphertext to decrypt.
+
+    ChangePassword:
+      type: object
+      required: [mobile, password]
+      properties:
+        transactionId:
+          type: string
+          description: Transaction ID of a verified OTP. Required unless `isNew` is true.
+        mobile:
+          type: string
+        password:
+          type: string
+          description: New password.
+        isNew:
+          type: boolean
+
+    OtpGenerateRequest:
+      type: object
+      required: [mobile]
+      properties:
+        mobile:
+          type: string
+        type:
+          type: string
+          description: Purpose of the OTP (e.g. login, signup, forgot-password) — check IOtp implementation for accepted values.
+
+    OtpResponseTo:
+      type: object
+      properties:
+        transactionId:
+          type: string
+        message:
+          type: string
+        sentOn:
+          type: string
+
+    VerifyOtpRequest:
+      type: object
+      required: [transactionId, contact, otp]
+      properties:
+        transactionId:
+          type: string
+        contact:
+          type: string
+          description: Mobile number the OTP was sent to.
+        otp:
+          type: string
+        islogin:
+          type: boolean
+          description: If true and the OTP is valid, a LoginResponse (with token) is returned instead of a plain SuccessResponse.
+
+    States:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    Roles:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    PfmsExpenditureSnapshot:
+      type: object
+      description: Financial figures for a single state on a single report date. Amount fields are null for a date with no uploaded report.
+      properties:
+        reportDate:
+          type: string
+          format: date
+        totalFundReleased:
+          type: number
+          nullable: true
+        totalSuccessExpenditure:
+          type: number
+          nullable: true
+        balance:
+          type: number
+          nullable: true
+
+    StateExpenditureSummary:
+      type: object
+      properties:
+        stateId:
+          type: integer
+          nullable: true
+          description: Null only in the summed ("ALL") entry from /pfms-expenditure/latest-two-days.
+        stateName:
+          type: string
+          description: State name, or "ALL" for the summed entry.
+        data:
+          type: array
+          description: One snapshot per date, ordered oldest to newest.
+          items:
+            $ref: "#/components/schemas/PfmsExpenditureSnapshot"
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string

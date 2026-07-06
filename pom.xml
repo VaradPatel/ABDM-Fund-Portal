@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>nha_grant_access.example</groupId>
-	<artifactId>nha_grant</artifactId>
+	<artifactId>abdm_nha_grant</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>nha_grant</name>
 	<description>Demo project for Spring Boot</description>

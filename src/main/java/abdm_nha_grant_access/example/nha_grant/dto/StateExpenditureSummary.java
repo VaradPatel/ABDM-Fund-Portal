@@ -1,0 +1,18 @@
+package abdm_nha_grant_access.example.nha_grant.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class StateExpenditureSummary {
+    private Integer stateId;
+    private String stateName;
+    private List<PfmsExpenditureSnapshot> data;
+}
