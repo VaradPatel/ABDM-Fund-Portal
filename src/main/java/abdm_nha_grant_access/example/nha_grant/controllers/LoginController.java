@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -31,6 +32,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -281,6 +283,40 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid token");
 
     }
+    @GetMapping("/adm-user-management/{status}")
+    @PreAuthorize("hasAuthority('NHA Admin') ")
+    public ResponseEntity<?> getUserApprovalByAdmin(@PathVariable("status") Integer status) throws AccessDeniedException {
+        try {
+            List<Object[]> user = null;
 
+            if (status != 0) {
+                user = userRepo.findUsersRequestByAdmin(true);
+            } else
+                user = userRepo.findUsersRequestByAdmin(false);
+
+            List<UserRequest> users = user.stream()
+                    .map(row -> UserRequest.builder()
+                            .id((Integer) row[0])                 // u.id
+                            .email((String) row[1])               // u.email
+                            .mobile((String) row[2])              // u.mobile_number
+                            .designation((String) row[3])         // u.designation
+                            .stateName((String) row[4])           // s.name (state_name)
+                            .roleName((String) row[5])
+                            .name((String) row[6])
+                            .createdAt((Date) row[7])
+                            .isVerified((Boolean) row[8])
+                            .isActivated((Boolean) row[9])
+                            .build())
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok().body(users);
+
+
+        } catch (Exception e) {
+            log.info("error occured while fetching user-approval" + e.toString());
+            return ResponseEntity.ok().body(new Error("error occured while fetching user-approval", e.toString()));
+        }
+
+
+    }
 
 }

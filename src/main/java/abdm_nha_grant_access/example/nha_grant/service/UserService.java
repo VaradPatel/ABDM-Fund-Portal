@@ -86,6 +86,7 @@ PasswordEncoder bCryptPasswordEncoder;
                     .roleId(signup.getRoles().getId())
                     .isActivated(true)
                     .isVerified(true)
+                    .password(bCryptPasswordEncoder.encode("Nha@123"))
                                             .
                     build();
             user=userRepo.save(user);
