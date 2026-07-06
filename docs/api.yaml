@@ -17,6 +17,7 @@ tags:
   - name: States & Roles
   - name: Downloads
   - name: PFMS Expenditure Report
+  - name: Fund Breakup Report
 
 security:
   - bearerAuth: []
@@ -693,6 +694,308 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  # ---------------------------------------------------------------------
+  # Fund Breakup Report (FundBreakupReportController)
+  # ---------------------------------------------------------------------
+  /fund-breakup/upload:
+    post:
+      tags: [Fund Breakup Report]
+      summary: Upload a Fund Breakup excel report for a given date
+      description: >
+        Parses the uploaded excel, resolves each row's state name against the
+        states master table (tolerating known aliases/typos), and upserts one
+        row per (reportDate, state). Re-uploading for the same date + state
+        overwrites the existing values. The uploaded file itself is also
+        stored, keyed by (reportDate, financialYear, quarter).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, date, financialYear, quarter]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: >
+                    The Fund Breakup excel file (.xls/.xlsx). Must contain a
+                    single header row with the columns State, Total Fund-
+                    Released, Total Expenditure by State, Balance, HR
+                    Released, HR Expenditure, HR Balance, IEC-CB Released,
+                    IEC-CB Expenditure, IEC-CB Balance, Admin Released, Admin
+                    Expenditure, Admin Balance.
+                date:
+                  type: string
+                  format: date
+                  description: Report date (ISO-8601, e.g. 2025-01-31). All rows in the file are saved against this single date.
+                financialYear:
+                  type: string
+                  description: Financial year label, e.g. "2025-26".
+                quarter:
+                  type: string
+                  description: One of Q1, Q2, Q3, Q4 (case-insensitive).
+                  enum: [Q1, Q2, Q3, Q4]
+      responses:
+        "200":
+          description: Upload succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Validation failed (missing fields, missing/unmatched columns, unmatched state names, missing/invalid amounts in a row)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /fund-breakup/summary:
+    get:
+      tags: [Fund Breakup Report]
+      summary: Get day-by-day fund breakup data for a date range, per state
+      description: >
+        Returns one entry per requested state, each containing a `data` array
+        with one snapshot per calendar day between `startDate` and `endDate`
+        (inclusive). If a state has no uploaded report for a given day, that
+        day's snapshot still appears with `reportDate` set and the amount
+        fields as `null`.
+      parameters:
+        - name: states
+          in: query
+          required: true
+          description: >
+            List of state IDs to include. Accepts either repeated params
+            (`states=1&states=2`) or a comma-separated value (`states=1,2,3`).
+            Pass **`0`** alone to mean "all states" (equivalent to enumerating
+            every state ID from `/all-states`).
+          schema:
+            type: array
+            items:
+              type: integer
+          example: [1, 2, 3]
+        - name: startDate
+          in: query
+          required: true
+          description: Start of the date range (inclusive), ISO-8601.
+          schema:
+            type: string
+            format: date
+          example: "2025-01-01"
+        - name: endDate
+          in: query
+          required: false
+          description: End of the date range (inclusive), ISO-8601. Defaults to `startDate` if omitted (single-day query). Must not be before `startDate`.
+          schema:
+            type: string
+            format: date
+          example: "2025-01-05"
+        - name: financialYear
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this financial year, e.g. "2025-26".
+          schema:
+            type: string
+        - name: quarter
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this quarter (Q1-Q4).
+          schema:
+            type: string
+            enum: [Q1, Q2, Q3, Q4]
+      responses:
+        "200":
+          description: Per-state, per-day fund breakup data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateFundBreakupSummary"
+              example:
+                - stateId: 1
+                  stateName: "Andhra Pradesh"
+                  data:
+                    - reportDate: "2025-01-01"
+                      totalFundReleased: 1000000
+                      totalExpenditure: 400000
+                      totalBalance: 600000
+                      hrFundReleased: 300000
+                      hrExpenditure: 120000
+                      hrBalance: 180000
+                      iecCbFundReleased: 200000
+                      iecCbExpenditure: 80000
+                      iecCbBalance: 120000
+                      adminFundReleased: 500000
+                      adminExpenditure: 200000
+                      adminBalance: 300000
+                    - reportDate: "2025-01-02"
+                      totalFundReleased: null
+                      totalExpenditure: null
+                      totalBalance: null
+                      hrFundReleased: null
+                      hrExpenditure: null
+                      hrBalance: null
+                      iecCbFundReleased: null
+                      iecCbExpenditure: null
+                      iecCbBalance: null
+                      adminFundReleased: null
+                      adminExpenditure: null
+                      adminBalance: null
+        "400":
+          description: Validation failed (e.g. missing states/startDate, endDate before startDate)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /fund-breakup/latest-two-days:
+    get:
+      tags: [Fund Breakup Report]
+      summary: Get the most recent 2 report dates, per state or summed across states
+      description: >
+        Finds the 2 most recent distinct report dates present in the DB for
+        the requested states, then returns a `data` array with one snapshot
+        per date (most recent last).
+        When `sumStates=true`, returns a single entry (`stateId: null`,
+        `stateName: "ALL"`) whose `data` values are the sum of all amount
+        fields across all requested states for each of the 2 dates. When
+        `sumStates=false` (default), returns one entry per state instead.
+      parameters:
+        - name: states
+          in: query
+          required: true
+          description: >
+            List of state IDs to include. Accepts either repeated params
+            (`states=1&states=2`) or a comma-separated value (`states=1,2,3`).
+            Pass **`0`** alone to mean "all states".
+          schema:
+            type: array
+            items:
+              type: integer
+          example: [1, 2, 3]
+        - name: sumStates
+          in: query
+          required: false
+          description: If true, sum the amounts across all requested states for each of the 2 dates instead of returning per-state breakdowns.
+          schema:
+            type: boolean
+            default: false
+        - name: financialYear
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this financial year.
+          schema:
+            type: string
+        - name: quarter
+          in: query
+          required: false
+          description: Optional filter — only include reports matching this quarter (Q1-Q4).
+          schema:
+            type: string
+            enum: [Q1, Q2, Q3, Q4]
+      responses:
+        "200":
+          description: >
+            Per-state (sumStates=false) or single summed entry
+            (sumStates=true) for the latest 2 report dates. Empty array if no
+            reports exist yet for the requested states.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateFundBreakupSummary"
+              examples:
+                perState:
+                  summary: sumStates=false
+                  value:
+                    - stateId: 1
+                      stateName: "Andhra Pradesh"
+                      data:
+                        - reportDate: "2025-03-30"
+                          totalFundReleased: 1000000
+                          totalExpenditure: 400000
+                          totalBalance: 600000
+                          hrFundReleased: 300000
+                          hrExpenditure: 120000
+                          hrBalance: 180000
+                          iecCbFundReleased: 200000
+                          iecCbExpenditure: 80000
+                          iecCbBalance: 120000
+                          adminFundReleased: 500000
+                          adminExpenditure: 200000
+                          adminBalance: 300000
+                        - reportDate: "2025-03-31"
+                          totalFundReleased: 1200000
+                          totalExpenditure: 500000
+                          totalBalance: 700000
+                          hrFundReleased: 350000
+                          hrExpenditure: 150000
+                          hrBalance: 200000
+                          iecCbFundReleased: 250000
+                          iecCbExpenditure: 100000
+                          iecCbBalance: 150000
+                          adminFundReleased: 600000
+                          adminExpenditure: 250000
+                          adminBalance: 350000
+                summed:
+                  summary: sumStates=true
+                  value:
+                    - stateId: null
+                      stateName: "ALL"
+                      data:
+                        - reportDate: "2025-03-30"
+                          totalFundReleased: 55000000
+                          totalExpenditure: 21000000
+                          totalBalance: 34000000
+                          hrFundReleased: 15000000
+                          hrExpenditure: 6000000
+                          hrBalance: 9000000
+                          iecCbFundReleased: 10000000
+                          iecCbExpenditure: 4000000
+                          iecCbBalance: 6000000
+                          adminFundReleased: 30000000
+                          adminExpenditure: 11000000
+                          adminBalance: 19000000
+                        - reportDate: "2025-03-31"
+                          totalFundReleased: 57000000
+                          totalExpenditure: 23000000
+                          totalBalance: 34000000
+                          hrFundReleased: 15500000
+                          hrExpenditure: 6500000
+                          hrBalance: 9000000
+                          iecCbFundReleased: 10500000
+                          iecCbExpenditure: 4500000
+                          iecCbBalance: 6000000
+                          adminFundReleased: 31000000
+                          adminExpenditure: 12000000
+                          adminBalance: 19000000
+        "400":
+          description: Validation failed (e.g. missing states)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -726,7 +1029,7 @@ components:
           type: boolean
         token:
           type: string
-          description: JWT bearer token to use in `Authorization: Bearer <token>` for subsequent requests.
+          description: "JWT bearer token to use in `Authorization: Bearer <token>` for subsequent requests."
 
     Signup:
       type: object
@@ -865,6 +1168,69 @@ components:
           description: One snapshot per date, ordered oldest to newest.
           items:
             $ref: "#/components/schemas/PfmsExpenditureSnapshot"
+
+    FundBreakupSnapshot:
+      type: object
+      description: >
+        Fund breakup figures for a single state on a single report date,
+        broken down into total / HR / IEC-CB / Admin heads. Amount fields
+        are null for a date with no uploaded report.
+      properties:
+        reportDate:
+          type: string
+          format: date
+        totalFundReleased:
+          type: number
+          nullable: true
+        totalExpenditure:
+          type: number
+          nullable: true
+        totalBalance:
+          type: number
+          nullable: true
+        hrFundReleased:
+          type: number
+          nullable: true
+        hrExpenditure:
+          type: number
+          nullable: true
+        hrBalance:
+          type: number
+          nullable: true
+        iecCbFundReleased:
+          type: number
+          nullable: true
+        iecCbExpenditure:
+          type: number
+          nullable: true
+        iecCbBalance:
+          type: number
+          nullable: true
+        adminFundReleased:
+          type: number
+          nullable: true
+        adminExpenditure:
+          type: number
+          nullable: true
+        adminBalance:
+          type: number
+          nullable: true
+
+    StateFundBreakupSummary:
+      type: object
+      properties:
+        stateId:
+          type: integer
+          nullable: true
+          description: Null only in the summed ("ALL") entry from /fund-breakup/latest-two-days.
+        stateName:
+          type: string
+          description: State name, or "ALL" for the summed entry.
+        data:
+          type: array
+          description: One snapshot per date, ordered oldest to newest.
+          items:
+            $ref: "#/components/schemas/FundBreakupSnapshot"
 
     SuccessResponse:
       type: object
