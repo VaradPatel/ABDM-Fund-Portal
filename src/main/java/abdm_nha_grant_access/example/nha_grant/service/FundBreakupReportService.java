@@ -421,7 +421,8 @@ public class FundBreakupReportService {
             throw new GrantException(missingColumnsMessage(sheet, formatter));
         }
 
-        List<String> errors = new ArrayList<>();
+        List<String> missingValueIssues = new ArrayList<>();
+        List<String> stateNotFoundIssues = new ArrayList<>();
         List<ParsedRow> parsedRows = new ArrayList<>();
 
         for (int r = headerRow + 1; r <= sheet.getLastRowNum(); r++) {
@@ -459,13 +460,13 @@ public class FundBreakupReportService {
             if (adminExpenditure == null) rowMissing.add("Admin Expenditure");
             if (adminBalance == null) rowMissing.add("Admin Balance");
             if (!rowMissing.isEmpty()) {
-                errors.add("Row " + (r + 1) + " (State: " + stateName + "): missing/invalid " + String.join(", ", rowMissing));
+                missingValueIssues.add("Row " + (r + 1) + " (" + stateName + "): " + summarize(rowMissing, 3));
                 continue;
             }
 
             States matched = resolveState(stateName, statesByNormalizedName, masterStates, r + 1, fuzzyMatchNotes);
             if (matched == null) {
-                errors.add("Row " + (r + 1) + ": state '" + stateName + "' was not found in the states master table");
+                stateNotFoundIssues.add("Row " + (r + 1) + ": '" + stateName + "'");
                 continue;
             }
 
@@ -475,15 +476,38 @@ public class FundBreakupReportService {
                     adminFundReleased, adminExpenditure, adminBalance));
         }
 
-        if (parsedRows.isEmpty() && errors.isEmpty()) {
-            errors.add("No valid state data rows found in the uploaded excel");
+        if (parsedRows.isEmpty() && missingValueIssues.isEmpty() && stateNotFoundIssues.isEmpty()) {
+            throw new GrantException("No valid state data rows found in the uploaded excel");
         }
 
-        if (!errors.isEmpty()) {
-            throw new GrantException(String.join(" | ", errors));
+        if (!missingValueIssues.isEmpty() || !stateNotFoundIssues.isEmpty()) {
+            throw new GrantException(buildValidationMessage(missingValueIssues, stateNotFoundIssues));
         }
 
         return parsedRows;
+    }
+
+    // Keeps the thrown error short: instead of one line per bad row (which can balloon to an
+    // unreadable wall of text on a large file), groups issues by kind and shows only a few
+    // examples with a count of the rest.
+    private String buildValidationMessage(List<String> missingValueIssues, List<String> stateNotFoundIssues) {
+        List<String> parts = new ArrayList<>();
+        if (!missingValueIssues.isEmpty()) {
+            parts.add(missingValueIssues.size() + " row(s) have missing/invalid values, e.g. "
+                    + summarize(missingValueIssues, 3));
+        }
+        if (!stateNotFoundIssues.isEmpty()) {
+            parts.add(stateNotFoundIssues.size() + " row(s) have a state not found in the states list, e.g. "
+                    + summarize(stateNotFoundIssues, 3));
+        }
+        return String.join(". ", parts);
+    }
+
+    private String summarize(List<String> items, int limit) {
+        if (items.size() <= limit) {
+            return String.join("; ", items);
+        }
+        return String.join("; ", items.subList(0, limit)) + " and " + (items.size() - limit) + " more";
     }
 
     /**
