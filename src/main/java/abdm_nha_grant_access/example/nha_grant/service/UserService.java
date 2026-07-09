@@ -72,6 +72,7 @@ PasswordEncoder bCryptPasswordEncoder;
 
         try
         {
+            boolean isActiveAndVerified = signup.getRoles().getId() > 2;
             User user=User.builder().
 
                     email(signup.getEmail()).
@@ -80,12 +81,11 @@ PasswordEncoder bCryptPasswordEncoder;
                     .mobileNumber(signup.getMobile())
                     .isNew(true)
                     .designation(signup.getDesignation())
-                    .isVerified(false)
                     .gender(signup.getGender())
                     .dob(signup.getDob())
                     .roleId(signup.getRoles().getId())
-                    .isActivated(true)
-                    .isVerified(true)
+                    .isActivated(isActiveAndVerified)
+                    .isVerified(isActiveAndVerified)
                     .password(bCryptPasswordEncoder.encode("Nha@123"))
                                             .
                     build();
