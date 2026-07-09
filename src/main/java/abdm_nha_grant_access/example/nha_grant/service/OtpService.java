@@ -66,7 +66,45 @@ public class OtpService implements IOtp {
         return new OtpResponseTo(otpEntity.getId(), "OTP sent sucessfully", otpEntity.getContact());
 
     }
+    public String LoginCredentials(String Username, String password, String mobile )
+    {
 
+        // System.out.println("user is " + user.toString() );
+        String message = String.format(
+                "Dear User , \n" +
+                        "Your credentials for NHA Grants Portal are as below: \n" +
+                        "Username: %s  \n" +
+                        "Temporary password: %s  \n" +
+                        "Kindly login to the application and reset your password. \n" +
+                        "National Health Authority",
+                Username, password
+        );
+
+        System.out.println("sms message " + message);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("userid", "abhaotp");
+        body.add("password", "f9F3r]{S");
+        body.add("mobile", mobile);
+        body.add("senderid", "NHASMS");
+        body.add("dltEntityId", "1001548700000010184");
+        body.add("msg", message);
+        body.add("sendMethod", "quick");
+        body.add("msgType", "text");
+        body.add("dltTemplateId", "1007694322530113221");
+        body.add("output", "json");
+        body.add("duplicatecheck", "true");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
+        System.out.println("Response is "+ response.getBody());
+
+
+        return "";
+    }
     @Override
     public Boolean validateOtp(VerifyOtpRequest otpValidateRequestTo) {
         String transactionId = otpValidateRequestTo.getTransactionId();

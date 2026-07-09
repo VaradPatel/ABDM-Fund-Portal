@@ -35,15 +35,13 @@ public class Signup {
     @NotNull(message = "Roles are mandatory") // ✅ Use @NotNull for objects
     private Roles roles;
 
-    @NotBlank(message = "Designation is mandatory")
-    @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Name must contain only letters and spaces")
     private String designation;
 
-    @NotBlank(message="gender is compulsory")
+
 
     private String gender;
 
-    @NotNull(message = "dob is mandatory")
+
     private LocalDate dob;
 
     @NotBlank(message = "transaction Id cannot be null")

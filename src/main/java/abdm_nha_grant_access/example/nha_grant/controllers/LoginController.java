@@ -2,6 +2,7 @@ package abdm_nha_grant_access.example.nha_grant.controllers;
 
 import abdm_nha_grant_access.example.nha_grant.dto.*;
 import abdm_nha_grant_access.example.nha_grant.dto.Error;
+import abdm_nha_grant_access.example.nha_grant.service.OtpService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import abdm_nha_grant_access.example.nha_grant.Exception.GrantUserAlreadyExistsException;
@@ -65,6 +66,8 @@ public class LoginController {
     IRolesRepository iRolesRepository;
     @Autowired
     IOtpRepository iOtpRepository;
+    @Autowired
+    OtpService otpService;
 
 
 
@@ -229,7 +232,7 @@ public class LoginController {
 
     }
     @PostMapping("/user-activate/{userId}/{status}")
-    @PreAuthorize("hasAuthority('NHA Admin')")
+
 
     public ResponseEntity<?> UserActivation(@PathVariable("userId") Integer userId , @PathVariable("status") Integer status)
     {
@@ -283,8 +286,34 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid token");
 
     }
+
+
+    @PostMapping("/user-approval")
+
+
+    public ResponseEntity<?> approveUser(@Valid @RequestBody UserApprovalRequest request) {
+        try {
+
+            if (iUserService.approveUser(request) > 0) {
+                //sent sms ;
+
+                if(request.getIsApproved()) {
+                    Optional<User> user=userRepo.findById(request.getUserId());
+                    otpService.LoginCredentials(user.get().getEmail(), "Nha@123", user.get().getMobileNumber());
+                }
+                return ResponseEntity.ok().body(new SuccessResponse("User Approval Updated Succesully"));
+            } else {
+                return ResponseEntity.badRequest().body("user not found");
+            }
+
+        } catch (Exception e) {
+            log.error(" error while updating user approval requests " + e.toString());
+            return ResponseEntity.internalServerError().body(new Error("error while updating user approval ", e.toString()));
+        }
+
+    }
     @GetMapping("/adm-user-management/{status}")
-    @PreAuthorize("hasAuthority('NHA Admin') ")
+
     public ResponseEntity<?> getUserApprovalByAdmin(@PathVariable("status") Integer status) throws AccessDeniedException {
         try {
             List<Object[]> user = null;
