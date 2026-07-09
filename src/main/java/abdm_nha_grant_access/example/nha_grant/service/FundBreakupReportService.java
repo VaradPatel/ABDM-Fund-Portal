@@ -125,6 +125,11 @@ public class FundBreakupReportService {
         return new UploadResult(saved, fuzzyMatchNotes);
     }
 
+    public FundBreakupReportFile getLatestFile() {
+        return fundBreakupReportFileRepo.findTopByOrderByReportDateDescUpdatedAtDesc()
+                .orElseThrow(() -> new GrantException("No fund breakup report file has been uploaded yet"));
+    }
+
     public List<StateFundBreakupSummary> getSummary(List<Integer> stateIds, LocalDate startDate, LocalDate endDate,
                                                       String financialYear, String quarter) {
         if (stateIds == null || stateIds.isEmpty()) {

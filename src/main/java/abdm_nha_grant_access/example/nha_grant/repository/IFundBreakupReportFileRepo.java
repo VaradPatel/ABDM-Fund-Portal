@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface IFundBreakupReportFileRepo extends JpaRepository<FundBreakupReportFile, Integer> {
     Optional<FundBreakupReportFile> findByReportDateAndFinancialYearAndQuarter(
             LocalDate reportDate, String financialYear, String quarter);
+
+    Optional<FundBreakupReportFile> findTopByOrderByReportDateDescUpdatedAtDesc();
 }

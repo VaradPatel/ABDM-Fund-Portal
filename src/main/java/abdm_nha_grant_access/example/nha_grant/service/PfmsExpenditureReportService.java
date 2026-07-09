@@ -128,6 +128,11 @@ public class PfmsExpenditureReportService {
         return new UploadResult(saved, fuzzyMatchNotes);
     }
 
+    public PfmsExpenditureReportFile getLatestFile() {
+        return pfmsExpenditureReportFileRepo.findTopByOrderByReportDateDescUpdatedAtDesc()
+                .orElseThrow(() -> new GrantException("No PFMS expenditure report file has been uploaded yet"));
+    }
+
     public List<StateExpenditureSummary> getSummary(List<Integer> stateIds, LocalDate startDate, LocalDate endDate,
                                                       String financialYear, String quarter) {
         if (stateIds == null || stateIds.isEmpty()) {

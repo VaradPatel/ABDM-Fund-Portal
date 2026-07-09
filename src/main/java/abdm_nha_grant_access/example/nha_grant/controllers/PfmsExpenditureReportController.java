@@ -4,10 +4,14 @@ import abdm_nha_grant_access.example.nha_grant.Exception.GrantException;
 import abdm_nha_grant_access.example.nha_grant.dto.Error;
 import abdm_nha_grant_access.example.nha_grant.dto.StateExpenditureSummary;
 import abdm_nha_grant_access.example.nha_grant.dto.SuccessResponse;
+import abdm_nha_grant_access.example.nha_grant.entity.PfmsExpenditureReportFile;
 import abdm_nha_grant_access.example.nha_grant.service.PfmsExpenditureReportService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +46,27 @@ public class PfmsExpenditureReportController {
         } catch (Exception e) {
             log.error(e.toString());
             return ResponseEntity.internalServerError().body(new Error("Upload failed", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/download-latest")
+    public ResponseEntity<?> downloadLatest() {
+        try {
+            PfmsExpenditureReportFile file = pfmsExpenditureReportService.getLatestFile();
+            MediaType mediaType = file.getContentType() != null
+                    ? MediaType.parseMediaType(file.getContentType())
+                    : MediaType.APPLICATION_OCTET_STREAM;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDisposition(ContentDisposition.attachment().filename(file.getFileName()).build());
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(mediaType)
+                    .body(file.getFileData());
+        } catch (GrantException e) {
+            return ResponseEntity.badRequest().body(new Error("Validation failed", e.getMessage()));
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Download failed", e.getMessage()));
         }
     }
 

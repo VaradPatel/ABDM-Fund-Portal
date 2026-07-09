@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface IPfmsExpenditureReportFileRepo extends JpaRepository<PfmsExpenditureReportFile, Integer> {
     Optional<PfmsExpenditureReportFile> findByReportDateAndFinancialYearAndQuarter(
             LocalDate reportDate, String financialYear, String quarter);
+
+    Optional<PfmsExpenditureReportFile> findTopByOrderByReportDateDescUpdatedAtDesc();
 }
