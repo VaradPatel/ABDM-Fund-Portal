@@ -16,6 +16,7 @@ import abdm_nha_grant_access.example.nha_grant.repository.UserRepo;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -112,7 +113,15 @@ public class ProposalService {
                 .userId(user.getId())
                 .status(ProposalStatus.PENDING_AT_NHA_STATE_COORD.getId())
                 .build();
-        proposal = proposalRepo.save(proposal);
+        try {
+            proposal = proposalRepo.save(proposal);
+        } catch (DataIntegrityViolationException e) {
+            // The findByRequestId check in generateRequestId() and this insert are not
+            // atomic, so two concurrent submissions can rarely pick the same request_id;
+            // the DB UNIQUE constraint is the real backstop - translate its violation into
+            // a clean, retryable error instead of a raw 500.
+            throw new GrantException("Could not generate a unique request_id - please retry the submission");
+        }
 
         try {
             List<ProposalFile> proposalFiles = new ArrayList<>();

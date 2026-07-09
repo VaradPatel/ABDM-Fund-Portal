@@ -81,8 +81,11 @@ public class FileStorageService {
         if (originalFilename == null || originalFilename.isBlank()) {
             throw new GrantException("Uploaded file must have a file name");
         }
+        // getFileName() already stripped any directory components, so the traversal
+        // segments themselves ("..", ".") are the only unsafe values left to reject -
+        // a flat filename that merely contains ".." (e.g. "FY24-25..Q1.pdf") is safe.
         String cleaned = Paths.get(originalFilename).getFileName().toString();
-        if (cleaned.equals("..") || cleaned.equals(".") || cleaned.contains("..") || cleaned.isBlank()) {
+        if (cleaned.equals("..") || cleaned.equals(".") || cleaned.isBlank()) {
             throw new GrantException("Invalid file name: " + originalFilename);
         }
         return cleaned;
