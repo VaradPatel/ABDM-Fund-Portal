@@ -4,9 +4,14 @@ import abdm_nha_grant_access.example.nha_grant.Exception.GrantException;
 import abdm_nha_grant_access.example.nha_grant.dto.Error;
 import abdm_nha_grant_access.example.nha_grant.dto.ProposalResponse;
 import abdm_nha_grant_access.example.nha_grant.dto.ProposalUploadResponse;
+import abdm_nha_grant_access.example.nha_grant.entity.ProposalFile;
+import abdm_nha_grant_access.example.nha_grant.service.FileStorageService;
 import abdm_nha_grant_access.example.nha_grant.service.ProposalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +27,9 @@ public class ProposalController {
 
     @Autowired
     private ProposalService proposalService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProposal(
@@ -64,6 +72,29 @@ public class ProposalController {
         } catch (Exception e) {
             log.error(e.toString());
             return ResponseEntity.internalServerError().body(new Error("Failed to fetch proposals", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/download/{fileId}")
+    public ResponseEntity<?> downloadFile(@PathVariable Integer fileId) {
+        try {
+            ProposalFile proposalFile = proposalService.getProposalFile(fileId);
+            Resource resource = fileStorageService.loadAsResource(proposalFile.getFilePath());
+            MediaType mediaType = proposalFile.getContentType() != null
+                    ? MediaType.parseMediaType(proposalFile.getContentType())
+                    : MediaType.APPLICATION_OCTET_STREAM;
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            ContentDisposition.attachment()
+                                    .filename(proposalFile.getOriginalFileName())
+                                    .build().toString())
+                    .body(resource);
+        } catch (GrantException e) {
+            return ResponseEntity.badRequest().body(new Error("Download failed", e.getMessage()));
+        } catch (Exception e) {
+            log.error(e.toString());
+            return ResponseEntity.internalServerError().body(new Error("Download failed", e.getMessage()));
         }
     }
 }

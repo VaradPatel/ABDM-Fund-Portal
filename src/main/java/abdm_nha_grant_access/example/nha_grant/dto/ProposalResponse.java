@@ -20,5 +20,5 @@ public class ProposalResponse {
     private Integer categoryId;
     private Integer statusId;
     private String statusLabel;
-    private Map<String, List<String>> files;
+    private Map<String, List<ProposalFileInfo>> files;
 }

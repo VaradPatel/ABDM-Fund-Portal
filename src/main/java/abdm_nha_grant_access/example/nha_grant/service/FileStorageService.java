@@ -4,6 +4,8 @@ import abdm_nha_grant_access.example.nha_grant.Exception.GrantException;
 import abdm_nha_grant_access.example.nha_grant.enums.UploadHeading;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,6 +52,21 @@ public class FileStorageService {
 
         String relativePath = Paths.get(requestId, heading.getFolderName(), finalName).toString();
         return new StoredFile(sanitizedName, finalName, relativePath, file.getSize());
+    }
+
+    // relativePath comes from a ProposalFile row we wrote ourselves during store(), but
+    // re-derive and re-check it against uploadDir here anyway rather than trusting the
+    // DB value blindly - defense in depth against a path ever getting corrupted upstream.
+    public Resource loadAsResource(String relativePath) {
+        Path base = Paths.get(uploadDir).normalize();
+        Path file = base.resolve(relativePath).normalize();
+        if (!file.startsWith(base)) {
+            throw new GrantException("Invalid file path: " + relativePath);
+        }
+        if (!Files.exists(file) || !Files.isReadable(file)) {
+            throw new GrantException("File not found: " + relativePath);
+        }
+        return new FileSystemResource(file);
     }
 
     // Best-effort cleanup used when a proposal submission fails partway through

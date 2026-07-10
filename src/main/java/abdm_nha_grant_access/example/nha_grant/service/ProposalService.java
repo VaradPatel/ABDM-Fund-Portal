@@ -1,6 +1,7 @@
 package abdm_nha_grant_access.example.nha_grant.service;
 
 import abdm_nha_grant_access.example.nha_grant.Exception.GrantException;
+import abdm_nha_grant_access.example.nha_grant.dto.ProposalFileInfo;
 import abdm_nha_grant_access.example.nha_grant.dto.ProposalResponse;
 import abdm_nha_grant_access.example.nha_grant.dto.ProposalUploadResponse;
 import abdm_nha_grant_access.example.nha_grant.entity.Proposal;
@@ -16,6 +17,7 @@ import abdm_nha_grant_access.example.nha_grant.repository.UserRepo;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,6 +53,9 @@ public class ProposalService {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
 
     @Transactional
     public ProposalUploadResponse submitProposal(Integer stateId, String financialYear, String quarter,
@@ -181,13 +186,17 @@ public class ProposalService {
                 .collect(Collectors.groupingBy(ProposalFile::getProposalId));
 
         return proposals.stream().map(p -> {
-            Map<String, List<String>> files = new LinkedHashMap<>();
+            Map<String, List<ProposalFileInfo>> files = new LinkedHashMap<>();
             for (UploadHeading heading : UploadHeading.values()) {
                 files.put(heading.getJsonKey(), new ArrayList<>());
             }
             for (ProposalFile pf : filesByProposal.getOrDefault(p.getId(), List.of())) {
                 UploadHeading heading = UploadHeading.valueOf(pf.getHeading());
-                files.get(heading.getJsonKey()).add(pf.getOriginalFileName());
+                files.get(heading.getJsonKey()).add(ProposalFileInfo.builder()
+                        .id(pf.getId())
+                        .fileName(pf.getOriginalFileName())
+                        .downloadUrl(contextPath + "/proposal/download/" + pf.getId())
+                        .build());
             }
             ProposalStatus status = ProposalStatus.fromId(p.getStatus());
             return ProposalResponse.builder()
@@ -201,6 +210,11 @@ public class ProposalService {
                     .files(files)
                     .build();
         }).toList();
+    }
+
+    public ProposalFile getProposalFile(Integer fileId) {
+        return proposalFileRepo.findById(fileId)
+                .orElseThrow(() -> new GrantException("File not found: " + fileId));
     }
 
     private void validateFileNameAndExtension(MultipartFile file) {
