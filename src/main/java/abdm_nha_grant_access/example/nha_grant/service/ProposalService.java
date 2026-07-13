@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -67,12 +68,13 @@ public class ProposalService {
 
     @Transactional
     public ProposalUploadResponse submitProposal(Integer stateId, String financialYear, String quarter,
-                                                  Integer categoryId,
+                                                  Integer categoryId, BigDecimal amountRequested,
                                                   List<MultipartFile> ucFiles,
                                                   List<MultipartFile> reconcileFiles,
                                                   List<MultipartFile> fundAllocationFiles,
                                                   List<MultipartFile> unspendBalanceFiles,
                                                   List<MultipartFile> othersFiles,
+                                                  String remarks,
                                                   String requesterEmail) throws IOException {
 
         if (stateId == null) {
@@ -89,6 +91,13 @@ public class ProposalService {
             throw new GrantException("quarter is required and must be one of Q1, Q2, Q3, Q4");
         }
         ProposalCategory category = ProposalCategory.fromId(categoryId);
+
+        if (amountRequested == null) {
+            throw new GrantException("amount_requested is required");
+        }
+        if (amountRequested.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new GrantException("amount_requested must be greater than 0");
+        }
 
         User user = userRepo.findByEmail(requesterEmail)
                 .orElseThrow(() -> new GrantException("Authenticated user not found for email " + requesterEmail));
@@ -115,6 +124,8 @@ public class ProposalService {
 
         String requestId = generateRequestId();
 
+        String normalizedRemarks = (remarks == null || remarks.isBlank()) ? null : remarks.trim();
+
         // A freshly submitted proposal starts out awaiting the NHA state coordinator's
         // review; PENDING_AT_STATE only applies later, once a query is raised back to the state.
         Proposal proposal = Proposal.builder()
@@ -123,8 +134,10 @@ public class ProposalService {
                 .financialYear(financialYear.trim())
                 .quarter(normalizedQuarter)
                 .categoryId(category.getId())
+                .amountRequested(amountRequested)
                 .userId(user.getId())
                 .status(ProposalStatus.PENDING_AT_NHA_STATE_COORD.getId())
+                .remarks(normalizedRemarks)
                 .build();
         try {
             proposal = proposalRepo.save(proposal);
@@ -135,7 +148,7 @@ public class ProposalService {
             // a clean, retryable error instead of a raw 500.
             throw new GrantException("Could not generate a unique request_id - please retry the submission");
         }
-        logHistory(proposal.getId(), user.getId(), WorkflowAction.SUBMITTED, null, proposal.getStatus());
+        logHistory(proposal.getId(), user.getId(), WorkflowAction.SUBMITTED, normalizedRemarks, proposal.getStatus());
 
         try {
             List<ProposalFile> proposalFiles = new ArrayList<>();
@@ -245,11 +258,13 @@ public class ProposalService {
     // PENDING_AT_NHA_STATE_COORD, where the coord can accept it or raise another query.
     @Transactional
     public ProposalResponse editProposal(String requestId, String quarter, Integer categoryId,
+                                          BigDecimal amountRequested,
                                           List<MultipartFile> ucFiles,
                                           List<MultipartFile> reconcileFiles,
                                           List<MultipartFile> fundAllocationFiles,
                                           List<MultipartFile> unspendBalanceFiles,
                                           List<MultipartFile> othersFiles,
+                                          String remarks,
                                           String actingUserEmail) throws IOException {
         if (requestId == null || requestId.isBlank()) {
             throw new GrantException("requestId is required");
@@ -274,6 +289,17 @@ public class ProposalService {
         if (categoryId != null) {
             proposal.setCategoryId(ProposalCategory.fromId(categoryId).getId());
         }
+        if (amountRequested != null) {
+            if (amountRequested.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new GrantException("amount_requested must be greater than 0");
+            }
+            proposal.setAmountRequested(amountRequested);
+        }
+
+        // The state's reply to the coord's query, if they choose to leave one; replaces the
+        // coord's query text since that query is now being addressed by this resubmission.
+        String normalizedRemarks = (remarks == null || remarks.isBlank()) ? null : remarks.trim();
+        proposal.setRemarks(normalizedRemarks);
 
         Map<UploadHeading, List<MultipartFile>> filesByHeading = new LinkedHashMap<>();
         filesByHeading.put(UploadHeading.UC, ucFiles);
@@ -327,7 +353,8 @@ public class ProposalService {
         }
         proposalFileRepo.saveAll(newFiles);
 
-        logHistory(proposal.getId(), actingUser.getId(), WorkflowAction.EDITED_RESUBMITTED, null, proposal.getStatus());
+        logHistory(proposal.getId(), actingUser.getId(), WorkflowAction.EDITED_RESUBMITTED, normalizedRemarks,
+                proposal.getStatus());
 
         return toProposalResponse(proposal, proposalFileRepo.findByProposalId(proposal.getId()));
     }
@@ -401,6 +428,7 @@ public class ProposalService {
                 .financialYear(p.getFinancialYear())
                 .quarter(p.getQuarter())
                 .categoryId(p.getCategoryId())
+                .amountRequested(p.getAmountRequested())
                 .statusId(status.getId())
                 .statusLabel(status.getLabel())
                 .remarks(p.getRemarks())

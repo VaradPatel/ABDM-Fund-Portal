@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class ProposalResponse {
     private String financialYear;
     private String quarter;
     private Integer categoryId;
+    private BigDecimal amountRequested;
     private Integer statusId;
     private String statusLabel;
     private String remarks;

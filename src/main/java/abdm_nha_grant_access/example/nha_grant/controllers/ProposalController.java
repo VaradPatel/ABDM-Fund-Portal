@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -40,17 +41,19 @@ public class ProposalController {
             @RequestParam("financial_year") String financialYear,
             @RequestParam("quarter") String quarter,
             @RequestParam("category_id") Integer categoryId,
+            @RequestParam("amount_requested") BigDecimal amountRequested,
             @RequestParam(value = "ucFiles", required = false) List<MultipartFile> ucFiles,
             @RequestParam(value = "reconcileFiles", required = false) List<MultipartFile> reconcileFiles,
             @RequestParam(value = "fundAllocationFiles", required = false) List<MultipartFile> fundAllocationFiles,
             @RequestParam(value = "unspendBalanceFiles", required = false) List<MultipartFile> unspendBalanceFiles,
-            @RequestParam(value = "othersFiles", required = false) List<MultipartFile> othersFiles) {
+            @RequestParam(value = "othersFiles", required = false) List<MultipartFile> othersFiles,
+            @RequestParam(value = "remarks", required = false) String remarks) {
         try {
             String requesterEmail = SecurityContextHolder.getContext().getAuthentication().getName();
             ProposalUploadResponse result = proposalService.submitProposal(
-                    stateId, financialYear, quarter, categoryId,
+                    stateId, financialYear, quarter, categoryId, amountRequested,
                     ucFiles, reconcileFiles, fundAllocationFiles, unspendBalanceFiles, othersFiles,
-                    requesterEmail);
+                    remarks, requesterEmail);
             return ResponseEntity.ok(result);
         } catch (GrantException e) {
             return ResponseEntity.badRequest().body(new Error("Validation failed", e.getMessage()));
@@ -105,16 +108,18 @@ public class ProposalController {
             @RequestParam("request_id") String requestId,
             @RequestParam(value = "quarter", required = false) String quarter,
             @RequestParam(value = "category_id", required = false) Integer categoryId,
+            @RequestParam(value = "amount_requested", required = false) BigDecimal amountRequested,
             @RequestParam(value = "ucFiles", required = false) List<MultipartFile> ucFiles,
             @RequestParam(value = "reconcileFiles", required = false) List<MultipartFile> reconcileFiles,
             @RequestParam(value = "fundAllocationFiles", required = false) List<MultipartFile> fundAllocationFiles,
             @RequestParam(value = "unspendBalanceFiles", required = false) List<MultipartFile> unspendBalanceFiles,
-            @RequestParam(value = "othersFiles", required = false) List<MultipartFile> othersFiles) {
+            @RequestParam(value = "othersFiles", required = false) List<MultipartFile> othersFiles,
+            @RequestParam(value = "remarks", required = false) String remarks) {
         try {
             String actingUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-            ProposalResponse result = proposalService.editProposal(requestId, quarter, categoryId,
+            ProposalResponse result = proposalService.editProposal(requestId, quarter, categoryId, amountRequested,
                     ucFiles, reconcileFiles, fundAllocationFiles, unspendBalanceFiles, othersFiles,
-                    actingUserEmail);
+                    remarks, actingUserEmail);
             return ResponseEntity.ok(result);
         } catch (GrantException e) {
             return ResponseEntity.badRequest().body(new Error("Edit failed", e.getMessage()));

@@ -30,6 +30,11 @@ CREATE INDEX IF NOT EXISTS idx_proposals_status
 -- once the coord accepts the resubmission. Added for the accept/raise-query/edit workflow.
 ALTER TABLE proposals ADD COLUMN IF NOT EXISTS remarks TEXT;
 
+-- Mandatory as of the app layer (validated in ProposalService.submitProposal); DEFAULT 0 here
+-- only so this ALTER doesn't fail against a table that already has rows from before this field
+-- existed - new submissions always go through the application's mandatory-field validation.
+ALTER TABLE proposals ADD COLUMN IF NOT EXISTS amount_requested NUMERIC(15,2) NOT NULL DEFAULT 0;
+
 -- Append-only audit trail: one row per action taken on a proposal (submit, accept,
 -- raise query, edit+resubmit), so the full timeline can be reconstructed per request_id.
 CREATE TABLE IF NOT EXISTS proposal_workflow_history (

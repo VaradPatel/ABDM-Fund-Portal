@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +35,9 @@ public class Proposal {
 
     @Column(name = "category_id", nullable = false)
     private Integer categoryId;
+
+    @Column(name = "amount_requested", nullable = false)
+    private BigDecimal amountRequested;
 
     @Column(name = "user_id", nullable = false)
     private Integer userId;
