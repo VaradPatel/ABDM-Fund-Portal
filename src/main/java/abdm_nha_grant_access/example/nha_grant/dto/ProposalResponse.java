@@ -20,5 +20,6 @@ public class ProposalResponse {
     private Integer categoryId;
     private Integer statusId;
     private String statusLabel;
+    private String remarks;
     private Map<String, List<ProposalFileInfo>> files;
 }

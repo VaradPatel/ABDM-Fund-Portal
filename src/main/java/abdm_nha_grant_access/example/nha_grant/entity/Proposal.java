@@ -42,6 +42,10 @@ public class Proposal {
     @Column(name = "status", nullable = false)
     private Integer status;
 
+    // Set when the NHA State Coord raises a query (status=PENDING_AT_STATE); cleared on accept.
+    @Column(name = "remarks")
+    private String remarks;
+
     @Column(name = "created_at", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 

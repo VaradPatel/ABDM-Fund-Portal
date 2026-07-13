@@ -16,10 +16,12 @@ public interface IProposalRepo extends JpaRepository<Proposal, Integer> {
             "(:stateId IS NULL OR p.stateId = :stateId) AND " +
             "(:financialYear IS NULL OR p.financialYear = :financialYear) AND " +
             "(:quarter IS NULL OR p.quarter = :quarter) AND " +
-            "(:categoryId IS NULL OR p.categoryId = :categoryId) " +
+            "(:categoryId IS NULL OR p.categoryId = :categoryId) AND " +
+            "(:status IS NULL OR p.status = :status) " +
             "ORDER BY p.createdAt DESC")
     List<Proposal> search(@Param("stateId") Integer stateId,
                            @Param("financialYear") String financialYear,
                            @Param("quarter") String quarter,
-                           @Param("categoryId") Integer categoryId);
+                           @Param("categoryId") Integer categoryId,
+                           @Param("status") Integer status);
 }

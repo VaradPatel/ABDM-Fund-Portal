@@ -10,4 +10,6 @@ public interface IProposalFileRepo extends JpaRepository<ProposalFile, Integer> 
     List<ProposalFile> findByProposalId(Integer proposalId);
 
     List<ProposalFile> findByProposalIdIn(List<Integer> proposalIds);
+
+    void deleteByProposalId(Integer proposalId);
 }
