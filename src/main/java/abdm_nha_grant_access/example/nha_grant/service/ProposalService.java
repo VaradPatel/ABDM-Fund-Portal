@@ -199,9 +199,11 @@ public class ProposalService {
         if (status != null) {
             ProposalStatus.fromId(status);
         }
+        // state_id=0 is the "all states" sentinel - treat it the same as omitting the filter.
+        Integer normalizedStateId = (stateId != null && stateId == 0) ? null : stateId;
 
         List<Proposal> proposals =
-                proposalRepo.search(stateId, normalizedFinancialYear, normalizedQuarter, categoryId, status);
+                proposalRepo.search(normalizedStateId, normalizedFinancialYear, normalizedQuarter, categoryId, status);
         if (proposals.isEmpty()) {
             return List.of();
         }

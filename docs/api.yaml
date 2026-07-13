@@ -13,11 +13,13 @@ servers:
 
 tags:
   - name: Auth
+  - name: User Approval
   - name: OTP
   - name: States & Roles
   - name: Downloads
   - name: PFMS Expenditure Report
   - name: Fund Breakup Report
+  - name: Proposal
 
 security:
   - bearerAuth: []
@@ -273,6 +275,67 @@ paths:
         "401":
           description: Missing or invalid token
 
+  /user-approval:
+    post:
+      tags: [User Approval]
+      summary: Approve or reject a pending user's registration
+      description: >
+        On approval (`isApproved: true`), generates a login SMS with a
+        default password (`Nha@123`) sent to the user's mobile number.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserApprovalRequest"
+      responses:
+        "200":
+          description: User approval status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "user not found"
+        "500":
+          description: Unexpected error while updating user approval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /adm-user-management/{status}:
+    get:
+      tags: [User Approval]
+      summary: List users pending or already processed by an NHA admin
+      description: >
+        `status = 0` returns users still awaiting admin action; any non-zero
+        value returns users already processed by an admin.
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: >
+            List of users. Note: on an internal error, this endpoint still
+            returns HTTP 200 with an `Error` body instead of a 4xx/5xx status.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/UserRequest"
+                  - $ref: "#/components/schemas/Error"
+
   # ---------------------------------------------------------------------
   # OTP (OtpController)
   # ---------------------------------------------------------------------
@@ -496,6 +559,31 @@ paths:
                 $ref: "#/components/schemas/SuccessResponse"
         "400":
           description: Validation failed (missing fields, missing/unmatched columns, unmatched state names, missing tracked states)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /pfms-expenditure/download-latest:
+    get:
+      tags: [PFMS Expenditure Report]
+      summary: Download the most recently uploaded PFMS expenditure excel file
+      responses:
+        "200":
+          description: The latest uploaded report file, as originally uploaded
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Validation failed (e.g. no report has been uploaded yet)
           content:
             application/json:
               schema:
@@ -756,6 +844,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /fund-breakup/download-latest:
+    get:
+      tags: [Fund Breakup Report]
+      summary: Download the most recently uploaded Fund Breakup excel file
+      responses:
+        "200":
+          description: The latest uploaded report file, as originally uploaded
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Validation failed (e.g. no report has been uploaded yet)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /fund-breakup/summary:
     get:
       tags: [Fund Breakup Report]
@@ -985,6 +1098,345 @@ paths:
                           adminBalance: 19000000
         "400":
           description: Validation failed (e.g. missing states)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------------------------------------------------------------------
+  # Proposal (ProposalController) — local-disk document submission
+  # ---------------------------------------------------------------------
+  /proposal/upload:
+    post:
+      tags: [Proposal]
+      summary: Submit a state's proposal documents for a financial year/quarter/category
+      description: >
+        Requires a Bearer token — the submitting user's email is taken from
+        the token, not from the request body. Each file field accepts
+        multiple files and is optional, but at least one file across all
+        fields should be attached. Allowed file extensions: pdf, xls, xlsx,
+        doc, docx. Files are stored on local disk under
+        `{proposal.upload-dir}/{requestId}/{heading}/`; if any file fails to
+        store, already-written files for the request are cleaned up.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [state_id, financial_year, quarter, category_id, amount_requested]
+              properties:
+                state_id:
+                  type: integer
+                financial_year:
+                  type: string
+                  description: e.g. "2026-27"
+                quarter:
+                  type: string
+                  enum: [Q1, Q2, Q3, Q4]
+                category_id:
+                  type: integer
+                amount_requested:
+                  type: number
+                  format: decimal
+                  description: Mandatory. Must be greater than 0.
+                remarks:
+                  type: string
+                  description: Optional note from the state at submission time.
+                ucFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Utilization Certificate files.
+                reconcileFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Reconciliation files.
+                fundAllocationFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Fund Allocation files.
+                unspendBalanceFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Unspent Balance files.
+                othersFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Any other supporting files.
+      responses:
+        "200":
+          description: Proposal submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalUploadResponse"
+        "400":
+          description: Validation failed (e.g. empty file, disallowed extension, invalid file name)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Upload failed (e.g. disk write error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /proposal/summary:
+    get:
+      tags: [Proposal]
+      summary: Search submitted proposals
+      description: >
+        All filters are optional; omitting all of them returns every proposal.
+        `state_id=0` is the "all states" sentinel - it behaves the same as
+        omitting state_id entirely, rather than filtering for a literal
+        state_id of 0.
+      parameters:
+        - name: state_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Pass 0 (or omit) to include all states.
+        - name: financial_year
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: quarter
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [Q1, Q2, Q3, Q4]
+        - name: category_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: integer
+            enum: [1, 2, 3, 4]
+          description: >
+            1=Pending at state due to query raised, 2=Pending at NHA State
+            Coord, 3=Accepted by NHA State Coord, 4=Rejected by NHA State
+            Coord.
+      responses:
+        "200":
+          description: Matching proposals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProposalResponse"
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /proposal/download/{fileId}:
+    get:
+      tags: [Proposal]
+      summary: Download a single proposal file
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: File contents, streamed with a Content-Disposition attachment header
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /proposal/action:
+    post:
+      tags: [Proposal]
+      summary: NHA State Coord accepts a proposal or raises a query
+      description: >
+        Only valid while the proposal's status is 2 (Pending at NHA State
+        Coord). ACCEPT moves it to status 3 and clears remarks. RAISE_QUERY
+        requires remarks and moves it to status 1 (Pending at state), where
+        the state can then call /proposal/edit to address it and resubmit.
+        The acting user's identity is taken from the Bearer token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProposalActionRequest"
+      responses:
+        "200":
+          description: Updated proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalResponse"
+        "400":
+          description: >
+            Validation failed (e.g. proposal not found, wrong status for this
+            action, missing remarks for RAISE_QUERY)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /proposal/edit:
+    post:
+      tags: [Proposal]
+      summary: State edits and resubmits a proposal a query was raised against
+      description: >
+        Only valid while the proposal's status is 1 (Pending at state due to
+        query raised). quarter, category_id, amount_requested and remarks are
+        all optional and only touch what's provided. This is a full file
+        replace, not an append: every previously uploaded file for the
+        proposal is deleted (disk + DB) and only the files attached to this
+        call are kept. On success the proposal moves back to status 2
+        (Pending at NHA State Coord). The acting user's identity is taken
+        from the Bearer token.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [request_id]
+              properties:
+                request_id:
+                  type: string
+                quarter:
+                  type: string
+                  enum: [Q1, Q2, Q3, Q4]
+                category_id:
+                  type: integer
+                amount_requested:
+                  type: number
+                  format: decimal
+                  description: Optional. If provided, must be greater than 0.
+                remarks:
+                  type: string
+                  description: Optional reply to the coord's query.
+                ucFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                reconcileFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                fundAllocationFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                unspendBalanceFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                othersFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: Updated proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProposalResponse"
+        "400":
+          description: Validation failed (e.g. proposal not found, wrong status, bad file)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /proposal/{requestId}/timeline:
+    get:
+      tags: [Proposal]
+      summary: Full action timeline for a proposal
+      description: >
+        Ordered oldest-first. One entry per action ever taken on the
+        proposal (SUBMITTED, ACCEPTED, QUERY_RAISED, EDITED_RESUBMITTED),
+        each with who did it and when.
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ordered list of workflow history entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkflowHistoryEntry"
+        "400":
+          description: Proposal not found
           content:
             application/json:
               schema:
@@ -1245,3 +1697,130 @@ components:
           type: string
         error:
           type: string
+
+    UserApprovalRequest:
+      type: object
+      required: [userId]
+      properties:
+        userId:
+          type: integer
+        isApproved:
+          type: boolean
+        remarks:
+          type: string
+
+    UserRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        mobile:
+          type: string
+        designation:
+          type: string
+        stateName:
+          type: string
+        roleName:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isVerified:
+          type: boolean
+        isActivated:
+          type: boolean
+
+    ProposalUploadResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        message:
+          type: string
+
+    ProposalResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        stateId:
+          type: integer
+        financialYear:
+          type: string
+        quarter:
+          type: string
+        categoryId:
+          type: integer
+        amountRequested:
+          type: number
+          format: decimal
+        statusId:
+          type: integer
+        statusLabel:
+          type: string
+        remarks:
+          type: string
+          nullable: true
+          description: >
+            The latest note on the proposal - either the coord's query
+            (while status=1) or the state's reply. Null once accepted.
+        files:
+          type: object
+          description: >
+            Map of upload heading (UC, Reconcile, FundAllocation,
+            UnspendBalance, Others) to the list of files stored under that
+            heading.
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/ProposalFileInfo"
+
+    ProposalFileInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        fileName:
+          type: string
+        downloadUrl:
+          type: string
+
+    ProposalActionRequest:
+      type: object
+      required: [requestId, action]
+      properties:
+        requestId:
+          type: string
+        action:
+          type: string
+          enum: [ACCEPT, RAISE_QUERY]
+        remarks:
+          type: string
+          description: Required when action is RAISE_QUERY.
+
+    WorkflowHistoryEntry:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [SUBMITTED, ACCEPTED, QUERY_RAISED, EDITED_RESUBMITTED]
+        actionLabel:
+          type: string
+        userId:
+          type: integer
+        userName:
+          type: string
+        remarks:
+          type: string
+          nullable: true
+        statusAfter:
+          type: integer
+        statusAfterLabel:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
